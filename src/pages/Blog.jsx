@@ -46,7 +46,10 @@ export default function Blog() {
 
             return (
               <article key={p.id} className="news-card">
-                <div className="news-card__media">
+                <div
+  className="news-card__media"
+  style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined}
+>
                   {imageUrl ? (
                     <img className="news-card__img" src={imageUrl} alt={title} />
                   ) : (

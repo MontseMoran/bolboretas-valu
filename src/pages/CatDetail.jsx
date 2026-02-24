@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/catDetail.scss";
 import BackLink from "../components/backLink/BackLink";
+import SupportForm from "../components/SupportForm/SupportForm";
+import Modal from "../components/Modal/Modal";
 
 function getCatImageUrl(imagePath) {
   if (!imagePath) return "";
@@ -62,6 +64,7 @@ export default function CatDetail() {
   const { t, i18n } = useTranslation("common");
   const [cat, setCat] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAdoptOpen, setIsAdoptOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -113,16 +116,16 @@ export default function CatDetail() {
   const imgUrl = getCatImageUrl(cat.image_path);
   const isCat = i18n.language === "cat";
 
-const desc = (
-  isCat
-    ? (cat.description_cat || cat.description_es || "")
-    : (cat.description_es || cat.description_cat || "")
-).trim();
+  const desc = (
+    isCat
+      ? (cat.description_cat || cat.description_es || "")
+      : (cat.description_es || cat.description_cat || "")
+  ).trim();
 
   return (
     <main className="cat-detail">
       <div className="cat-detail__container">
-       <BackLink to="/adopcion" />
+        <BackLink to="/adopcion" />
 
         <section className="cat-detail__grid">
           <div className="cat-detail__media">
@@ -158,7 +161,29 @@ const desc = (
               <p className="cat-detail__desc cat-detail__desc--empty">
                 {t("description_empty")}
               </p>
+
             )}
+            <button
+              type="button"
+              className="cat-detail__cta"
+              onClick={() => setIsAdoptOpen(true)}
+            >
+              ¿Quieres adoptar a {cat.name}?
+            </button>
+
+            <Modal
+              isOpen={isAdoptOpen}
+              onClose={() => setIsAdoptOpen(false)}
+            >
+              <SupportForm
+                mode="adoption"
+                context={{
+                  catId: cat.id,
+                  catName: cat.name
+                }}
+                onSuccess={() => setIsAdoptOpen(false)}
+              />
+            </Modal>
           </div>
         </section>
       </div>

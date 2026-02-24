@@ -44,6 +44,7 @@
   "back_to_adoption": "Tornar a adopció",
   "not_found_title": "No trobat",
   "not_found_text": "Aquest gat no existeix o ja no està publicat.",
-   "age_years_months": "{{years}} {{yearLabel}} {{months}} {{monthLabel}}"
+   "age_years_months": "{{years}} {{yearLabel}} {{months}} {{monthLabel}}",
+   "urgent": "urgent"
   
 }

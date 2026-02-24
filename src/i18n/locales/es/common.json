@@ -44,5 +44,6 @@
   "back_to_adoption": "Volver a adopción",
   "not_found_title": "No encontrado",
   "not_found_text": "Este gato no existe o ya no está publicado.",
-   "age_years_months": "{{years}} {{yearLabel}} {{months}} {{monthLabel}}"
+   "age_years_months": "{{years}} {{yearLabel}} {{months}} {{monthLabel}}",
+   "urgent": "urgente"
 }

@@ -59,7 +59,14 @@ export default function News() {
               >
                 <div className="news-card__media">
                   {imageUrl ? (
-                    <img className="news-card__img" src={imageUrl} alt={title} />
+                    <>
+                      <div
+                        className="news-card__blurBg"
+                        style={{ backgroundImage: `url(${imageUrl})` }}
+                        aria-hidden="true"
+                      />
+                      <img className="news-card__img" src={imageUrl} alt={title} />
+                    </>
                   ) : (
                     <div className="news-card__imgPlaceholder" />
                   )}
