@@ -1,0 +1,49 @@
+{
+  "donate_title": "Dona y ayúdanos a continuar",
+  "donate_intro": "Tu apoyo es fundamental para seguir rescatando y cuidando gatos.",
+
+  "donate_teaming_title": "Únete a nuestro Teaming",
+  "donate_teaming_text": "Con solo 1€ al mes puedes ayudarnos de forma constante.",
+  "donate_teaming_cta": "Ir a Teaming",
+
+  "donate_shop_title": "Ayúdanos con alimentación",
+  "donate_shop_text": "Puedes colaborar comprando directamente productos que necesitamos.",
+  "donate_gos_i_gat_cta": "Gos i Gat Alimentació",
+  "donate_amazon_cta": "Amazon Lista de deseos",
+
+  "donate_bank_title": "Transferencia bancaria",
+  "donate_bank_iban_label": "IBAN",
+  "donate_bank_holder_label": "Titular",
+  "donate_bank_concept_label": "Concepto",
+  "donate_bank_note": "Indica en el concepto tu nombre y el motivo de la donación.",
+
+  "donate_member_title": "Hazte socio",
+  "donate_member_text": "Colabora de forma periódica y ayúdanos a tener estabilidad.",
+
+  "donate_sponsor_title": "Amadrina un gato",
+  "donate_sponsor_text": "Con tu aportación mensual ayudas directamente a un gato concreto.",
+
+  "donate_form_title": "Donación directa",
+  "donate_form_text": "Puedes hacer una aportación puntual a través del siguiente formulario.",
+
+  "volunteer_title": "Hazte voluntario",
+  "volunteer_intro": "Tu tiempo también salva vidas.",
+  "volunteer_how_title": "¿Cómo puedes ayudar?",
+  "volunteer_help_events": "Eventos solidarios",
+  "volunteer_help_transport": "Transporte de animales",
+  "volunteer_help_foster": "Casa de acogida",
+  "volunteer_help_diffusion": "Difusión en redes",
+  "volunteer_form_title": "Quiero ser voluntario",
+  "volunteer_form_text": "Déjanos tus datos y te contactaremos.",
+
+  "shop_title": "Compras solidarias",
+  "shop_intro": "Puedes ayudarnos comprando productos que necesitamos.",
+  "shop_amazon_title": "Amazon Lista de deseos",
+  "shop_amazon_text": "Compra directamente productos para nuestros gatos.",
+  "shop_amazon_cta": "Ver lista",
+  "shop_gos_title": "Gos i Gat Alimentació",
+  "shop_gos_text": "Compra alimentación y selecciona SOS Maullidos como destinatario.",
+  "shop_gos_cta": "Ir a tienda",
+  "shop_other_title": "Otras formas de colaborar",
+  "shop_other_text": "Síguenos y comparte nuestras publicaciones para ayudarnos a llegar más lejos."
+}

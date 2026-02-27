@@ -23,10 +23,14 @@ export default function SupportForm({ mode = "donation", context = null }) {
 
   const title = useMemo(() => {
     if (mode === "volunteer") return t("support_volunteer_title");
+    if (mode === "member") return t("support_member_title");
+    if (mode === "sponsor") return t("support_sponsor_title");
     if (mode === "cat")
       return t("support_cat_title", { name: context?.catName || "" });
     return t("support_donation_title");
   }, [mode, context, t]);
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +45,9 @@ export default function SupportForm({ mode = "donation", context = null }) {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
-        amount: mode === "donation" ? Number(amount || 0) : null,
+        amount: ["donation", "member", "sponsor"].includes(mode)
+          ? Number(amount || 0)
+          : null,
         message: message.trim(),
 
         cat_id: context?.catId || null,
@@ -110,7 +116,7 @@ export default function SupportForm({ mode = "donation", context = null }) {
           />
         </label>
 
-        {mode === "donation" && (
+        {["donation", "member", "sponsor"].includes(mode) && (
           <label className="support-form__field">
             <span>{t("support_amount")}</span>
             <input

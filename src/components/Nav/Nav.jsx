@@ -49,86 +49,86 @@ export default function Nav() {
               className="brand-logo"
             />
           </Link>
-<div className="nav-drawer">
-          <nav id="main-menu" className={`links ${open ? "open" : ""}`}>
-            <div className="links-inner">
-            <NavLink to="/" className={navClass} onClick={closeAll} end>
-              {t("home")}
-            </NavLink>
+          <div className="nav-drawer">
+            <nav id="main-menu" className={`links ${open ? "open" : ""}`}>
+              <div className="links-inner">
+                <NavLink to="/" className={navClass} onClick={closeAll} end>
+                  {t("home")}
+                </NavLink>
 
-            <NavLink to="/adopcion" className={navClass} onClick={closeAll}>
-              {t("adoption")}
-            </NavLink>
-
-            <NavLink
-              to="/blog"
-              className={navClass}
-              onClick={closeAll}
-            >
-              {t("blog")}
-            </NavLink>
-
-            <NavLink to="/noticias" className={navClass} onClick={closeAll}>
-              {t("news")}
-            </NavLink>
-
-            <NavLink
-              to="/quienes-somos"
-              className={navClass}
-              onClick={closeAll}
-            >
-              {t("about")}
-            </NavLink>
-
-            <NavLink to="/contacto" className={navClass} onClick={closeAll}>
-              {t("contact")}
-            </NavLink>
-
-            {/* COM AJUDAR (dropdown) */}
-            <div className="dropdown" ref={helpRef}>
-              <button
-                className="drop-btn nav-cta"
-                aria-haspopup="true"
-                aria-expanded={helpOpen}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setHelpOpen((v) => !v);
-                }}
-              >
-                {t("cta_how_help")} <span className="caret">▾</span>
-              </button>
-
-              <div className={`drop-panel ${helpOpen ? "open" : ""}`}>
-                <NavLink
-                  to="/ajuda#donar"
-                  className="drop-item"
-                  onClick={closeAll}
-                >
-                  {t("help_donate")}
+                <NavLink to="/adopcion" className={navClass} onClick={closeAll}>
+                  {t("adoption")}
                 </NavLink>
 
                 <NavLink
-                  to="/ajuda#comprar"
-                  className="drop-item"
+                  to="/blog"
+                  className={navClass}
                   onClick={closeAll}
                 >
-                  {t("help_shop")}
+                  {t("blog")}
+                </NavLink>
+
+                <NavLink to="/noticias" className={navClass} onClick={closeAll}>
+                  {t("news")}
                 </NavLink>
 
                 <NavLink
-                  to="/ajuda#voluntariat"
-                  className="drop-item"
+                  to="/quienes-somos"
+                  className={navClass}
                   onClick={closeAll}
                 >
-                  {t("help_volunteer")}
+                  {t("about")}
                 </NavLink>
+
+                <NavLink to="/contacto" className={navClass} onClick={closeAll}>
+                  {t("contact")}
+                </NavLink>
+
+                {/* COM AJUDAR (dropdown) */}
+                <div className="dropdown" ref={helpRef}>
+                  <button
+                    className="drop-btn nav-cta"
+                    aria-haspopup="true"
+                    aria-expanded={helpOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHelpOpen((v) => !v);
+                    }}
+                  >
+                    {t("cta_how_help")} <span className="caret">▾</span>
+                  </button>
+
+                  <div className={`drop-panel ${helpOpen ? "open" : ""}`}>
+                    <NavLink
+                      to="/donar"
+                      className="drop-item"
+                      onClick={closeAll}
+                    >
+                      {t("help_donate")}
+                    </NavLink>
+
+                    <NavLink
+                      to="/compras-solidarias"
+                      className="drop-item"
+                      onClick={closeAll}
+                    >
+                      {t("help_shop")}
+                    </NavLink>
+
+                    <NavLink
+                      to="/voluntariat"
+                      className="drop-item"
+                      onClick={closeAll}
+                    >
+                      {t("help_volunteer")}
+                    </NavLink>
+                  </div>
+                </div>
+
+
+
               </div>
-            </div>
-
-            
-
-            </div>
-          </nav>
+            </nav>
           </div>
         </div>
 

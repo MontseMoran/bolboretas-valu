@@ -4,7 +4,7 @@ import Nav from "./components/Nav/Nav";
 import Footer from "./components/Footer/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import PostDetail from "./pages/PostDetail";
-import Ajuda from "./pages/Ajuda";
+import Donate from "./pages/Donate";
 import Home from "./pages/Home";
 import Adoption from "./pages/Adoption";
 import Cases from "./pages/Cases";
@@ -19,7 +19,9 @@ import Cats from "./pages/admin/Cats";
 import Posts from "./pages/admin/Posts";
 import CatForm from "./pages/admin/CatForm";
 import PostForm from "./pages/admin/PostForm";
-import CatDetail from "./pages/CatDetail"
+import CatDetail from "./pages/CatDetail";
+import Volunteer  from "./pages/Volunteer";
+import Shop from "./pages/Shop";
 
 function SiteLayout() {
   return (
@@ -59,7 +61,9 @@ export default function App() {
         <Route path="/blog/:id" element={<PostDetail />} />
         <Route path="/quienes-somos" element={<About />} />
         <Route path="/contacto" element={<Contact />} />
-        <Route path="/ajuda" element={<Ajuda />} />
+       <Route path="/donar" element={<Donate/>}/>
+       <Route path="/voluntariat" element={<Volunteer />} />
+<Route path="/compras-solidarias" element={<Shop />} />
         <Route path="/adopcion/:id" element={<CatDetail />} />
         
       </Route>

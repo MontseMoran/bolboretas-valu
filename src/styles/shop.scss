@@ -1,0 +1,54 @@
+.shop {
+  padding: 40px 0 80px;
+}
+
+.shop__container {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.shop__header {
+  margin-bottom: 32px;
+}
+
+.shop__title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.shop__intro {
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.6;
+}
+
+.shop__block {
+  margin-bottom: 40px;
+  padding: 24px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.shop__blockTitle {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.shop__text {
+  margin-bottom: 16px;
+}
+
+.shop__pillLink {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #111;
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: 0.2s ease;
+}
+
+.shop__pillLink:hover {
+  opacity: 0.85;
+}

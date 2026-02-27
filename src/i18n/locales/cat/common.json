@@ -59,6 +59,10 @@
 
   "support_message_placeholder": "Explica’ns una mica sobre tu i per què vols adoptar aquest gat...",
   "adopt_cta_open": "Vols adoptar a {{name}}?",
-  "adopt_cta_close": "Tancar formulari"
+  "adopt_cta_close": "Tancar formulari",
+  
+  "support_member_title": "Fes-te soci de SOS Maullidos",
+  "support_sponsor_title": "Apadrina un gat"
+
   
 }

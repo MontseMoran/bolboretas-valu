@@ -59,5 +59,7 @@
 
   "support_message_placeholder": "Cuéntanos un poco sobre ti y por qué quieres adoptar a este gato...",
   "adopt_cta_open": "¿Quieres adoptar a {{name}}?",
-  "adopt_cta_close": "Cerrar formulario"
+  "adopt_cta_close": "Cerrar formulario",
+  "support_member_title": "Hazte socio de SOS Maullidos",
+  "support_sponsor_title": "Amadrina un gato"
 }

@@ -1,0 +1,49 @@
+{
+  "donate_title": "Dona i ajuda'ns a continuar",
+  "donate_intro": "El teu suport és essencial per seguir rescatant i cuidant gats.",
+
+  "donate_teaming_title": "Uneix-te al nostre Teaming",
+  "donate_teaming_text": "Amb només 1€ al mes pots ajudar-nos de manera constant.",
+  "donate_teaming_cta": "Anar a Teaming",
+
+  "donate_shop_title": "Ajuda'ns amb alimentació",
+  "donate_shop_text": "Pots col·laborar comprant directament els productes que necessitem.",
+  "donate_gos_i_gat_cta": "Gos i Gat Alimentació",
+  "donate_amazon_cta": "Amazon Llista de desitjos",
+
+  "donate_bank_title": "Transferència bancària",
+  "donate_bank_iban_label": "IBAN",
+  "donate_bank_holder_label": "Titular",
+  "donate_bank_concept_label": "Concepte",
+  "donate_bank_note": "Indica al concepte el teu nom i el motiu de la donació.",
+
+  "donate_member_title": "Fes-te soci",
+  "donate_member_text": "Col·labora de manera periòdica i ajuda'ns a tenir estabilitat.",
+
+  "donate_sponsor_title": "Apadrina un gat",
+  "donate_sponsor_text": "Amb la teva aportació mensual ajudes directament un gat concret.",
+
+  "donate_form_title": "Donació directa",
+  "donate_form_text": "Pots fer una aportació puntual mitjançant el següent formulari.",
+
+  "volunteer_title": "Fes-te voluntari",
+  "volunteer_intro": "El teu temps també salva vides.",
+  "volunteer_how_title": "Com pots ajudar?",
+  "volunteer_help_events": "Esdeveniments solidaris",
+  "volunteer_help_transport": "Transport d'animals",
+  "volunteer_help_foster": "Casa d'acollida",
+  "volunteer_help_diffusion": "Difusió a xarxes",
+  "volunteer_form_title": "Vull ser voluntari",
+  "volunteer_form_text": "Deixa'ns les teves dades i et contactarem.",
+
+  "shop_title": "Compres solidàries",
+  "shop_intro": "Pots ajudar-nos comprant productes que necessitem.",
+  "shop_amazon_title": "Amazon Llista de desitjos",
+  "shop_amazon_text": "Compra directament productes per als nostres gats.",
+  "shop_amazon_cta": "Veure llista",
+  "shop_gos_title": "Gos i Gat Alimentació",
+  "shop_gos_text": "Compra alimentació i selecciona SOS Maullidos com a destinatari.",
+  "shop_gos_cta": "Anar a botiga",
+  "shop_other_title": "Altres formes de col·laborar",
+  "shop_other_text": "Segueix-nos i comparteix les nostres publicacions per ajudar-nos a arribar més lluny."
+}

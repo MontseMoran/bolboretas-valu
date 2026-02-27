@@ -12,6 +12,8 @@ import esContact from "./locales/es/contact.json";
 import catContact from "./locales/cat/contact.json";
 import esAdmin from "./locales/es/admin.json";
 import catAdmin from "./locales/cat/admin.json";
+import esHelp from "./locales/es/help.json";
+import catHelp from "./locales/cat/help.json";
 
 i18n
   .use(LanguageDetector)
@@ -24,6 +26,7 @@ i18n
     about: esAbout,
     contact: esContact,
     admin: esAdmin,
+    help: esHelp
   },
   cat: {
     common: catCommon,
@@ -31,6 +34,7 @@ i18n
     about: catAbout,
     contact: catContact,
     admin: catAdmin,
+     help: catHelp
   },
   ca: {
     common: catCommon,
@@ -38,9 +42,10 @@ i18n
     about: catAbout,
     contact: catContact,
     admin: catAdmin,
+    help: catHelp
   },
 },
-ns: ["common", "home", "about", "contact", "admin"],
+ns: ["common", "home", "about", "contact", "admin", "help"],
 defaultNS: "common",
 
     fallbackLng: "es",
