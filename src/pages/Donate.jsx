@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SupportForm from "../components/SupportForm/SupportForm";
-import "../styles/donate.scss"
+import "../styles/donate.scss";
 
 export default function Donate() {
   const { t } = useTranslation("help");
+
+  const [open, setOpen] = useState(null); 
+
+  const toggle = (key) => {
+    setOpen((prev) => (prev === key ? null : key));
+  };
 
   return (
     <main className="donate">
@@ -14,98 +20,139 @@ export default function Donate() {
           <p className="donate__intro">{t("donate_intro")}</p>
         </header>
 
-        {/* TEAMING */}
-        <section className="donate__block" aria-labelledby="donate-teaming-title">
-          <h2 id="donate-teaming-title" className="donate__blockTitle">
-            {t("donate_teaming_title")}
-          </h2>
-          <p className="donate__text">{t("donate_teaming_text")}</p>
+        <div className="donate__grid">
+          
+          <section className="donate__block" aria-labelledby="donate-bank-title">
+            <h2 id="donate-bank-title" className="donate__blockTitle">
+              {t("donate_bank_title")}
+            </h2>
 
-          <a
-            className="donate__pillLink"
-            href="https://www.teaming.net/sosmaullidos"
-            target="_blank"
-            rel="noreferrer"
+            <div className="donate__bank">
+              <p className="donate__text">
+                <strong>{t("donate_bank_iban_label")}:</strong> ES65 2100 0388
+                1002 0028 6069
+              </p>
+              <p className="donate__text">
+                <strong>{t("donate_bank_holder_label")}:</strong> SOS Maullidos
+              </p>
+              <p className="donate__text">
+                <strong>{t("donate_bank_concept_label")}:</strong> Donación SOS
+                Maullidos
+              </p>
+              <p className="donate__hint">{t("donate_bank_note")}</p>
+            </div>
+          </section>
+
+        
+          <section className="donate__block" aria-labelledby="donate-teaming-title">
+            <h2 id="donate-teaming-title" className="donate__blockTitle">
+              {t("donate_teaming_title")}
+            </h2>
+            <p className="donate__text">{t("donate_teaming_text")}</p>
+
+            <a
+              className="donate__pillLink"
+              href="https://www.teaming.net/sosmaullidos"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("donate_teaming_cta")}
+            </a>
+          </section>
+
+          <section className="donate__block" aria-labelledby="donate-shop-title">
+            <h2 id="donate-shop-title" className="donate__blockTitle">
+              {t("donate_shop_title")}
+            </h2>
+            <p className="donate__text">{t("donate_shop_text")}</p>
+
+            <div className="donate__links">
+              <a
+                className="donate__pillLink"
+                href="https://www.gosigatalimentacio.org/ca/39-sos-maullidos"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("donate_gos_i_gat_cta")}
+              </a>
+
+              <a
+                className="donate__pillLink"
+                href="https://www.amazon.es/hz/wishlist/ls/1EXW0OQXB7M6B?ref_=wl_share"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("donate_amazon_cta")}
+              </a>
+            </div>
+          </section>
+
+         
+          <section
+            className="donate__block donate__block--wide"
+            aria-labelledby="donate-member-title"
           >
-            {t("donate_teaming_cta")}
-          </a>
-        </section>
+            <div className="donate__row">
+              <div>
+                <h2 id="donate-member-title" className="donate__blockTitle">
+                  {t("donate_member_title")}
+                </h2>
+                <p className="donate__text">{t("donate_member_text")}</p>
+              </div>
 
-        {/* COMPRAS / LISTAS */}
-        <section className="donate__block" aria-labelledby="donate-shop-title">
-          <h2 id="donate-shop-title" className="donate__blockTitle">
-            {t("donate_shop_title")}
-          </h2>
-          <p className="donate__text">{t("donate_shop_text")}</p>
+              <button
+                type="button"
+               className="donate__toggle donate__toggle--form"
+                onClick={() => toggle("member")}
+                aria-expanded={open === "member"}
+                aria-controls="donate-member-form"
+              >
+                {open === "member"
+                  ? t("help_close_form")
+                  : t("help_open_form")}
+              </button>
+            </div>
 
-          <div className="donate__links">
-            <a
-              className="donate__pillLink"
-              href="https://www.gosigatalimentacio.org/ca/39-sos-maullidos"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t("donate_gos_i_gat_cta")}
-            </a>
+            {open === "member" && (
+              <div id="donate-member-form" className="donate__form">
+                <SupportForm mode="member" />
+              </div>
+            )}
+          </section>
 
-            <a
-              className="donate__pillLink"
-              href="https://www.amazon.es/hz/wishlist/ls/1EXW0OQXB7M6B?ref_=wl_share"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t("donate_amazon_cta")}
-            </a>
-          </div>
-        </section>
+          
+          <section
+            className="donate__block donate__block--wide"
+            aria-labelledby="donate-sponsor-title"
+          >
+            <div className="donate__row">
+              <div>
+                <h2 id="donate-sponsor-title" className="donate__blockTitle">
+                  {t("donate_sponsor_title")}
+                </h2>
+                <p className="donate__text">{t("donate_sponsor_text")}</p>
+              </div>
 
-        {/* TRANSFERENCIA BANCARIA */}
-        <section className="donate__block" aria-labelledby="donate-bank-title">
-          <h2 id="donate-bank-title" className="donate__blockTitle">
-            {t("donate_bank_title")}
-          </h2>
+              <button
+                type="button"
+                className="donate__toggle donate__toggle--form"
+                onClick={() => toggle("sponsor")}
+                aria-expanded={open === "sponsor"}
+                aria-controls="donate-sponsor-form"
+              >
+                {open === "sponsor"
+                  ? t("help_close_form")
+                  : t("help_open_form")}
+              </button>
+            </div>
 
-          <div className="donate__bank">
-            <p className="donate__text">
-              <strong>{t("donate_bank_iban_label")}:</strong> ES65 2100 0388 1002
-              0028 6069
-            </p>
-            <p className="donate__text">
-              <strong>{t("donate_bank_holder_label")}:</strong> SOS Maullidos
-            </p>
-            <p className="donate__text">
-              <strong>{t("donate_bank_concept_label")}:</strong> Donación SOS
-              Maullidos
-            </p>
-            <p className="donate__hint">{t("donate_bank_note")}</p>
-          </div>
-        </section>
-
-        {/* SOCIO (SupportForm) */}
-        <section className="donate__block" aria-labelledby="donate-member-title">
-          <h2 id="donate-member-title" className="donate__blockTitle">
-            {t("donate_member_title")}
-          </h2>
-          <p className="donate__text">{t("donate_member_text")}</p>
-
-          <div className="donate__form">
-            <SupportForm mode="member" />
-          </div>
-        </section>
-
-        {/* AMADRINAR (SupportForm) */}
-        <section className="donate__block" aria-labelledby="donate-sponsor-title">
-          <h2 id="donate-sponsor-title" className="donate__blockTitle">
-            {t("donate_sponsor_title")}
-          </h2>
-          <p className="donate__text">{t("donate_sponsor_text")}</p>
-
-          <div className="donate__form">
-            <SupportForm mode="sponsor" />
-          </div>
-        </section>
-
-      
+            {open === "sponsor" && (
+              <div id="donate-sponsor-form" className="donate__form">
+                <SupportForm mode="sponsor" />
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </main>
   );

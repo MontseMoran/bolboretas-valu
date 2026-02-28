@@ -1,22 +1,98 @@
+.contact-page {
+  position: relative;
+  padding: 70px 0 110px;
+}
+
+/* fondo a 100vw aunque el contenido esté dentro de .container */
+.contact-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+
+  background:
+    radial-gradient(900px 520px at 18% 0%, rgba(230, 200, 175, 0.28), transparent 60%),
+    radial-gradient(900px 520px at 82% 10%, rgba(240, 215, 195, 0.22), transparent 55%),
+    linear-gradient(180deg, #e7ded4 0%, #fbfaf7 65%, #ffffff 100%);
+
+  z-index: 0;
+}
+
+
+.contact-page > * {
+  position: relative;
+  z-index: 1;
+}
+
 .contact-page h1 {
   margin-top: 28px;
 }
 
 .contact-page .card + .card {
   margin-top: 16px;
+ 
 }
-
+.contact-page .card h2,
+.contact-page .card p,
+.contact-page .card ul {
+  padding-left: 44px;
+}
+.contact-page .card:first-of-type {
+  margin-top: 40px;
+}
+.contact-page .card:last-of-type {
+  margin-bottom: 80px;
+}
 .contact-page .muted + .secondary-list {
   margin-top: 10px;
 }
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--soft-shadow);
-  padding: 18px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 18px;
+  padding: 22px 22px 22px 56px; 
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* doble marco suave tipo adopción */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+   background:
+    radial-gradient(
+      320px 240px at 0% 0%,
+      rgba(159, 159, 193, 0.45),  
+      transparent 75%
+    );
 }
 
 .card:hover {
- 
-  box-shadow: 0 16px 40px rgba(14, 20, 30, 0.1);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.08);
+}
+
+/* opcional: dos huellitas sutiles, como Donate */
+.card::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  opacity: 0.08;
+
+  background-image: url("/images/huella.svg"), url("/images/huella.svg");
+  background-repeat: no-repeat, no-repeat;
+  background-size: 28px 28px, 22px 22px;
+  background-position: 0 20px, 28px 0;
 }

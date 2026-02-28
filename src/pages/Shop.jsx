@@ -3,21 +3,69 @@ import { useTranslation } from "react-i18next";
 import "../styles/shop.scss";
 
 export default function Shop() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("help");
 
   return (
     <main className="shop">
       <div className="shop__container">
 
         <header className="shop__header">
-          <h1 className="shop__title">
-            {t("shop_title")}
-          </h1>
-          <p className="shop__intro">
-            {t("shop_intro")}
-          </p>
+          <h1 className="shop__title">{t("shop_title")}</h1>
+          <p className="shop__intro">{t("shop_intro")}</p>
         </header>
 
+       
+        <section className="shop__block shop__block--featured">
+          <h2 className="shop__blockTitle">
+            {t("shop_other_title")}
+          </h2>
+
+          <p className="shop__text">
+            {t("shop_other_text_strong")}
+          </p>
+
+          <div className="shop__links">
+            <a
+              href="https://www.vinted.es/member/187388390-sosmaullidos"
+              target="_blank"
+              rel="noreferrer"
+              className="shop__pillLink"
+            >
+              {t("shop_vinted_cta")}
+            </a>
+
+            <a
+              href="https://es.wallapop.com/user/sosmaullidosp-275011390"
+              target="_blank"
+              rel="noreferrer"
+              className="shop__pillLink"
+            >
+              {t("shop_wallapop_cta")}
+            </a>
+          </div>
+        </section>
+
+      
+        <section className="shop__block">
+          <h2 className="shop__blockTitle">
+            {t("shop_bodas_title")}
+          </h2>
+
+          <p className="shop__text">
+            {t("shop_bodas_text")}
+          </p>
+
+          <a
+            href="https://www.bodas.net/detalles-de-bodas/sos-maullidos--e158091"
+            target="_blank"
+            rel="noreferrer"
+            className="shop__pillLink"
+          >
+            {t("shop_bodas_cta")}
+          </a>
+        </section>
+
+        
         <section className="shop__block">
           <h2 className="shop__blockTitle">
             {t("shop_amazon_title")}
@@ -37,6 +85,7 @@ export default function Shop() {
           </a>
         </section>
 
+       
         <section className="shop__block">
           <h2 className="shop__blockTitle">
             {t("shop_gos_title")}
@@ -54,16 +103,6 @@ export default function Shop() {
           >
             {t("shop_gos_cta")}
           </a>
-        </section>
-
-        <section className="shop__block">
-          <h2 className="shop__blockTitle">
-            {t("shop_other_title")}
-          </h2>
-
-          <p className="shop__text">
-            {t("shop_other_text")}
-          </p>
         </section>
 
       </div>

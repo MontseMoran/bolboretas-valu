@@ -9,7 +9,7 @@ export default function Contact() {
   return (
     <main className="container contact-page">
 
-      <h1>{t("contact_title")}</h1>
+      
 
       {/* CONTACTO DIRECTO */}
       <section className="card">

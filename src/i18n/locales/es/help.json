@@ -18,7 +18,7 @@
   "donate_bank_note": "Indica en el concepto tu nombre y el motivo de la donación.",
 
   "donate_member_title": "Hazte socio",
-  "donate_member_text": "Colabora de forma periódica y ayúdanos a tener estabilidad.",
+  "donate_member_text": "Colabora de forma anual y ayúdanos a tener estabilidad.",
 
   "donate_sponsor_title": "Amadrina un gato",
   "donate_sponsor_text": "Con tu aportación mensual ayudas directamente a un gato concreto.",
@@ -37,13 +37,25 @@
   "volunteer_form_text": "Déjanos tus datos y te contactaremos.",
 
   "shop_title": "Compras solidarias",
-  "shop_intro": "Puedes ayudarnos comprando productos que necesitamos.",
-  "shop_amazon_title": "Amazon Lista de deseos",
-  "shop_amazon_text": "Compra directamente productos para nuestros gatos.",
-  "shop_amazon_cta": "Ver lista",
+  "shop_intro": "Apóyanos comprando en nuestros perfiles solidarios o adquiriendo productos que nuestros gatos necesitan.",
+
+  "shop_other_title": "Venta solidaria en Vinted y Wallapop",
+  "shop_other_text_strong": "En nuestros perfiles solidarios de Vinted y Wallapop encontrarás ropa, libros y artículos donados listos para una segunda oportunidad. Cada compra contribuye directamente a financiar tratamientos veterinarios, alimentación y rescates urgentes. Comprar aquí significa ayudar de forma tangible, dando una nueva vida a productos y apoyando a nuestros gatos.",
+  "shop_vinted_cta": "Ver en Vinted",
+  "shop_wallapop_cta": "Ver en Wallapop",
+
+  "shop_bodas_title": "Detalles solidarios para bodas y eventos",
+  "shop_bodas_text": "Encarga jabones y detalles solidarios para bodas, comuniones o celebraciones. Un regalo bonito que además ayuda a los gatos.",
+  "shop_bodas_cta": "Ver en Bodas.net",
+
+  "shop_amazon_title": "Lista de deseos Amazon",
+  "shop_amazon_text": "Compra directamente los productos que necesitamos para nuestros gatos a través de nuestra lista solidaria.",
+  "shop_amazon_cta": "Ir a Amazon",
+
   "shop_gos_title": "Gos i Gat Alimentació",
-  "shop_gos_text": "Compra alimentación y selecciona SOS Maullidos como destinatario.",
-  "shop_gos_cta": "Ir a tienda",
-  "shop_other_title": "Otras formas de colaborar",
-  "shop_other_text": "Síguenos y comparte nuestras publicaciones para ayudarnos a llegar más lejos."
+  "shop_gos_text": "A través de Gos i Gat puedes comprar alimentación y productos esenciales para nuestros gatos. Solo tienes que seleccionar SOS Maullidos como destinatario y la tienda nos hará llegar tu pedido directamente. Una forma práctica y segura de ayudarnos a cubrir las necesidades diarias de alimentación.",
+  "shop_gos_cta": "Ir a Gos i Gat",
+
+  "help_open_form": "Abrir formulario",
+  "help_close_form": "Cerrar formulario"
 }
