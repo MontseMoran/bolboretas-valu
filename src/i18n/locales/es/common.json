@@ -25,6 +25,10 @@
   "loading": "Cargando…",
   "adoption_empty": "Ahora mismo no hay gatos publicados.",
   "adoption_list_aria": "Listado de gatos en adopción",
+  "adoption_pagination_aria": "Paginación de gatos en adopción",
+  "adoption_page_prev": "Anterior",
+  "adoption_page_next": "Siguiente",
+  "adoption_page_info": "Página {{current}} de {{total}}",
 
   "age_unknown": "Edad no disponible",
   "age_years": "{{count}} año",

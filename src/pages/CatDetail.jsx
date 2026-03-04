@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
+import { getPublishedCatById } from "../lib/catsCache";
 import "../styles/catDetail.scss";
 import BackLink from "../components/backLink/BackLink";
 import SupportForm from "../components/SupportForm/SupportForm";
@@ -88,15 +89,7 @@ export default function CatDetail() {
 
     (async () => {
       setLoading(true);
-
-      const { data, error } = await supabase
-        .from("cats")
-        .select("id,name,birth_date,sex,description_es,description_cat,status,sterilized,image_path,published")
-        .eq("id", id)
-        .eq("published", true)
-        .maybeSingle();
-
-      if (error) console.error(error);
+      const data = await getPublishedCatById(id);
       if (mounted) setCat(data || null);
       if (mounted) setLoading(false);
     })();

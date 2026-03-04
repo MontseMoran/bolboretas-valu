@@ -1,5 +1,9 @@
 .news {
   padding: 24px;
+  background:
+    radial-gradient(900px 520px at 18% 0%, rgba(255, 190, 150, 0.22), transparent 60%),
+    radial-gradient(900px 520px at 82% 10%, rgba(255, 220, 190, 0.18), transparent 55%),
+    linear-gradient(180deg, rgb(218, 218, 217), rgba(252, 252, 250, 1));
 }
 
 .news__container {

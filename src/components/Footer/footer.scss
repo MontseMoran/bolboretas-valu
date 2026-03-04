@@ -184,6 +184,8 @@
 }
 .gobierno {
   max-width: 250px;
+  transform: scale(1.08);
+  transform-origin: center;
 }
 
 .ayto {
@@ -230,6 +232,7 @@
   }
   .gobierno {
   max-width: 550px;
+  transform: scale(1.1);
 }
 
 .ayto {

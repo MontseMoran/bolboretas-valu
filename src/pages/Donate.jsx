@@ -148,7 +148,7 @@ export default function Donate() {
 
             {open === "sponsor" && (
               <div id="donate-sponsor-form" className="donate__form">
-                <SupportForm mode="sponsor" />
+                <SupportForm mode="sponsor" showAmount={false} />
               </div>
             )}
           </section>

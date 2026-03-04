@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { getPublishedPostsByTypes } from "../lib/postsCache";
 import "../styles/news.scss"; // reutiliza el mismo layout/cards que News (si quieres)
 
 export default function Blog() {
@@ -13,12 +14,7 @@ export default function Blog() {
     let mounted = true;
 
     (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("type", "blog")
-        .eq("published", true)
-        .order("created_at", { ascending: false });
+      const data = await getPublishedPostsByTypes(["blog"]);
 
       if (mounted) setPosts(data || []);
     })();

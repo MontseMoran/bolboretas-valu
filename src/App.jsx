@@ -22,6 +22,7 @@ import PostForm from "./pages/admin/PostForm";
 import CatDetail from "./pages/CatDetail";
 import Volunteer  from "./pages/Volunteer";
 import Shop from "./pages/Shop";
+import Story from "./pages/Story";
 
 function SiteLayout() {
   return (
@@ -63,8 +64,9 @@ export default function App() {
         <Route path="/contacto" element={<Contact />} />
        <Route path="/donar" element={<Donate/>}/>
        <Route path="/voluntariat" element={<Volunteer />} />
-<Route path="/compras-solidarias" element={<Shop />} />
+        <Route path="/compras-solidarias" element={<Shop />} />
         <Route path="/adopcion/:id" element={<CatDetail />} />
+        <Route path="/historias/:slug" element={<Story />} />
         
       </Route>
     </Routes>

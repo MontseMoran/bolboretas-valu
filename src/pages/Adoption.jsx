@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useTranslation } from "react-i18next";
 import "../styles/cats.scss";
 import { Link } from "react-router-dom";
+import { getPublishedCats } from "../lib/catsCache";
 
 
 function toValidDate(value) {
@@ -72,6 +73,8 @@ export default function Adoption() {
   const { t, i18n } = useTranslation("common");
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const isCat = i18n.language?.startsWith("cat");
 
@@ -80,13 +83,7 @@ export default function Adoption() {
 
     (async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("cats")
-        .select("id,name,birth_date,sex,description_es,description_cat,status,sterilized,image_path,published")
-        .eq("published", true)
-        .order("created_at", { ascending: true });
-
-      if (error) console.error(error);
+      const data = await getPublishedCats();
       if (mounted) setCats(data || []);
       if (mounted) setLoading(false);
     })();
@@ -97,7 +94,14 @@ export default function Adoption() {
   }, []);
 
   const hasCats = cats.length > 0;
+  const totalPages = Math.max(1, Math.ceil(cats.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const visibleCats = cats.slice(startIndex, startIndex + PAGE_SIZE);
 
+  useEffect(() => {
+    setPage(1);
+  }, [cats.length]);
 
 
   return (
@@ -114,62 +118,88 @@ export default function Adoption() {
         ) : !hasCats ? (
           <p className="adoption__muted">{t("adoption_empty")}</p>
         ) : (
-          <section className="adoption__grid" aria-label={t("adoption_list_aria")}>
-            {cats.map((cat) => {
-              const desc = (isCat ? cat.description_cat : cat.description_es) || cat.description_es || cat.description_cat || "";
-              const descTrim = desc.trim();
+          <>
+            <section className="adoption__grid" aria-label={t("adoption_list_aria")}>
+              {visibleCats.map((cat) => {
+                const desc = (isCat ? cat.description_cat : cat.description_es) || cat.description_es || cat.description_cat || "";
+                const imgUrl = getCatImageUrl(cat.image_path);
 
-              const imgUrl = getCatImageUrl(cat.image_path);
+                return (
+                  <article key={cat.id} className="cat-card">
 
-              return (
-                <article key={cat.id} className="cat-card">
+                    <div className="cat-card__media">
+                      <div className="cat-card__imgWrap">
+                        <div
+                          className={`cat-card__imgFrame ${imgUrl ? "has-image" : ""}`}
+                          style={imgUrl ? { "--cat-bg": `url(${imgUrl})` } : undefined}
+                        >
 
-                  <div className="cat-card__media">
-                    <div className="cat-card__imgWrap">
-                      <div className="cat-card__imgFrame">
-
-                        {imgUrl ? (
-                          <>
-                            <img className="cat-card__imgBg" src={imgUrl} alt="" aria-hidden="true" />
+                          {imgUrl ? (
                             <img className="cat-card__img" src={imgUrl} alt={cat.name} loading="lazy" />
-                          </>
-                        ) : (
-                          <div className="cat-card__imgPlaceholder" />
-                        )}
+                          ) : (
+                            <div className="cat-card__imgPlaceholder" />
+                          )}
 
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="cat-card__body">
+                    <div className="cat-card__body">
 
-                    <h3 className="cat-card__name">{cat.name}</h3>
+                      <h3 className="cat-card__name">{cat.name}</h3>
 
-                    <div className="cat-card__meta">
-                      <span className="cat-chip">{getAgeLabel(cat.birth_date, t)}</span>
-                      <span className="cat-chip">{getSexLabel(cat.sex, t)}</span>
-                      <span className="cat-chip">
-                        {getSterilizedLabel(!!cat.sterilized, t)}
-                      </span>
+                      <div className="cat-card__meta">
+                        <span className="cat-chip">{getAgeLabel(cat.birth_date, t)}</span>
+                        <span className="cat-chip">{getSexLabel(cat.sex, t)}</span>
+                        <span className="cat-chip">
+                          {getSterilizedLabel(!!cat.sterilized, t)}
+                        </span>
+                      </div>
+
+                      {desc ? (
+                        <p className="cat-card__desc is-clamped">{desc}</p>
+                      ) : (
+                        <p className="cat-card__desc cat-card__desc--empty">
+                          {t("description_empty")}
+                        </p>
+                      )}
+
+                      <Link className="cat-card__readmore" to={`/adopcion/${cat.id}`}>
+                        {t("read_more")}
+                      </Link>
+
                     </div>
+                  </article>
+                );
+              })}
+            </section>
 
-                    {desc ? (
-                      <p className="cat-card__desc is-clamped">{desc}</p>
-                    ) : (
-                      <p className="cat-card__desc cat-card__desc--empty">
-                        {t("description_empty")}
-                      </p>
-                    )}
+            {totalPages > 1 && (
+              <nav className="adoption__pagination" aria-label={t("adoption_pagination_aria")}>
+                <button
+                  type="button"
+                  className="adoption__pageBtn"
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  {t("adoption_page_prev")}
+                </button>
 
-                    <Link className="cat-card__readmore" to={`/adopcion/${cat.id}`}>
-                      {t("read_more")}
-                    </Link>
+                <span className="adoption__pageInfo">
+                  {t("adoption_page_info", { current: currentPage, total: totalPages })}
+                </span>
 
-                  </div>
-                </article>
-              );
-            })}
-          </section>
+                <button
+                  type="button"
+                  className="adoption__pageBtn"
+                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  {t("adoption_page_next")}
+                </button>
+              </nav>
+            )}
+          </>
         )}
       </div>
     </main>

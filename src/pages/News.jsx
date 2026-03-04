@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { getPublishedPostsByTypes } from "../lib/postsCache";
 import "../styles/news.scss";
 
 export default function News() {
@@ -12,12 +13,7 @@ export default function News() {
     let mounted = true;
 
     (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .in("type", ["news", "event", "urgent"])
-        .eq("published", true)
-        .order("created_at", { ascending: false });
+      const data = await getPublishedPostsByTypes(["news", "event", "urgent"]);
 
       const sorted = (data || []).sort((a, b) => {
         const pa = a.type === "urgent" ? 0 : 1;

@@ -25,6 +25,10 @@
   "loading": "Carregant…",
   "adoption_empty": "Ara mateix no hi ha gats publicats.",
   "adoption_list_aria": "Llistat de gats en adopció",
+  "adoption_pagination_aria": "Paginació de gats en adopció",
+  "adoption_page_prev": "Anterior",
+  "adoption_page_next": "Següent",
+  "adoption_page_info": "Pàgina {{current}} de {{total}}",
 
   "age_unknown": "Edat no disponible",
   "age_years": "{{count}} any",

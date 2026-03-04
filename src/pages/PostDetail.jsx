@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { useTranslation } from "react-i18next";
+import { getPublishedPostById } from "../lib/postsCache";
 import "../styles/postDetail.scss";
 import BackLink from "../components/backLink/BackLink";
 
@@ -11,6 +12,7 @@ export default function PostDetail() {
 const isBlogRoute = pathname.startsWith("/blog");
 const backUrl = isBlogRoute ? "/blog" : "/noticias";
 const allowedTypes = isBlogRoute ? ["blog"] : ["news", "event", "urgent"];
+const allowedTypesKey = allowedTypes.join(",");
   const { i18n } = useTranslation();
 
   const [post, setPost] = useState(null);
@@ -21,13 +23,7 @@ const allowedTypes = isBlogRoute ? ["blog"] : ["news", "event", "urgent"];
     let mounted = true;
 
     (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("id", id)
-        .eq("published", true)
-        .in("type", allowedTypes)
-        .single();
+      const data = await getPublishedPostById(id, allowedTypes);
 
       if (mounted) {
         setPost(data);
@@ -36,7 +32,7 @@ const allowedTypes = isBlogRoute ? ["blog"] : ["news", "event", "urgent"];
     })();
 
     return () => (mounted = false);
-  }, [id]);
+  }, [id, allowedTypesKey]);
 
   if (loading) return <main className="postDetail">Cargando...</main>;
   if (!post) return <main className="postDetail">No encontrado</main>;

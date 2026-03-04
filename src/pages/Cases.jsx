@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
+import { getPublishedPostsByTypes } from "../lib/postsCache";
 
 export default function Cases() {
   const { t } = useTranslation();
@@ -9,12 +10,7 @@ export default function Cases() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("type", "urgent")
-        .eq("published", true)
-        .order("created_at", { ascending: false });
+      const data = await getPublishedPostsByTypes(["urgent"]);
       if (mounted) setPosts(data || []);
     })();
     return () => (mounted = false);

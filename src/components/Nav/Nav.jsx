@@ -7,13 +7,16 @@ import "./nav.scss";
 export default function Nav() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [catsOpen, setCatsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const catsRef = useRef(null);
   const helpRef = useRef(null);
 
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setOpen(false);
+        setCatsOpen(false);
         setHelpOpen(false);
       }
     };
@@ -23,6 +26,9 @@ export default function Nav() {
 
   useEffect(() => {
     const onClickOutside = (e) => {
+      if (catsRef.current && !catsRef.current.contains(e.target)) {
+        setCatsOpen(false);
+      }
       if (helpRef.current && !helpRef.current.contains(e.target)) {
         setHelpOpen(false);
       }
@@ -33,6 +39,7 @@ export default function Nav() {
 
   const closeAll = () => {
     setOpen(false);
+    setCatsOpen(false);
     setHelpOpen(false);
   };
 
@@ -56,9 +63,37 @@ export default function Nav() {
                   {t("home")}
                 </NavLink>
 
-                <NavLink to="/adopcion" className={navClass} onClick={closeAll}>
-                  {t("adoption")}
-                </NavLink>
+                <div className="dropdown" ref={catsRef}>
+                  <button
+                    className="drop-btn"
+                    aria-haspopup="true"
+                    aria-expanded={catsOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCatsOpen((v) => !v);
+                    }}
+                  >
+                    {t("cats")} <span className="caret">â–¾</span>
+                  </button>
+
+                  <div className={`drop-panel ${catsOpen ? "open" : ""}`}>
+                    <NavLink
+                      to="/adopcion"
+                      className="drop-item"
+                      onClick={closeAll}
+                    >
+                      {t("cats_adoption")}
+                    </NavLink>
+
+                    <NavLink
+                      to="/casos-dificiles"
+                      className="drop-item"
+                      onClick={closeAll}
+                    >
+                      {t("cats_special_cases")}
+                    </NavLink>
+                  </div>
+                </div>
 
                 <NavLink
                   to="/blog"
