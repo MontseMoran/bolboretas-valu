@@ -1,63 +1,39 @@
-# SOS Maullidos — Protótipo (React + Vite + Supabase)
+# SOS Maullidos
 
-Protótipo navegable para la asociación _SOS Maullidos_. Proyecto frontend con Vite + React, autenticación y almacenamiento en Supabase.
+Proyecto web para una asociación que rescata, cuida y busca hogar para gatos.
+La web está orientada a dar visibilidad a los animales, facilitar la adopción y activar la colaboración de la comunidad.
 
-## Requisitos
+## Objetivo
 
-- Node 18+
-- Cuenta en Supabase (proyecto gratuito)
+SOS Maullidos trabaja en rescate, atención veterinaria, acogidas y adopciones responsables.
+Este proyecto centraliza esa actividad en un sitio público y en un panel interno de gestión.
 
-## Instalación
+## Partes visibles (web pública)
 
-1. Copia `.env.example` a `.env` y rellena las variables.
-2. Instala dependencias:
+- Inicio con mensaje principal, formas de ayuda e historias destacadas.
+- Sección de gatos:
+  - En adopción
+  - Casos especiales
+  - Últimos adoptados
+- Blog y noticias.
+- Páginas informativas: quiénes somos y contacto.
+- Páginas de colaboración: donar, voluntariado y compras solidarias.
+- Fichas de detalle para cada gato.
+- Formularios de contacto y apoyo.
 
-```bash
-npm install
-```
+## Área admin (gestión interna)
 
-3. Ejecuta en desarrollo:
+- Gestión de gatos:
+  - Alta, edición y baja.
+  - Estado del gato (adopción, caso especial, adoptado, etc.).
+  - Publicación y contenido.
+- Gestión de publicaciones:
+  - Noticias, eventos, urgentes y blog.
+  - Edición de título, extracto, contenido e imagen.
+  - Control de publicación.
 
-```bash
-npm run dev
-```
+## Enfoque del proyecto
 
-## Variables de entorno (ver `.env.example`)
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_SUPABASE_BUCKET` (opcional)
-- `VITE_DEFAULT_LOCALE` (opcional)
-
-## Pasos Supabase (rápido)
-
-1. Crea proyecto en Supabase.
-2. En SQL Editor, ejecuta `supabase.sql` (incluido) para crear tablas y policies.
-3. En el panel de Supabase, activa RLS (Row Level Security) para las tablas `cats`, `posts` y `profiles`.
-4. Comprueba que las policies creadas permiten:
-   - Lectura pública únicamente cuando `published = true`.
-   - Escritura y gestión (`INSERT`, `UPDATE`, `DELETE`) únicamente a usuarios con `profiles.role = 'admin'`.
-5. Crea un bucket público en Storage para subir imágenes.
-6. Crea al menos un usuario (Auth) y copia su `id` en `profiles` con role=`admin` (ver SQL de ejemplo abajo).
-
-### Crear primer admin (rápido)
-
-- Registra el usuario desde la sección Auth en Supabase (email/password).
-- Copia `user.id` (desde tabla `auth.users`) y ejecuta:
-
-```sql
-INSERT INTO public.profiles (id, email, role) VALUES ('<user-uuid>', 'tu@correo', 'admin');
-```
-
-Nota: la SQL incluida ya crea las tablas `cats` y `posts` con los campos requeridos. `cats` incluye campos adicionales: `sterilized`, `tested`, `location`, `contact`.
-
-## SQL
-
-Archivo: `supabase.sql` — contiene esquema y policies.
-
-## Notas
-
-- Las imágenes se redimensionan en cliente antes de subir (máx 1200px, JPG/WebP, calidad ~70%).
-- No se incluyen claves ni datos reales en el repositorio.
-
-Si quieres que implemente más funcionalidades (drag & drop de imágenes, previews, o tests), dímelo y lo añado.
+- Prioriza claridad y accesibilidad para cualquier persona que quiera ayudar.
+- Mantiene separada la parte pública de la gestión interna.
+- Está pensado para evolucionar con las necesidades reales de la asociación.

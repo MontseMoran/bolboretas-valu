@@ -39,9 +39,25 @@ CREATE TABLE IF NOT EXISTS public.posts (
   updated_at timestamptz DEFAULT now()
 );
 
+-- Tabla inquiries (formularios públicos)
+CREATE TABLE IF NOT EXISTS public.inquiries (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  mode text NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  amount numeric,
+  message text NOT NULL,
+  cat_id uuid,
+  cat_name text,
+  lang text DEFAULT 'es',
+  created_at timestamptz DEFAULT now()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_posts_type ON public.posts (type);
 CREATE INDEX IF NOT EXISTS idx_cats_status ON public.cats (status);
+CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON public.inquiries (created_at DESC);
 
 -- RLS: enable on tables
 -- NOTE: After running this SQL, enable RLS in the Supabase UI for the tables.
@@ -56,6 +72,11 @@ CREATE POLICY "Public select published cats" ON public.cats
 -- Allow select on posts only if published = true
 CREATE POLICY "Public select published posts" ON public.posts
   FOR SELECT USING (published = true);
+
+-- Allow insert on inquiries from public forms
+CREATE POLICY "Public insert inquiries" ON public.inquiries
+  FOR INSERT
+  WITH CHECK (true);
 
 -- Admin policies: allow insert/update/delete for admins
 -- Requires that `profiles` table maps auth user id to role 'admin'
@@ -76,6 +97,21 @@ CREATE POLICY "Admins manage cats" ON public.cats
   );
 
 CREATE POLICY "Admins manage posts" ON public.posts
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins manage inquiries" ON public.inquiries
   FOR ALL
   USING (
     EXISTS (

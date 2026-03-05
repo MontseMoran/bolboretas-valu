@@ -68,6 +68,10 @@
   "support_phone": "Telèfon",
   "support_message": "Missatge",
   "support_send": "Enviar sol·licitud",
+  "support_sending": "Enviant...",
+  "support_sent_ok": "Sol·licitud enviada correctament.",
+  "support_sent_error": "No s'ha pogut enviar la sol·licitud. Torna-ho a provar.",
+  "support_notice_email_failed": "Sol·licitud guardada, però no s'ha pogut enviar l'avís per correu.",
   "support_close": "Tancar formulari",
 
   "support_message_placeholder": "Explica’ns una mica sobre tu i per què vols adoptar aquest gat...",

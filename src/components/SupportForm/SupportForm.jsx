@@ -24,6 +24,7 @@ export default function SupportForm({
   const [sending, setSending] = useState(false);
   const [okMsg, setOkMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
+  const [warnMsg, setWarnMsg] = useState("");
 
   const title = useMemo(() => {
     if (mode === "volunteer") return t("support_volunteer_title");
@@ -44,6 +45,7 @@ export default function SupportForm({
     setSending(true);
     setErrMsg("");
     setOkMsg("");
+    setWarnMsg("");
 
     try {
       const payload = {
@@ -66,6 +68,22 @@ export default function SupportForm({
 
       if (error) throw error;
 
+      const { error: notifyError } = await supabase.functions.invoke(
+        "send-inquiry-email",
+        {
+          body: {
+            ...payload,
+            inquiry_id: null,
+            created_at: null,
+          },
+        }
+      );
+
+      if (notifyError) {
+        console.error("send-inquiry-email invoke error:", notifyError);
+        setWarnMsg(t("support_notice_email_failed"));
+      }
+
       setOkMsg(t("support_sent_ok"));
 
       setName("");
@@ -75,6 +93,7 @@ export default function SupportForm({
       setMessage("");
 
     } catch (err) {
+      console.error("SupportForm submit error:", err);
       setErrMsg(t("support_sent_error"));
     } finally {
       setSending(false);
@@ -151,6 +170,12 @@ export default function SupportForm({
         {okMsg && (
           <div className="support-form__msg support-form__msg--ok">
             {okMsg}
+          </div>
+        )}
+
+        {warnMsg && (
+          <div className="support-form__msg support-form__msg--warn">
+            {warnMsg}
           </div>
         )}
 

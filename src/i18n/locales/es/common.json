@@ -68,6 +68,10 @@
   "support_phone": "Teléfono",
   "support_message": "Mensaje",
   "support_send": "Enviar solicitud",
+  "support_sending": "Enviando...",
+  "support_sent_ok": "Solicitud enviada correctamente.",
+  "support_sent_error": "No se pudo enviar la solicitud. Intenta de nuevo.",
+  "support_notice_email_failed": "Solicitud guardada, pero no se pudo enviar el aviso por email.",
   "support_close": "Cerrar formulario",
 
   "support_message_placeholder": "Cuéntanos un poco sobre ti y por qué quieres adoptar a este gato...",
