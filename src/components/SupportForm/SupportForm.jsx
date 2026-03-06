@@ -36,7 +36,7 @@ export default function SupportForm({
   }, [mode, context, t]);
 
   const shouldShowAmount =
-    showAmount ?? ["donation", "member", "sponsor"].includes(mode);
+    showAmount ?? ["donation", "member"].includes(mode);
 
 
   const handleSubmit = async (e) => {
