@@ -51,7 +51,7 @@ export default function Nav() {
         <div className="nav-left">
           <Link to="/" className="brand" aria-label={t("brand")}>
             <img
-              src="images/logo_transp.png"
+              src="/images/logo_transp.png"
               alt={t("brand")}
               className="brand-logo"
             />

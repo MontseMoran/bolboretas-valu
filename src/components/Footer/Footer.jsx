@@ -47,7 +47,7 @@ export default function Footer() {
     aria-label="Instagram"
     className="insta"
   >
-    <img className="insta" src="images/icons/instagram.png" alt="Instagram" />
+    <img className="insta" src="/images/icons/instagram.png" alt="Instagram" />
   </a>
 
   <a
@@ -56,7 +56,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     aria-label="Facebook"
   >
-    <img src="images/icons/facebook.png" alt="Facebook" />
+    <img src="/images/icons/facebook.png" alt="Facebook" />
   </a>
 
   <a
@@ -65,7 +65,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     aria-label="TikTok"
   >
-    <img src="images/icons/tik-tok.png" alt="TikTok" />
+    <img src="/images/icons/tik-tok.png" alt="TikTok" />
   </a>
 
   <a
@@ -74,7 +74,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     aria-label="X"
   >
-    <img src="images/icons/x.png" alt="X" />
+    <img src="/images/icons/x.png" alt="X" />
   </a>
 </div>
 
@@ -90,7 +90,7 @@ export default function Footer() {
   <div className="footer-logos">
     <div className="footer-logo footer-logo--light">
       <img
-        src="images/gobierno.png"
+        src="/images/gobierno.png"
         alt="Gobierno de España - Ministerio de Derechos Sociales y Agenda 2030"
         className="gobierno"
       />
@@ -98,7 +98,7 @@ export default function Footer() {
 
     <div className="footer-logo footer-logo--dark">
       <img
-        src="images/ayuntamiento.png"
+        src="/images/ayuntamiento.png"
         alt="Ajuntament de Pallejà"
         className="ayto"
       />

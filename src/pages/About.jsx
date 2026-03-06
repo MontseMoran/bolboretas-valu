@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import coloniaImg from "../../public/images/colonia.jpg"; // ajusta la ruta si hace falta
 import "../styles/about.scss";
 
 
@@ -16,7 +15,7 @@ export default function About() {
         <p className="about-intro">{t("intro")}</p>
 
         <img
-          src={coloniaImg}
+          src="/images/colonia.jpg"
           alt={t("image_alt")}
           className="about-image"
         />

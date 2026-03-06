@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Routes, Route, Outlet } from "react-router-dom";
 import Nav from "./components/Nav/Nav";
 import Footer from "./components/Footer/Footer";
@@ -21,7 +21,7 @@ import Posts from "./pages/admin/Posts";
 import CatForm from "./pages/admin/CatForm";
 import PostForm from "./pages/admin/PostForm";
 import CatDetail from "./pages/CatDetail";
-import Volunteer  from "./pages/Volunteer";
+import Volunteer from "./pages/Volunteer";
 import Shop from "./pages/Shop";
 import Story from "./pages/Story";
 import LatestAdopted from "./pages/LatestAdopted";
@@ -55,25 +55,24 @@ export default function App() {
         <Route path="posts/:id/edit" element={<PostForm />} />
       </Route>
 
-      {/* PÚBLICO: con Nav/Footer */}
-      <Route element={<SiteLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/adopcion" element={<Adoption />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/casos-dificiles" element={<Cases />} />
-        <Route path="/ultimos-adoptados" element={<LatestAdopted />} />
-        <Route path="/noticias" element={<News />} />
-        <Route path="/noticias/:id" element={<PostDetail />} />
-        <Route path="/blog/:id" element={<PostDetail />} />
-        <Route path="/quienes-somos" element={<About />} />
-        <Route path="/contacto" element={<Contact />} />
-       <Route path="/donar" element={<Donate/>}/>
-       <Route path="/voluntariat" element={<Volunteer />} />
-        <Route path="/compras-solidarias" element={<Shop />} />
-        <Route path="/adopcion/:id" element={<CatDetail />} />
-        <Route path="/historias/:slug" element={<Story />} />
-        <Route path="/privacidad" element={<Privacy />} />
-        
+      {/* PUBLICO: con Nav/Footer */}
+      <Route path="/" element={<SiteLayout />}>
+        <Route index element={<Home />} />
+        <Route path="adopcion" element={<Adoption />} />
+        <Route path="blog" element={<Blog />} />
+        <Route path="casos-dificiles" element={<Cases />} />
+        <Route path="ultimos-adoptados" element={<LatestAdopted />} />
+        <Route path="noticias" element={<News />} />
+        <Route path="noticias/:id" element={<PostDetail />} />
+        <Route path="blog/:id" element={<PostDetail />} />
+        <Route path="quienes-somos" element={<About />} />
+        <Route path="contacto" element={<Contact />} />
+        <Route path="donar" element={<Donate />} />
+        <Route path="voluntariat" element={<Volunteer />} />
+        <Route path="compras-solidarias" element={<Shop />} />
+        <Route path="adopcion/:id" element={<CatDetail />} />
+        <Route path="historias/:slug" element={<Story />} />
+        <Route path="privacidad" element={<Privacy />} />
       </Route>
     </Routes>
   );

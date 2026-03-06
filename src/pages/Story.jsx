@@ -6,28 +6,28 @@ import "../styles/story.scss";
 
 const STORIES = {
   felix: {
-    image: "images/felix.png",
+    image: "/images/felix.png",
     badgeKey: "adopted_badge",
     titleKey: "story_felix_title",
     p1Key: "story_felix_p1",
     p2Key: "story_felix_p2",
   },
   vincent: {
-    image: "images/vincent.png",
+    image: "/images/vincent.png",
     badgeKey: "adopted_badge",
     titleKey: "story_vincent_title",
     p1Key: "story_vincent_p1",
     p2Key: "story_vincent_p2",
   },
   bob: {
-    image: "images/bob.png",
+    image: "/images/bob.png",
     badgeKey: "adopted_badge",
     titleKey: "story_bob_title",
     p1Key: "story_bob_p1",
     p2Key: "story_bob_p2",
   },
   tona: {
-    image: "images/tona.png",
+    image: "/images/tona.png",
     badgeKey: "in_foster_badge",
     titleKey: "story_tona_title",
     p1Key: "story_tona_p1",

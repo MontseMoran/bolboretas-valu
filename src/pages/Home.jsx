@@ -30,7 +30,7 @@ const heroPositions = [
 ];
 
 
-const heroImages = ["images/felix.png", "images/vincent.png", "images/bob.png", "images/tona.png"];
+const heroImages = ["/images/felix.png", "/images/vincent.png", "/images/bob.png", "/images/tona.png"];
 export default function Home() {
   const { t: tHome } = useTranslation("home");
   const { t: tCommon } = useTranslation("common");
@@ -128,7 +128,7 @@ export default function Home() {
           <div className="help-grid">
             <Link to="/adopcion" className="help-card home-reveal-target" style={{ "--reveal-delay": "80ms" }}>
               <div className="help-icon-wrapper">
-                <img className="help-icon help-icon--adopt" src="images/adoptar.png" alt="" aria-hidden="true" />
+                <img className="help-icon help-icon--adopt" src="/images/adoptar.png" alt="" aria-hidden="true" />
               </div>
               <h3>{tHome("help_adopt_title")}</h3>
               <p className="muted">{tHome("help_adopt_desc")}</p>
@@ -136,7 +136,7 @@ export default function Home() {
 
             <Link to="/donar" className="help-card home-reveal-target" style={{ "--reveal-delay": "180ms" }}>
               <div className="help-icon-wrapper">
-                <img className="help-icon" src="images/donar.png" alt="" aria-hidden="true" />
+                <img className="help-icon" src="/images/donar.png" alt="" aria-hidden="true" />
               </div>
               <h3>{tHome("help_donate_title")}</h3>
               <p className="muted">{tHome("help_donate_desc")}</p>
@@ -144,7 +144,7 @@ export default function Home() {
 
             <Link to="/voluntariat" className="help-card home-reveal-target" style={{ "--reveal-delay": "280ms" }}>
               <div className="help-icon-wrapper">
-                <img className="help-icon" src="images/colaborar.png" alt="" aria-hidden="true" />
+                <img className="help-icon" src="/images/colaborar.png" alt="" aria-hidden="true" />
               </div>
               <h3>{tHome("help_volunteer_title")}</h3>
               <p className="muted">{tHome("help_volunteer_desc")}</p>
@@ -161,7 +161,7 @@ export default function Home() {
 
           <div className="story-card home-reveal-target" style={{ "--reveal-delay": "120ms" }}>
             <div className="story-image">
-              <img src="images/felix.png" alt="Félix" />
+              <img src="/images/felix.png" alt="Félix" />
               <span className="badge">{tHome("adopted_badge")}</span>
             </div>
             <h3 className="story-name">Félix</h3>
@@ -173,7 +173,7 @@ export default function Home() {
 
           <div className="story-card home-reveal-target" style={{ "--reveal-delay": "240ms" }}>
             <div className="story-image">
-              <img src="images/vincent.png" alt="Vincent" />
+              <img src="/images/vincent.png" alt="Vincent" />
               <span className="badge">{tHome("adopted_badge")}</span>
             </div>
             <h3 className="story-name">Vincent</h3>
@@ -184,7 +184,7 @@ export default function Home() {
           </div>
           <div className="story-card home-reveal-target" style={{ "--reveal-delay": "360ms" }}>
             <div className="story-image">
-              <img src="images/bob.png" alt="Félix" />
+              <img src="/images/bob.png" alt="Félix" />
               <span className="badge">{tHome("adopted_badge")}</span>
             </div>
             <h3 className="story-name">Bob</h3>
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
            <div className="story-card home-reveal-target" style={{ "--reveal-delay": "480ms" }}>
             <div className="story-image">
-              <img src="images/tona.png" alt="Tona" />
+              <img src="/images/tona.png" alt="Tona" />
               <span className="badge">{tHome("in_foster_badge")}</span>
             </div>
             <h3 className="story-name">Tona</h3>
