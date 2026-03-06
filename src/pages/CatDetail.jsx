@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
@@ -90,17 +90,25 @@ export default function CatDetail() {
   const { t, i18n } = useTranslation("common");
   const [cat, setCat] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isAdoptionOpen, setIsAdoptionOpen] = useState(false);
+  const [isSponsorOpen, setIsSponsorOpen] = useState(false);
 
   const adoptRef = useRef(null);
+  const sponsorRef = useRef(null);
   useEffect(() => {
-    if (isOpen && adoptRef.current) {
+    if (isAdoptionOpen && adoptRef.current) {
       adoptRef.current.scrollIntoView({
         behavior: "smooth",
         block: "nearest"
       });
     }
-  }, [isOpen]);
+    if (isSponsorOpen && sponsorRef.current) {
+      sponsorRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+  }, [isAdoptionOpen, isSponsorOpen]);
   useEffect(() => {
     let mounted = true;
 
@@ -143,17 +151,12 @@ export default function CatDetail() {
   const imgUrl = getCatImageUrl(cat.image_path);
   const isCat = i18n.language === "cat";
   const healthChips = getPositiveHealthChips(cat, t);
+  const sponsorCtaLabel = `${isCat ? "Apadrina a" : "Amadrina a"} ${cat.name}`;
   const specialSupportMode = getSpecialSupportMode(cat);
   const showAdoptionForm =
     specialSupportMode === "adoption_only" || specialSupportMode === "both";
   const showSponsorForm =
     specialSupportMode === "sponsor_only" || specialSupportMode === "both";
-  const openCtaLabel =
-    specialSupportMode === "sponsor_only"
-      ? `${t("support_sponsor_title")}: ${cat.name}`
-      : specialSupportMode === "both"
-        ? `${t("adopt_cta_open", { name: cat.name })} + ${t("support_sponsor_title")}`
-        : t("adopt_cta_open", { name: cat.name });
 
   const desc = (
     isCat
@@ -207,38 +210,55 @@ export default function CatDetail() {
               </p>
 
             )}
-            <button
-              type="button"
-              className={`cat-detail__cta ${isOpen ? "is-open" : ""}`}
-              onClick={() => setIsOpen(v => !v)}
-            >
-              <span>
-                {isOpen
-                  ? t("adopt_cta_close")
-                  : openCtaLabel}
-              </span>
+            <div className="cat-detail__supportActions">
+              {showAdoptionForm && (
+                <button
+                  type="button"
+                  className={`cat-detail__cta ${isAdoptionOpen ? "is-open" : ""}`}
+                  onClick={() => setIsAdoptionOpen((v) => !v)}
+                >
+                  <span>
+                    {isAdoptionOpen
+                      ? t("adopt_cta_close")
+                      : t("adopt_cta_open", { name: cat.name })}
+                  </span>
+                  <span className="cat-detail__ctaIcon">▾</span>
+                </button>
+              )}
 
-              <span className="cat-detail__ctaIcon">
-                ▾
-              </span>
-            </button>
+              {showSponsorForm && (
+                <button
+                  type="button"
+                  className={`cat-detail__cta ${isSponsorOpen ? "is-open" : ""}`}
+                  onClick={() => setIsSponsorOpen((v) => !v)}
+                >
+                  <span>
+                    {isSponsorOpen
+                      ? t("adopt_cta_close")
+                      : sponsorCtaLabel}
+                  </span>
+                  <span className="cat-detail__ctaIcon">▾</span>
+                </button>
+              )}
+            </div>
 
-            {isOpen && (
+            {isAdoptionOpen && showAdoptionForm && (
               <div className="cat-detail__adoptPanel" ref={adoptRef}>
-                {showAdoptionForm && (
-                  <SupportForm
-                    mode="adoption"
-                    context={{ catId: cat.id, catName: cat.name }}
-                    onSuccess={() => setIsOpen(false)}
-                  />
-                )}
-                {showSponsorForm && (
-                  <SupportForm
-                    mode="sponsor"
-                    context={{ catId: cat.id, catName: cat.name }}
-                    onSuccess={() => setIsOpen(false)}
-                  />
-                )}
+                <SupportForm
+                  mode="adoption"
+                  context={{ catId: cat.id, catName: cat.name }}
+                  onSuccess={() => setIsAdoptionOpen(false)}
+                />
+              </div>
+            )}
+
+            {isSponsorOpen && showSponsorForm && (
+              <div className="cat-detail__adoptPanel" ref={sponsorRef}>
+                <SupportForm
+                  mode="sponsor"
+                  context={{ catId: cat.id, catName: cat.name }}
+                  onSuccess={() => setIsSponsorOpen(false)}
+                />
               </div>
             )}
           </div>

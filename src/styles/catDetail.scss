@@ -262,6 +262,12 @@
 .cat-detail__cta.is-open .cat-detail__ctaIcon {
   transform: rotate(180deg);
 }
+
+.cat-detail__supportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 @keyframes adoptPanelOpen {
   from {
     opacity: 0;
