@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const senderEmail = Deno.env.get("INQUIRY_SENDER_EMAIL") || "onboarding@resend.dev";
     const recipientsRaw = Deno.env.get("INQUIRY_RECIPIENTS") ||
-      "websosmaullidos@gmail.com,m-moran@hotmail.es";
+      "websosmaullidos@gmai.com,sos.maullidos@gmail.com";
 
     if (!resendApiKey) {
       return new Response(
