@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="site-footer__inner">
         <div className="site-footer__col">
-          <h3>Informacion</h3>
+          <h3>Información</h3>
           <a href="/#home">Home</a>
           <Link to="/quienes-somos">Sobre nosotros</Link>
           <Link to="/contacto">Contacto</Link>
@@ -15,21 +15,21 @@ export default function Footer() {
         </div>
 
         <div className="site-footer__col">
-          <h3>Atencion al cliente</h3>
+          <h3>Atención al cliente</h3>
           <a href="mailto:info@bolboretasvalu.com">info@bolboretasvalu.com</a>
           <a href="/#destacados">Productos destacados</a>
           <a href="/#colecciones">Colecciones</a>
         </div>
 
         <div className="site-footer__col">
-          <h3>Envios y devoluciones</h3>
-          <p>Envio gratis a partir de 50 EUR</p>
-          <p>Peticion directa por talla y variante</p>
-          <p>Atencion personalizada</p>
+          <h3>Envíos y devoluciones</h3>
+          <p>Envío gratis a partir de 60 EUR</p>
+          <p>Petición directa por talla y variante</p>
+          <p>Atención personalizada</p>
         </div>
 
         <div className="site-footer__col">
-          <h3>Siguenos</h3>
+          <h3>Síguenos</h3>
           <div className="site-footer__socials">
             <a
               href="https://www.instagram.com/bolboretas_valu/"
@@ -53,7 +53,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               aria-label="TikTok"
             >
-              <img src="/images/icons/tik-tok.png" alt="Logo Tiktok" />
+              <img src="/images/icons/tik-tok.png" alt="Logo TikTok" />
             </a>
             <a
               href="https://www.threads.com/@bolboretas_valu"
@@ -61,7 +61,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               aria-label="Threads"
             >
-               <img src="/images/icons/treads.png" alt="Logo Treads" />
+               <img src="/images/icons/treads.png" alt="Logo Threads" />
             </a>
           </div>
         </div>

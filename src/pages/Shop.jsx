@@ -63,10 +63,11 @@ const FALLBACK_CATEGORIES = [
   { slug: "infantil", name: "Infantil", description: "Ropa y calzado infantil" },
   { slug: "otros", name: "Otros", description: "Hilos, costura y pequeños articulos" },
   { slug: "outlet", name: "Outlet", description: "Remates y oportunidades" },
+  
 ];
 
 const COPY = {
-  categoriesTitle: "Secciones destacadas",
+  categoriesTitle: "Categorías",
   productsTitle: "Novedades destacadas",
   collectionsTitle: "Descubre nuestras colecciones",
   loading: "Cargando catalogo...",
@@ -99,7 +100,7 @@ const HOME_CATEGORIES = [
   },
   {
     slug: "infantil",
-    name: "Infantil juvenil",
+    name: "Infantil y juvenil",
     description: "Ropa y calzado infantil",
     accent: "sky",
     imageUrl: "/images/infantil-juvenil.png",
@@ -111,6 +112,13 @@ const HOME_CATEGORIES = [
     accent: "linen",
     imageUrl: "/images/hogar.png",
   },
+{
+  slug: "outlet",
+  name: "Outlet",
+  description: "Últimas unidades y oportunidades",
+  accent: "sale",
+  imageUrl: "/images/outlet.png",
+}
 ];
 
 function normalizeCategory(raw) {
@@ -293,7 +301,7 @@ export default function Shop() {
               <Link
                 key={category.slug}
                 to={`/categoria/${category.slug}`}
-                className={`shop__categoryCard shop__categoryCard--${category.accent}`}
+                className={`shop__categoryCard shop__categoryCard--${category.slug}`}
               >
                 <div className="shop__categoryImage">
                   {category.imageUrl ? (
@@ -309,7 +317,7 @@ export default function Shop() {
 
                 <div className="shop__categoryBody">
                   <h3>{category.name}</h3>
-                  <p>{category.description}</p>
+                  
                 </div>
               </Link>
             ))}
@@ -359,25 +367,18 @@ export default function Shop() {
                     </Link>
                   </div>
                 </div>
-
-                <div className="shop__requestWrap">
-                  <p className="shop__requestHint">{COPY.requestHint}</p>
-                  <ShopRequestForm
-                    product={product}
-                    categoryName={product.categoryName}
-                  />
-                </div>
               </article>
+              
             ))}
           </div>
         </section>
 
         <section className="shop__section" id="colecciones">
-          <div className="shop__heading">
+          {/* <div className="shop__heading">
             <span />
             <h2>{COPY.collectionsTitle}</h2>
             <span />
-          </div>
+          </div> */}
 
           <div className="shop__collectionGrid">
             {collectionCards.map((collection) => (

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { uploadImageFile } from "../../lib/storage";
-import "../../styles/ShopProductForm.scss"
+import "../../styles/ShopProductForm.scss";
 
 function slugify(value) {
   return String(value || "")
@@ -13,15 +13,29 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function readDraft(key) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ShopProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = useMemo(() => Boolean(id), [id]);
+  const draftKey = useMemo(() => `shop-product-form-draft:${id || "new"}`, [id]);
 
   const [categories, setCategories] = useState([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
-  const [existingImagePath, setExistingImagePath] = useState([]);
-
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState([]);
+  const [subcategoriesReady, setSubcategoriesReady] = useState(true);
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedExistingImages, setRemovedExistingImages] = useState([]);
+  const [variants, setVariants] = useState([]);
   const [form, setForm] = useState({
     sku: "",
     slug: "",
@@ -31,17 +45,27 @@ export default function ShopProductForm() {
     is_pack: false,
     is_active: true,
   });
-
   const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-useEffect(() => {
-  return () => {
-    imageFiles.forEach((file) => {
-      URL.revokeObjectURL(file);
-    });
-  };
-}, [imageFiles]);
+
+  const imagePreviewUrls = useMemo(
+    () => imageFiles.map((file) => URL.createObjectURL(file)),
+    [imageFiles]
+  );
+  const availableSubcategories = useMemo(
+    () =>
+      subcategories.filter((subcategory) =>
+        selectedCategoryIds.includes(subcategory.category_id)
+      ),
+    [selectedCategoryIds, subcategories]
+  );
+
+  useEffect(() => {
+    return () => {
+      imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviewUrls]);
 
   useEffect(() => {
     let active = true;
@@ -59,7 +83,40 @@ useEffect(() => {
 
         setCategories(categoryRows || []);
 
+        const { data: subcategoriesRows, error: subcategoriesError } = await supabase
+          .from("shop_subcategories")
+          .select("id, category_id, name, sort_order, is_active")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
+
+        if (subcategoriesError) {
+          console.warn("Subcategories load warning:", subcategoriesError.message);
+          setSubcategories([]);
+          setSubcategoriesReady(false);
+        } else {
+          setSubcategories(subcategoriesRows || []);
+          setSubcategoriesReady(true);
+        }
+
         if (!isEdit) {
+          const draft = readDraft(draftKey);
+
+          if (draft?.form) {
+            setForm((current) => ({ ...current, ...draft.form }));
+          }
+
+          if (Array.isArray(draft?.selectedCategoryIds)) {
+            setSelectedCategoryIds(draft.selectedCategoryIds);
+          }
+
+          if (Array.isArray(draft?.selectedSubcategoryIds)) {
+            setSelectedSubcategoryIds(draft.selectedSubcategoryIds);
+          }
+
+          if (Array.isArray(draft?.variants)) {
+            setVariants(draft.variants);
+          }
+
           setLoading(false);
           return;
         }
@@ -67,7 +124,9 @@ useEffect(() => {
         const [
           { data: productRow },
           { data: productCategories },
+          { data: productSubcategories, error: productSubcategoriesError },
           { data: imagesRows },
+          { data: variantsRows },
         ] = await Promise.all([
           supabase.from("shop_products").select("*").eq("id", id).single(),
           supabase
@@ -75,10 +134,18 @@ useEffect(() => {
             .select("category_id")
             .eq("product_id", id),
           supabase
+            .from("shop_product_subcategories")
+            .select("subcategory_id")
+            .eq("product_id", id),
+          supabase
             .from("shop_product_images")
-            .select("image_url, path")
+            .select("id, image_url, path, sort_order")
             .eq("product_id", id)
             .order("sort_order", { ascending: true }),
+          supabase
+            .from("shop_product_variants")
+            .select("id, color, size, is_active, sku")
+            .eq("product_id", id),
         ]);
 
         if (!active) return;
@@ -92,9 +159,33 @@ useEffect(() => {
           is_pack: productRow.is_pack ?? false,
           is_active: productRow.is_active ?? true,
         });
+        setSelectedCategoryIds((productCategories || []).map((item) => item.category_id));
+        if (!productSubcategoriesError) {
+          setSelectedSubcategoryIds(
+            (productSubcategories || []).map((item) => item.subcategory_id)
+          );
+        }
+        setExistingImages(imagesRows || []);
+        setRemovedExistingImages([]);
+        setVariants(variantsRows || []);
 
-        setSelectedCategoryIds((productCategories || []).map((c) => c.category_id));
-        setExistingImagePath(imagesRows?.map((img) => img.path) || []);
+        const draft = readDraft(draftKey);
+
+        if (draft?.form) {
+          setForm((current) => ({ ...current, ...draft.form }));
+        }
+
+        if (Array.isArray(draft?.selectedCategoryIds)) {
+          setSelectedCategoryIds(draft.selectedCategoryIds);
+        }
+
+        if (Array.isArray(draft?.selectedSubcategoryIds)) {
+          setSelectedSubcategoryIds(draft.selectedSubcategoryIds);
+        }
+
+        if (Array.isArray(draft?.variants)) {
+          setVariants(draft.variants);
+        }
       } catch (error) {
         alert(error.message);
       } finally {
@@ -103,13 +194,33 @@ useEffect(() => {
     }
 
     load();
-    return () => (active = false);
-  }, [id, isEdit]);
+    return () => {
+      active = false;
+    };
+  }, [draftKey, id, isEdit]);
 
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm((f) => ({
-      ...f,
+  useEffect(() => {
+    if (loading) return;
+
+    try {
+      window.localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          form,
+          selectedCategoryIds,
+          selectedSubcategoryIds,
+          variants,
+        })
+      );
+    } catch {
+      // Ignore draft persistence failures.
+    }
+  }, [draftKey, form, loading, selectedCategoryIds, selectedSubcategoryIds, variants]);
+
+  function handleChange(event) {
+    const { name, value, type, checked } = event.target;
+    setForm((current) => ({
+      ...current,
       [name]: type === "checkbox" ? checked : value,
     }));
   }
@@ -120,17 +231,62 @@ useEffect(() => {
         ? current.filter((id) => id !== categoryId)
         : [...current, categoryId]
     );
+
+    setSelectedSubcategoryIds((current) =>
+      current.filter((subcategoryId) => {
+        const subcategory = subcategories.find((item) => item.id === subcategoryId);
+        return subcategory && subcategory.category_id !== categoryId;
+      })
+    );
   }
-function handleRemoveSelectedImage(indexToRemove) {
-  setImageFiles((current) =>
-    current.filter((_, index) => index !== indexToRemove)
-  );
-}
-  async function handleSubmit(e) {
-    e.preventDefault();
+
+  function handleSubcategoryToggle(subcategoryId) {
+    setSelectedSubcategoryIds((current) =>
+      current.includes(subcategoryId)
+        ? current.filter((id) => id !== subcategoryId)
+        : [...current, subcategoryId]
+    );
+  }
+
+  function handleRemoveSelectedImage(indexToRemove) {
+    setImageFiles((current) => current.filter((_, index) => index !== indexToRemove));
+  }
+
+  function handleVariantChange(index, field, value) {
+    setVariants((current) =>
+      current.map((variant, variantIndex) =>
+        variantIndex === index ? { ...variant, [field]: value } : variant
+      )
+    );
+  }
+
+  function handleAddVariant() {
+    setVariants((current) => [
+      ...current,
+      { color: "", size: "", sku: "", is_active: true },
+    ]);
+  }
+
+  function handleRemoveVariant(indexToRemove) {
+    setVariants((current) => current.filter((_, index) => index !== indexToRemove));
+  }
+
+  function handleRemoveExistingImage(imageId) {
+    setExistingImages((current) => {
+      const imageToRemove = current.find((image) => image.id === imageId);
+
+      if (imageToRemove) {
+        setRemovedExistingImages((removed) => [...removed, imageToRemove]);
+      }
+
+      return current.filter((image) => image.id !== imageId);
+    });
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
     setSaving(true);
 
-    const previousImagePath = existingImagePath;
     let uploadedImages = [];
 
     try {
@@ -157,10 +313,7 @@ function handleRemoveSelectedImage(indexToRemove) {
       let productId = id;
 
       if (isEdit) {
-        const { error } = await supabase
-          .from("shop_products")
-          .update(payload)
-          .eq("id", id);
+        const { error } = await supabase.from("shop_products").update(payload).eq("id", id);
         if (error) throw error;
       } else {
         const { data, error } = await supabase
@@ -173,10 +326,7 @@ function handleRemoveSelectedImage(indexToRemove) {
         productId = data.id;
       }
 
-      await supabase
-        .from("shop_product_categories")
-        .delete()
-        .eq("product_id", productId);
+      await supabase.from("shop_product_categories").delete().eq("product_id", productId);
 
       if (selectedCategoryIds.length > 0) {
         await supabase.from("shop_product_categories").insert(
@@ -187,9 +337,63 @@ function handleRemoveSelectedImage(indexToRemove) {
         );
       }
 
-      if (uploadedImages.length > 0) {
-        if (previousImagePath?.length > 0) {
-          for (const path of previousImagePath) {
+      try {
+        await supabase
+          .from("shop_product_subcategories")
+          .delete()
+          .eq("product_id", productId);
+
+        if (selectedSubcategoryIds.length > 0) {
+          const { error: productSubcategoriesError } = await supabase
+            .from("shop_product_subcategories")
+            .insert(
+              selectedSubcategoryIds.map((subcategoryId) => ({
+                product_id: productId,
+                subcategory_id: subcategoryId,
+              }))
+            );
+
+          if (productSubcategoriesError) throw productSubcategoriesError;
+        }
+      } catch (error) {
+        console.warn("Product subcategories save warning:", error.message);
+      }
+
+      await supabase.from("shop_product_variants").delete().eq("product_id", productId);
+
+      const cleanedVariants = variants
+        .map((variant) => ({
+          product_id: productId,
+          color: variant.color?.trim() || null,
+          size: variant.size?.trim() || null,
+          sku: variant.sku?.trim() || null,
+          is_active: variant.is_active ?? true,
+        }))
+        .filter((variant) => variant.color || variant.size || variant.sku);
+
+      if (cleanedVariants.length > 0) {
+        const { error: variantsError } = await supabase
+          .from("shop_product_variants")
+          .insert(cleanedVariants);
+
+        if (variantsError) throw variantsError;
+      }
+
+      if (removedExistingImages.length > 0) {
+        const removedImageIds = removedExistingImages.map((image) => image.id);
+        const removedImagePaths = removedExistingImages
+          .map((image) => image.path)
+          .filter(Boolean);
+
+        const { error: deleteImagesError } = await supabase
+          .from("shop_product_images")
+          .delete()
+          .in("id", removedImageIds);
+
+        if (deleteImagesError) throw deleteImagesError;
+
+        if (removedImagePaths.length > 0) {
+          for (const path of removedImagePaths) {
             const { error } = await supabase.functions.invoke("delete-product", {
               body: { path },
             });
@@ -197,28 +401,32 @@ function handleRemoveSelectedImage(indexToRemove) {
             if (error) throw error;
           }
         }
+      }
 
-        await supabase
-          .from("shop_product_images")
-          .delete()
-          .eq("product_id", productId);
+      if (existingImages.length > 0) {
+        for (const [index, image] of existingImages.entries()) {
+          const { error } = await supabase
+            .from("shop_product_images")
+            .update({ sort_order: index })
+            .eq("id", image.id);
 
+          if (error) throw error;
+        }
+      }
+
+      if (uploadedImages.length > 0) {
         const imagesPayload = uploadedImages.map((img, index) => ({
           product_id: productId,
           image_url: img.publicUrl,
           path: img.path,
-          sort_order: index,
+          sort_order: existingImages.length + index,
         }));
 
-        const { error } = await supabase
-          .from("shop_product_images")
-          .insert(imagesPayload);
-
+        const { error } = await supabase.from("shop_product_images").insert(imagesPayload);
         if (error) throw error;
-
-        setExistingImagePath(uploadedImages.map((img) => img.path));
       }
 
+      window.localStorage.removeItem(draftKey);
       navigate("/admin/productos");
     } catch (error) {
       alert(error.message);
@@ -226,154 +434,260 @@ function handleRemoveSelectedImage(indexToRemove) {
       setSaving(false);
     }
   }
-const imagePreviewUrls = imageFiles.map((file) => URL.createObjectURL(file));
-async function handleRemoveExistingImage(pathToDelete, indexToRemove) {
-  // 1. borrar de storage
-  const { error } = await supabase.functions.invoke("delete-product", {
-    body: { path: pathToDelete },
-  });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+  return (
+    <div className="admin-form">
+      <h2>{isEdit ? "Editar producto" : "Nuevo producto"}</h2>
 
-  // 2. actualizar estado local
-  setExistingImagePath((current) =>
-    current.filter((_, i) => i !== indexToRemove)
-  );
-}
-return (
-  <div className="admin-form">
-    <h2>{isEdit ? "Editar producto" : "Nuevo producto"}</h2>
+      {loading ? (
+        <p>Cargando...</p>
+      ) : (
+        <form className="admin-form__grid" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="sku">SKU</label>
+            <input
+              id="sku"
+              name="sku"
+              value={form.sku}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-    {loading ? (
-      <p>Cargando...</p>
-    ) : (
-      <form className="admin-form__grid" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="sku">SKU</label>
-          <input
-            id="sku"
-            name="sku"
-            value={form.sku}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div>
+            <label htmlFor="name">Nombre</label>
+            <input
+              id="name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="name">Nombre</label>
-          <input
-            id="name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div>
+            <label htmlFor="price_eur">Precio EUR</label>
+            <input
+              id="price_eur"
+              name="price_eur"
+              type="number"
+              value={form.price_eur}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label htmlFor="slug">Slug</label>
-          <input
-            id="slug"
-            name="slug"
-            value={form.slug}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="full">
+            <div className="shop-product-form__categories">
+              <label>Categorías</label>
+              <div className="shop-product-form__categoryList">
+                {categories.map((category) => (
+                  <label key={category.id} className="shop-product-form__categoryOption">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategoryIds.includes(category.id)}
+                      onChange={() => handleCategoryToggle(category.id)}
+                    />
+                    <span>{category.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
 
-        <div>
-          <label htmlFor="price_eur">Precio EUR</label>
-          <input
-            id="price_eur"
-            name="price_eur"
-            type="number"
-            value={form.price_eur}
-            onChange={handleChange}
-          />
-        </div>
+          {subcategoriesReady ? (
+            <div className="full">
+              <div className="shop-product-form__categories">
+                <label>Subcategorías</label>
+                {selectedCategoryIds.length === 0 ? (
+                  <p className="shop-product-form__helper">
+                    Selecciona primero una categoría principal.
+                  </p>
+                ) : availableSubcategories.length === 0 ? (
+                  <p className="shop-product-form__helper">
+                    No hay subcategorías activas para las categorías seleccionadas.
+                  </p>
+                ) : (
+                  <div className="shop-product-form__categoryList">
+                    {availableSubcategories.map((subcategory) => (
+                      <label
+                        key={subcategory.id}
+                        className="shop-product-form__categoryOption"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSubcategoryIds.includes(subcategory.id)}
+                          onChange={() => handleSubcategoryToggle(subcategory.id)}
+                        />
+                        <span>{subcategory.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
 
-        <div className="full">
-          <label htmlFor="description">Descripción</label>
-          <textarea
-            id="description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="full">
+            <label htmlFor="description">Descripción</label>
+            <textarea
+              id="description"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="full">
-          <label htmlFor="image">Imágenes</label>
-          <input
-            id="image"
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => {
-  const newFiles = Array.from(e.target.files || []);
-  setImageFiles((current) => [...current, ...newFiles]);
-}}
-          />
-        </div>
+          <div className="full">
+            <label htmlFor="image">Imágenes</label>
+            <input
+              id="image"
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(event) => {
+                const newFiles = Array.from(event.target.files || []);
+                setImageFiles((current) => [...current, ...newFiles]);
+              }}
+            />
+          </div>
 
-    <div className="shop-product-form__images-row">
-  {imageFiles.length > 0 && (
-    <div className="shop-product-form__images-block">
-      <label>Nuevas imágenes seleccionadas</label>
-      <div className="admin-image-preview">
-       {imageFiles.map((file, index) => (
-  <div key={index} className="admin-image-item">
-    <img
-      src={imagePreviewUrls[index]}
-      alt={`Nueva imagen ${index + 1}`}
-      className="admin-image-preview__img"
-    />
+          <div className="full">
+            <div className="shop-product-form__variants">
+              <div className="shop-product-form__variantsHeader">
+                <label>Tallas y colores</label>
+                <button
+                  type="button"
+                  className="shop-product-form__addVariant"
+                  onClick={handleAddVariant}
+                >
+                  Añadir opción
+                </button>
+              </div>
 
-    <button
-      type="button"
-      className="admin-image-remove"
-      onClick={() => handleRemoveSelectedImage(index)}
-    >
-      ×
-    </button>
-  </div>
-))}
-      </div>
-    </div>
-  )}
+              {variants.length === 0 ? (
+                <p className="shop-product-form__variantsEmpty">
+                  Todavía no hay tallas o colores cargados.
+                </p>
+              ) : (
+                <div className="shop-product-form__variantList">
+                  {variants.map((variant, index) => (
+                    <div key={variant.id || index} className="shop-product-form__variantCard">
+                      <div>
+                        <label htmlFor={`variant-color-${index}`}>Color</label>
+                        <input
+                          id={`variant-color-${index}`}
+                          value={variant.color || ""}
+                          onChange={(event) =>
+                            handleVariantChange(index, "color", event.target.value)
+                          }
+                          placeholder="Azul cielo"
+                        />
+                      </div>
 
-{existingImagePath.length > 0 && (
-  <div className="shop-product-form__images-block">
-    <label>Imágenes actuales</label>
-    <div className="admin-image-preview">
-      {existingImagePath.map((path, index) => (
-        <div key={path || index} className="admin-image-item">
-          <img
-            src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/store-assets/${path}`}
-            alt={form.name || "Producto"}
-            className="admin-image-preview__img"
-          />
-          <button
-            type="button"
-            className="admin-image-remove"
-            onClick={() => handleRemoveExistingImage(path, index)}
-          >
-            ×
+                      <div>
+                        <label htmlFor={`variant-size-${index}`}>Talla</label>
+                        <input
+                          id={`variant-size-${index}`}
+                          value={variant.size || ""}
+                          onChange={(event) =>
+                            handleVariantChange(index, "size", event.target.value)
+                          }
+                          placeholder="6 meses"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor={`variant-sku-${index}`}>SKU variante</label>
+                        <input
+                          id={`variant-sku-${index}`}
+                          value={variant.sku || ""}
+                          onChange={(event) =>
+                            handleVariantChange(index, "sku", event.target.value)
+                          }
+                          placeholder="Opcional"
+                        />
+                      </div>
+
+                      <label className="checkbox shop-product-form__variantToggle">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(variant.is_active)}
+                          onChange={(event) =>
+                            handleVariantChange(index, "is_active", event.target.checked)
+                          }
+                        />
+                        <span>Disponible</span>
+                      </label>
+
+                      <button
+                        type="button"
+                        className="admin-action admin-action--danger"
+                        onClick={() => handleRemoveVariant(index)}
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="shop-product-form__images-row">
+            {imageFiles.length > 0 ? (
+              <div className="shop-product-form__images-block">
+                <label>Nuevas imágenes seleccionadas</label>
+                <div className="admin-image-preview">
+                  {imageFiles.map((file, index) => (
+                    <div key={index} className="admin-image-item">
+                      <img
+                        src={imagePreviewUrls[index]}
+                        alt={`Nueva imagen ${index + 1}`}
+                        className="admin-image-preview__img"
+                      />
+                      <button
+                        type="button"
+                        className="admin-image-remove"
+                        onClick={() => handleRemoveSelectedImage(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {existingImages.length > 0 ? (
+              <div className="shop-product-form__images-block">
+                <label>Imágenes actuales</label>
+                <div className="admin-image-preview">
+                  {existingImages.map((image, index) => (
+                    <div key={image.id || image.path || index} className="admin-image-item">
+                      <img
+                        src={image.image_url}
+                        alt={form.name || "Producto"}
+                        className="admin-image-preview__img"
+                      />
+                      <button
+                        type="button"
+                        className="admin-image-remove"
+                        onClick={() => handleRemoveExistingImage(image.id)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <button type="submit" className="admin-btn-primary" disabled={saving}>
+            {saving ? "Guardando..." : "Guardar"}
           </button>
-        </div>
-      ))}
+        </form>
+      )}
     </div>
-  </div>
-)}
-</div>
-
-        <button type="submit" className="admin-btn-primary" disabled={saving}>
-          {saving ? "Guardando..." : "Guardar"}
-        </button>
-      </form>
-    )}
-  </div>
-);
+  );
 }

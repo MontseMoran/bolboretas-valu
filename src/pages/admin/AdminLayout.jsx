@@ -120,6 +120,10 @@ export default function AdminLayout() {
             Categorias
           </NavLink>
 
+          <NavLink to="subcategorias" className={({ isActive }) => `admin-link ${isActive ? "is-active" : ""}`}>
+            Subcategorias
+          </NavLink>
+
           <NavLink to="productos" className={({ isActive }) => `admin-link ${isActive ? "is-active" : ""}`}>
             Productos
           </NavLink>

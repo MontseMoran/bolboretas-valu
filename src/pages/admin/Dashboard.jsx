@@ -11,6 +11,9 @@ export default function Dashboard() {
         <Link to="/admin/categorias" className="admin-action admin-action--primary">
           Gestionar categorias
         </Link>
+        <Link to="/admin/subcategorias" className="admin-action admin-action--ghost">
+          Gestionar subcategorias
+        </Link>
         <Link to="/admin/productos" className="admin-action admin-action--ghost">
           Gestionar productos
         </Link>

@@ -1,15 +1,38 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import BackLink from "../components/backLink/BackLink";
 import ShopRequestForm from "../components/ShopRequestForm/ShopRequestForm";
+import { useCart } from "../lib/cartContext";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/productDetail.scss";
 
+function buildVariantOptions(variants, field) {
+  const grouped = new Map();
+
+  (variants || []).forEach((variant) => {
+    const value = String(variant?.[field] || "").trim();
+
+    if (!value) return;
+
+    const current = grouped.get(value);
+    grouped.set(value, {
+      label: value,
+      isAvailable: current ? current.isAvailable || Boolean(variant.is_active) : Boolean(variant.is_active),
+    });
+  });
+
+  return Array.from(grouped.values());
+}
+
 export default function ProductDetail() {
   const { slug } = useParams();
+  const { addItem } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [addedMsg, setAddedMsg] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +57,11 @@ export default function ProductDetail() {
             shop_product_images (
               image_url,
               sort_order
+            ),
+            shop_product_variants (
+              color,
+              size,
+              is_active
             ),
             shop_product_categories (
               shop_categories (
@@ -67,6 +95,8 @@ export default function ProductDetail() {
           price: Number(data.price_eur || 0),
           isPack: Boolean(data.is_pack),
           images: sortedImages,
+          colors: buildVariantOptions(data.shop_product_variants, "color"),
+          sizes: buildVariantOptions(data.shop_product_variants, "size"),
           categoryName: categories[0]?.name || "Sin categoria",
           categories,
         };
@@ -74,6 +104,8 @@ export default function ProductDetail() {
         if (!cancelled) {
           setProduct(normalizedProduct);
           setActiveImage(sortedImages[0] || "");
+          setQuantity(1);
+          setAddedMsg("");
         }
       } catch (error) {
         console.error("Product detail error:", error);
@@ -91,6 +123,23 @@ export default function ProductDetail() {
   }, [slug]);
 
   const hasImages = useMemo(() => product?.images?.length > 0, [product]);
+
+  function handleAddToCart() {
+    if (!product) return;
+
+    addItem(
+      {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.images[0] || "",
+      },
+      quantity
+    );
+
+    setAddedMsg("Añadido al carrito.");
+  }
 
   if (loading) {
     return (
@@ -114,6 +163,10 @@ export default function ProductDetail() {
 
   return (
     <main className="product-detail">
+      <div className="product-detail__back">
+        <BackLink to="/shop" />
+      </div>
+
       <div className="product-detail__container">
         <section className="product-detail__grid">
           <div className="product-detail__gallery">
@@ -149,7 +202,62 @@ export default function ProductDetail() {
             <p className="product-detail__price">
               {product.price.toFixed(2).replace(".", ",")} €
             </p>
+            <div className="product-detail__purchase">
+              <label className="product-detail__quantity">
+                <span>Cantidad</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(event) => {
+                    setQuantity(Math.max(1, Number(event.target.value) || 1));
+                    setAddedMsg("");
+                  }}
+                />
+              </label>
+
+              <button
+                type="button"
+                className="product-detail__addToCart"
+                onClick={handleAddToCart}
+              >
+                Añadir al carrito
+              </button>
+            </div>
+            {addedMsg ? <p className="product-detail__addedMsg">{addedMsg}</p> : null}
             <p className="product-detail__description">{product.description}</p>
+
+            {product.colors.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Colores</p>
+                <div className="product-detail__chips">
+                  {product.colors.map((color) => (
+                    <span
+                      key={color.label}
+                      className={`product-detail__chip ${color.isAvailable ? "" : "is-disabled"}`}
+                    >
+                      {color.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {product.sizes.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Tallas</p>
+                <div className="product-detail__chips">
+                  {product.sizes.map((size) => (
+                    <span
+                      key={size.label}
+                      className={`product-detail__chip ${size.isAvailable ? "" : "is-disabled"}`}
+                    >
+                      {size.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <div className="product-detail__request">
               <ShopRequestForm

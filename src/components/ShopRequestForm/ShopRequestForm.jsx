@@ -6,6 +6,8 @@ import "./ShopRequestForm.scss";
 const COPY = {
   title: "¿Necesitas otra talla o una prenda parecida?",
   intro: "Déjanos tu petición y revisamos disponibilidad para este producto.",
+  open: "Abrir formulario",
+  close: "Ocultar formulario",
   requestedItem: "Qué necesitas",
   requestedSize: "Talla",
   requestedSizePlaceholder: "Ej. S, 38, 6 años",
@@ -27,6 +29,7 @@ const COPY = {
 };
 
 export default function ShopRequestForm({ product, categoryName, onSuccess }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -98,6 +101,7 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
       setNotes("");
       setAcceptedPrivacy(false);
       setOkMsg(COPY.success);
+      setIsOpen(true);
       onSuccess?.();
     } catch (error) {
       console.error("ShopRequestForm submit error:", error);
@@ -109,10 +113,26 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
 
   return (
     <section className="shop-request">
-      <h3 className="shop-request__title">{COPY.title}</h3>
-      <p className="shop-request__intro">{COPY.intro}</p>
+      <button
+        type="button"
+        className={`shop-request__toggle ${isOpen ? "is-open" : ""}`}
+        onClick={() => setIsOpen((current) => !current)}
+        aria-expanded={isOpen}
+      >
+        <span>
+          <strong className="shop-request__title">{COPY.title}</strong>
+          <span className="shop-request__intro">{COPY.intro}</span>
+        </span>
+        <span className="shop-request__toggleLabel">
+          {isOpen ? COPY.close : COPY.open}
+        </span>
+      </button>
 
-      <form className="shop-request__grid" onSubmit={handleSubmit}>
+      <form
+        className={`shop-request__grid ${isOpen ? "is-open" : ""}`}
+        onSubmit={handleSubmit}
+        hidden={!isOpen}
+      >
         <label className="shop-request__field">
           <span>{COPY.requestedItem}</span>
           <input

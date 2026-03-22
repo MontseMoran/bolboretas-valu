@@ -81,17 +81,35 @@
 }
 
 .nav-iconLink {
-  width: 38px;
-  height: 38px;
+  position: relative;
+  width: 46px;
+  height: 46px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #2d2722;
 }
 
+.nav-cartCount {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #2d2722;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .nav-iconLink svg {
-  width: 21px;
-  height: 21px;
+  width: 25px;
+  height: 25px;
   stroke: currentColor;
   stroke-width: 1.7;
   fill: none;

@@ -32,6 +32,18 @@ Deno.serve(async (req: Request) => {
 
   //  BORRAR SOLO 1 IMAGEN
   if (singlePath) {
+    const { error: deleteImageRowError } = await supabase
+      .from("shop_product_images")
+      .delete()
+      .eq("path", singlePath);
+
+    if (deleteImageRowError) {
+      return new Response(JSON.stringify({ error: deleteImageRowError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { error } = await supabase.storage
       .from("store-assets")
       .remove([singlePath]);

@@ -157,6 +157,13 @@ export default function ShopProducts() {
 
               <div className="actions">
                 <Link
+                  to={`/producto/${item.slug}`}
+                  className="admin-action admin-action--ghost"
+                >
+                  Ver en web
+                </Link>
+
+                <Link
                   to={`/admin/productos/${item.id}/editar`}
                   className="admin-action admin-action--edit"
                 >

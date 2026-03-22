@@ -48,7 +48,7 @@
 .shop__collectionGrid,
 .shop__productRail {
   display: grid;
-  gap: 14px;
+  gap: 20px;
 }
 
 .shop__categoryGrid {
@@ -64,6 +64,9 @@
   overflow: hidden;
   border: 1px solid rgba(45, 39, 34, 0.06);
   transition: 0.2s;
+  height: 100%;
+  position: relative;
+
 }
 
 .shop__categoryCard:hover {
@@ -72,10 +75,14 @@
 }
 
 .shop__categoryImage {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: auto;
+  height: 360px;
   background: #f5f3f2;
 }
-
+.shop__categoryCard--mujer img,
+.shop__categoryCard--hombre img {
+  object-position: center 1%;
+}
 .shop__categoryImg {
   width: 100%;
   height: 100%;
@@ -83,19 +90,30 @@
 }
 
 .shop__categoryBody {
-  padding: 12px;
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  padding: 8 12px;
   text-align: center;
+  background:none;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .shop__categoryBody h3 {
-  font-size: 1rem;
+   font-family: "Playfair Display", serif;
+  font-size: 3.2rem;
   margin: 0 0 4px;
   font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.04em;
 }
 
+
 .shop__categoryBody p {
-  font-size: 0.9rem;
-  color: #6f6863;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
 
@@ -189,7 +207,10 @@
   .shop__heading h2 {
     font-size: 2.2rem;
   }
-
+.shop__categoryImage {
+  aspect-ratio: 1 / 1;
+  height: auto;
+}
   .shop__categoryGrid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -219,7 +240,7 @@
   }
 
   .shop__categoryGrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .shop__productRail {
@@ -247,7 +268,7 @@
   }
 
   .shop__categoryGrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .shop__productRail {
