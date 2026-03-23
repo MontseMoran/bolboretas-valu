@@ -566,6 +566,7 @@ export default function ShopProductForm() {
               onChange={(event) => {
                 const newFiles = Array.from(event.target.files || []);
                 setImageFiles((current) => [...current, ...newFiles]);
+                event.target.value = "";
               }}
             />
           </div>

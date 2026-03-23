@@ -1,5 +1,11 @@
 const MAX_INPUT_BYTES = 3 * 1024 * 1024;
 
+function buildOutputName(fileName) {
+  const normalizedName = String(fileName || "").trim();
+  const baseName = normalizedName.replace(/\.[^.]+$/, "") || "imagen";
+  return `${baseName}.jpg`;
+}
+
 export async function resizeImageFile(file, maxLong = 1200, quality = 0.7) {
   if (!file) {
     throw new Error("No se ha recibido ninguna imagen.");
@@ -18,9 +24,7 @@ export async function resizeImageFile(file, maxLong = 1200, quality = 0.7) {
     fileName.endsWith(".heif");
 
   if (isHeicLike) {
-    throw new Error(
-      "Las fotos HEIC o HEIF no son compatibles todavía. Usa JPG o PNG."
-    );
+    throw new Error("Las fotos HEIC o HEIF no son compatibles todavía. Usa JPG o PNG.");
   }
 
   const dataUrl = await new Promise((resolve, reject) => {
@@ -61,7 +65,7 @@ export async function resizeImageFile(file, maxLong = 1200, quality = 0.7) {
     throw new Error("No se pudo convertir la imagen. Prueba con otra foto JPG o PNG.");
   }
 
-  return new File([blob], file.name.replace(/\.(png|jpg|jpeg)$/i, ".jpg"), {
+  return new File([blob], buildOutputName(file.name), {
     type: "image/jpeg",
   });
 }
