@@ -272,7 +272,7 @@ export default function ShopProductForm() {
   }
 
   function handleImageInputChange(event) {
-    const newFiles = Array.from(event.target.files || []);
+    const newFiles = Array.from(event.target.files || []).slice(0, 1);
 
     if (newFiles.length === 0) {
       setImagePickerMessage("El dispositivo no ha entregado ninguna imagen.");
@@ -290,9 +290,7 @@ export default function ShopProductForm() {
     setImageFiles((current) => [...current, ...newFiles]);
     setLastImageSelectionKey(selectionKey);
     setImagePickerMessage(
-      `${newFiles.length} imagen${newFiles.length === 1 ? "" : "es"} añadida${
-        newFiles.length === 1 ? "" : "s"
-      }: ${newFiles.map((file) => file.name || "imagen").join(", ")}`
+      `Imagen añadida: ${newFiles[0]?.name || "imagen"}`
     );
 
     event.currentTarget.value = "";
@@ -607,11 +605,9 @@ export default function ShopProductForm() {
             <input
               id="image"
               type="file"
-              multiple
               name="image"
               accept=".jpg,.jpeg,.png,.webp,.avif,image/*"
               onChange={handleImageInputChange}
-              onInput={handleImageInputChange}
             />
             {imagePickerMessage ? (
               <p className="shop-product-form__helper">
