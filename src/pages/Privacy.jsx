@@ -5,9 +5,9 @@ export default function Privacy() {
   return (
     <main className="privacy">
       <div className="privacy__container">
-        <h1 className="privacy__title">Politica de privacidad</h1>
+        <h1 className="privacy__title">Política de privacidad</h1>
         <p className="privacy__intro">
-          Informacion basica sobre como tratamos los datos que envias desde los
+          Información básica sobre cómo tratamos los datos que envías desde los
           formularios de la tienda.
         </p>
 
@@ -37,8 +37,8 @@ export default function Privacy() {
           <h2>Destinatarios</h2>
           <p>
             Los datos pueden ser tratados por proveedores necesarios para el servicio,
-            como Supabase para infraestructura y base de datos, y Resend para el envio
-            de correos electronicos.
+            como Supabase para infraestructura y base de datos, y Resend para el envío
+            de correos electrónicos.
           </p>
         </section>
 

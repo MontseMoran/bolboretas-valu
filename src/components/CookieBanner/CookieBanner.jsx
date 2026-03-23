@@ -26,12 +26,12 @@ export default function CookieBanner() {
     <aside className="cookie-banner" role="dialog" aria-live="polite">
       <p className="cookie-banner__text">
         {isCat
-          ? "Utilitzem cookies tÃ¨cniques per al funcionament del web. MÃ©s info a"
-          : "Usamos cookies tÃ©cnicas para el funcionamiento de la web. MÃ¡s info en"}{" "}
-        <Link to="/privacidad">{isCat ? "polÃ­tica de privacitat" : "polÃ­tica de privacidad"}</Link>.
+          ? "Utilitzem cookies tècniques per al funcionament del web. Més info a"
+          : "Usamos cookies técnicas para el funcionamiento de la web. Más info en"}{" "}
+        <Link to="/privacidad">{isCat ? "política de privacitat" : "política de privacidad"}</Link>.
       </p>
       <button type="button" className="cookie-banner__btn" onClick={accept}>
-        {isCat ? "EntÃ¨s" : "Entendido"}
+        {isCat ? "Entès" : "Entendido"}
       </button>
     </aside>
   );
