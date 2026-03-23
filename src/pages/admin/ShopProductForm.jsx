@@ -47,6 +47,7 @@ export default function ShopProductForm() {
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePickerMessage, setImagePickerMessage] = useState("");
+  const [lastImageSelectionKey, setLastImageSelectionKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -278,12 +279,23 @@ export default function ShopProductForm() {
       return;
     }
 
+    const selectionKey = newFiles
+      .map((file) => `${file.name}:${file.size}:${file.lastModified}`)
+      .join("|");
+
+    if (selectionKey === lastImageSelectionKey) {
+      return;
+    }
+
     setImageFiles((current) => [...current, ...newFiles]);
+    setLastImageSelectionKey(selectionKey);
     setImagePickerMessage(
       `${newFiles.length} imagen${newFiles.length === 1 ? "" : "es"} añadida${
         newFiles.length === 1 ? "" : "s"
       }: ${newFiles.map((file) => file.name || "imagen").join(", ")}`
     );
+
+    event.currentTarget.value = "";
   }
 
   function moveItem(items, fromIndex, toIndex) {
@@ -596,7 +608,8 @@ export default function ShopProductForm() {
               id="image"
               type="file"
               multiple
-              accept="image/*"
+              name="image"
+              accept=".jpg,.jpeg,.png,.webp,.avif,image/*"
               onChange={handleImageInputChange}
               onInput={handleImageInputChange}
             />
