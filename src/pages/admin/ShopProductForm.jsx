@@ -46,6 +46,7 @@ export default function ShopProductForm() {
     is_active: true,
   });
   const [imageFiles, setImageFiles] = useState([]);
+  const [imagePickerMessage, setImagePickerMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -249,7 +250,33 @@ export default function ShopProductForm() {
   }
 
   function handleRemoveSelectedImage(indexToRemove) {
-    setImageFiles((current) => current.filter((_, index) => index !== indexToRemove));
+    setImageFiles((current) => {
+      const nextFiles = current.filter((_, index) => index !== indexToRemove);
+      setImagePickerMessage(
+        nextFiles.length > 0
+          ? `${nextFiles.length} imagen${nextFiles.length === 1 ? "" : "es"} seleccionada${
+              nextFiles.length === 1 ? "" : "s"
+            }.`
+          : ""
+      );
+      return nextFiles;
+    });
+  }
+
+  function handleImageInputChange(event) {
+    const newFiles = Array.from(event.target.files || []);
+
+    if (newFiles.length === 0) {
+      setImagePickerMessage("El dispositivo no ha entregado ninguna imagen.");
+      return;
+    }
+
+    setImageFiles((current) => [...current, ...newFiles]);
+    setImagePickerMessage(
+      `${newFiles.length} imagen${newFiles.length === 1 ? "" : "es"} añadida${
+        newFiles.length === 1 ? "" : "s"
+      }.`
+    );
   }
 
   function moveItem(items, fromIndex, toIndex) {
@@ -563,16 +590,11 @@ export default function ShopProductForm() {
               type="file"
               multiple
               accept="image/*"
-              onChange={(event) => {
-                const newFiles = Array.from(event.target.files || []);
-                setImageFiles((current) => [...current, ...newFiles]);
-                event.target.value = "";
-              }}
+              onChange={handleImageInputChange}
             />
-            {imageFiles.length > 0 ? (
+            {imagePickerMessage ? (
               <p className="shop-product-form__helper">
-                {imageFiles.length} imagen{imageFiles.length === 1 ? "" : "es"} seleccionada
-                {imageFiles.length === 1 ? "" : "s"}.
+                {imagePickerMessage}
               </p>
             ) : null}
           </div>

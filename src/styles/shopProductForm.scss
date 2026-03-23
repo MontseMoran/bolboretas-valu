@@ -109,6 +109,25 @@
   color: #374151;
 }
 
+#image {
+  padding: 14px 16px;
+  border: 1px dashed rgba(47, 93, 98, 0.45);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f2fbfb 0%, #e7f4f5 100%);
+}
+
+#image::file-selector-button {
+  margin-right: 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #2f5d62;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .admin-form .admin-image-preview {
   display: grid;
 grid-template-columns: repeat(auto-fill, minmax(92px, 92px));
