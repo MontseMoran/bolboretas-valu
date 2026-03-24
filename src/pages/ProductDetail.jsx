@@ -6,22 +6,12 @@ import { useCart } from "../lib/cartContext";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/productDetail.scss";
 
-function buildVariantOptions(variants, field) {
-  const grouped = new Map();
+function uniqueValues(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
 
-  (variants || []).forEach((variant) => {
-    const value = String(variant?.[field] || "").trim();
-
-    if (!value) return;
-
-    const current = grouped.get(value);
-    grouped.set(value, {
-      label: value,
-      isAvailable: current ? current.isAvailable || Boolean(variant.is_active) : Boolean(variant.is_active),
-    });
-  });
-
-  return Array.from(grouped.values());
+function buildVariantKey(color, size) {
+  return `${String(color || "").trim()}::${String(size || "").trim()}`;
 }
 
 export default function ProductDetail() {
@@ -33,6 +23,8 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [addedMsg, setAddedMsg] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -59,9 +51,11 @@ export default function ProductDetail() {
               sort_order
             ),
             shop_product_variants (
+              id,
               color,
               size,
-              is_active
+              is_active,
+              sku
             ),
             shop_product_categories (
               shop_categories (
@@ -86,6 +80,14 @@ export default function ProductDetail() {
           .map((row) => row.shop_categories)
           .filter(Boolean);
 
+        const variants = (data.shop_product_variants || []).map((variant) => ({
+          id: variant.id,
+          color: String(variant.color || "").trim(),
+          size: String(variant.size || "").trim(),
+          is_active: Boolean(variant.is_active),
+          sku: String(variant.sku || "").trim(),
+        }));
+
         const normalizedProduct = {
           id: data.id,
           slug: data.slug,
@@ -95,9 +97,8 @@ export default function ProductDetail() {
           price: Number(data.price_eur || 0),
           isPack: Boolean(data.is_pack),
           images: sortedImages,
-          colors: buildVariantOptions(data.shop_product_variants, "color"),
-          sizes: buildVariantOptions(data.shop_product_variants, "size"),
-          categoryName: categories[0]?.name || "Sin categoria",
+          variants,
+          categoryName: categories[0]?.name || "Sin categoría",
           categories,
         };
 
@@ -106,6 +107,8 @@ export default function ProductDetail() {
           setActiveImage(sortedImages[0] || "");
           setQuantity(1);
           setAddedMsg("");
+          setSelectedColor("");
+          setSelectedSize("");
         }
       } catch (error) {
         console.error("Product detail error:", error);
@@ -123,10 +126,99 @@ export default function ProductDetail() {
   }, [slug]);
 
   const hasImages = useMemo(() => product?.images?.length > 0, [product]);
+
   const activeImageIndex = useMemo(() => {
     if (!product?.images?.length) return -1;
     return Math.max(0, product.images.findIndex((image) => image === activeImage));
   }, [activeImage, product?.images]);
+
+  const allColors = useMemo(
+    () => uniqueValues((product?.variants || []).map((variant) => variant.color)),
+    [product?.variants]
+  );
+
+  const allSizes = useMemo(
+    () => uniqueValues((product?.variants || []).map((variant) => variant.size)),
+    [product?.variants]
+  );
+
+  const activeVariants = useMemo(
+    () => (product?.variants || []).filter((variant) => variant.is_active),
+    [product?.variants]
+  );
+
+  const colorOptions = useMemo(
+    () =>
+      allColors.map((color) => ({
+        label: color,
+        isAvailable: activeVariants.some((variant) => variant.color === color),
+      })),
+    [activeVariants, allColors]
+  );
+
+  const sizeOptions = useMemo(
+    () =>
+      allSizes.map((size) => {
+        const relatedVariants = activeVariants.filter(
+          (variant) =>
+            variant.size === size && (!selectedColor || variant.color === selectedColor)
+        );
+
+        return {
+          label: size,
+          isAvailable: relatedVariants.some((variant) => variant.is_active),
+        };
+      }),
+    [activeVariants, allSizes, selectedColor]
+  );
+
+  const availableSizesForSelection = useMemo(
+    () =>
+      uniqueValues(
+        activeVariants
+          .filter((variant) => !selectedColor || variant.color === selectedColor)
+          .map((variant) => variant.size)
+      ),
+    [activeVariants, selectedColor]
+  );
+
+  const activeVariant = useMemo(() => {
+    if (!selectedColor && !selectedSize) return null;
+
+    return (
+      (product?.variants || []).find(
+        (variant) =>
+          variant.is_active &&
+          variant.color === selectedColor &&
+          variant.size === selectedSize
+      ) || null
+    );
+  }, [product?.variants, selectedColor, selectedSize]);
+
+  const requiresColorSelection = colorOptions.length > 0;
+  const requiresSizeSelection = allSizes.length > 0;
+
+  useEffect(() => {
+    if (!requiresSizeSelection) return;
+
+    if (availableSizesForSelection.length === 1) {
+      const onlySize = availableSizesForSelection[0];
+
+      if (selectedSize !== onlySize) {
+        setSelectedSize(onlySize);
+      }
+
+      return;
+    }
+
+    if (selectedSize && !availableSizesForSelection.includes(selectedSize)) {
+      setSelectedSize("");
+    }
+  }, [
+    availableSizesForSelection,
+    requiresSizeSelection,
+    selectedSize,
+  ]);
 
   function handleChangeImage(direction) {
     if (!product?.images?.length) return;
@@ -136,16 +228,65 @@ export default function ProductDetail() {
     setActiveImage(product.images[nextIndex]);
   }
 
+  function handleSelectColor(color) {
+    const nextColor = selectedColor === color ? "" : color;
+    const nextAvailableSizes = uniqueValues(
+      activeVariants
+        .filter((variant) => !nextColor || variant.color === nextColor)
+        .map((variant) => variant.size)
+    );
+
+    setSelectedColor(nextColor);
+
+    if (nextAvailableSizes.length === 1) {
+      setSelectedSize(nextAvailableSizes[0]);
+    } else if (selectedSize && !nextAvailableSizes.includes(selectedSize)) {
+      setSelectedSize("");
+    }
+
+    setAddedMsg("");
+  }
+
+  function handleSelectSize(size, isAvailable) {
+    if (!isAvailable) return;
+    setSelectedSize((current) => (current === size ? "" : size));
+    setAddedMsg("");
+  }
+
   function handleAddToCart() {
     if (!product) return;
+
+    if (requiresColorSelection && !selectedColor) {
+      setAddedMsg("Selecciona un color.");
+      return;
+    }
+
+    if (requiresSizeSelection && !selectedSize) {
+      setAddedMsg("Selecciona una talla.");
+      return;
+    }
+
+    if (requiresColorSelection && requiresSizeSelection && !activeVariant) {
+      setAddedMsg("Esa combinación no está disponible.");
+      return;
+    }
 
     addItem(
       {
         id: product.id,
+        lineId: [
+          product.id,
+          selectedColor || "sin-color",
+          selectedSize || "sin-talla",
+        ].join("::"),
         slug: product.slug,
         name: product.name,
         price: product.price,
         imageUrl: product.images[0] || "",
+        color: selectedColor || "",
+        size: selectedSize || "",
+        variantId: activeVariant?.id || "",
+        variantSku: activeVariant?.sku || "",
       },
       quantity
     );
@@ -236,6 +377,57 @@ export default function ProductDetail() {
             <p className="product-detail__price">
               {product.price.toFixed(2).replace(".", ",")} €
             </p>
+
+            {colorOptions.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Colores</p>
+                <div className="product-detail__chips">
+                  {colorOptions.map((color) => (
+                    <button
+                      key={color.label}
+                      type="button"
+                      className={`product-detail__chip ${
+                        selectedColor === color.label ? "is-active" : ""
+                      } ${color.isAvailable ? "" : "is-disabled"}`}
+                      onClick={() => handleSelectColor(color.label)}
+                      disabled={!color.isAvailable}
+                    >
+                      {color.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {sizeOptions.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Tallas</p>
+                <div className="product-detail__chips">
+                  {sizeOptions.map((size) => (
+                    <button
+                      key={buildVariantKey(selectedColor, size.label)}
+                      type="button"
+                      className={`product-detail__chip ${
+                        selectedSize === size.label ? "is-active" : ""
+                      } ${size.isAvailable ? "" : "is-disabled"}`}
+                      onClick={() => handleSelectSize(size.label, size.isAvailable)}
+                      disabled={!size.isAvailable}
+                    >
+                      {size.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {(selectedColor || selectedSize) && (
+              <p className="product-detail__selection">
+                {selectedColor ? `Color: ${selectedColor}` : null}
+                {selectedColor && selectedSize ? " · " : null}
+                {selectedSize ? `Talla: ${selectedSize}` : null}
+              </p>
+            )}
+
             <div className="product-detail__purchase">
               <label className="product-detail__quantity">
                 <span>Cantidad</span>
@@ -260,38 +452,6 @@ export default function ProductDetail() {
             </div>
             {addedMsg ? <p className="product-detail__addedMsg">{addedMsg}</p> : null}
             <p className="product-detail__description">{product.description}</p>
-
-            {product.colors.length > 0 ? (
-              <div className="product-detail__options">
-                <p className="product-detail__optionTitle">Colores</p>
-                <div className="product-detail__chips">
-                  {product.colors.map((color) => (
-                    <span
-                      key={color.label}
-                      className={`product-detail__chip ${color.isAvailable ? "" : "is-disabled"}`}
-                    >
-                      {color.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {product.sizes.length > 0 ? (
-              <div className="product-detail__options">
-                <p className="product-detail__optionTitle">Tallas</p>
-                <div className="product-detail__chips">
-                  {product.sizes.map((size) => (
-                    <span
-                      key={size.label}
-                      className={`product-detail__chip ${size.isAvailable ? "" : "is-disabled"}`}
-                    >
-                      {size.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
 
             <div className="product-detail__request">
               <ShopRequestForm

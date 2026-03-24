@@ -131,10 +131,16 @@
 }
 
 .cart-page__price,
+.cart-page__meta,
 .cart-page__lineTotal,
 .cart-page__summaryLabel,
 .cart-page__summaryText {
   margin: 0;
+}
+
+.cart-page__meta {
+  color: rgba(45, 39, 34, 0.68);
+  font-size: 0.92rem;
 }
 
 .cart-page__controls {

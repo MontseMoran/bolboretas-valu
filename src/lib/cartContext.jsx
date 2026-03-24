@@ -31,9 +31,10 @@ export function CartProvider({ children }) {
   const value = useMemo(() => {
     function addItem(item, quantity = 1) {
       const safeQuantity = Math.max(1, Number(quantity) || 1);
+      const lineId = item.lineId || item.id;
 
       setItems((current) => {
-        const existingIndex = current.findIndex((entry) => entry.id === item.id);
+        const existingIndex = current.findIndex((entry) => entry.lineId === lineId);
 
         if (existingIndex >= 0) {
           return current.map((entry, index) =>
@@ -47,27 +48,32 @@ export function CartProvider({ children }) {
           ...current,
           {
             id: item.id,
+            lineId,
             slug: item.slug,
             name: item.name,
             price: Number(item.price || 0),
             imageUrl: item.imageUrl || "",
+            color: item.color || "",
+            size: item.size || "",
+            variantId: item.variantId || "",
+            variantSku: item.variantSku || "",
             quantity: safeQuantity,
           },
         ];
       });
     }
 
-    function updateQuantity(id, quantity) {
+    function updateQuantity(lineId, quantity) {
       const safeQuantity = Math.max(1, Number(quantity) || 1);
       setItems((current) =>
         current.map((item) =>
-          item.id === id ? { ...item, quantity: safeQuantity } : item
+          item.lineId === lineId ? { ...item, quantity: safeQuantity } : item
         )
       );
     }
 
-    function removeItem(id) {
-      setItems((current) => current.filter((item) => item.id !== id));
+    function removeItem(lineId) {
+      setItems((current) => current.filter((item) => item.lineId !== lineId));
     }
 
     function clearCart() {

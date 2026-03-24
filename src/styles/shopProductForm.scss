@@ -71,6 +71,35 @@
   gap: 12px;
 }
 
+.shop-product-form__variantGroups {
+  display: grid;
+  gap: 14px;
+}
+
+.shop-product-form__variantGroup {
+  padding: 14px;
+  border: 1px solid #dbe1e8;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.shop-product-form__variantGroupHeader {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.shop-product-form__variantGroupColor {
+  display: grid;
+  gap: 8px;
+}
+
+.shop-product-form__variantGroupActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .shop-product-form__variantCard {
   display: grid;
   gap: 12px;
@@ -286,8 +315,13 @@ grid-template-columns: repeat(auto-fill, minmax(92px, 92px));
     grid-template-columns: 1fr 1fr;
   }
 
+  .shop-product-form__variantGroupHeader {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
   .shop-product-form__variantCard {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto auto;
     align-items: end;
   }
 }

@@ -34,6 +34,39 @@ function formatFileSize(bytes) {
   return `${Math.round(bytes / 1024)} KB`;
 }
 
+function createVariantGroupId() {
+  return `variant-group-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeVariantsForUi(items) {
+  const colorGroupIds = new Map();
+
+  return (items || []).map((variant) => {
+    const colorKey = String(variant?.color || "").trim().toLowerCase();
+    const preservedGroupId = variant?.ui_group_id;
+
+    if (preservedGroupId) {
+      return { ...variant, ui_group_id: preservedGroupId };
+    }
+
+    if (colorKey) {
+      if (!colorGroupIds.has(colorKey)) {
+        colorGroupIds.set(colorKey, createVariantGroupId());
+      }
+
+      return {
+        ...variant,
+        ui_group_id: colorGroupIds.get(colorKey),
+      };
+    }
+
+    return {
+      ...variant,
+      ui_group_id: createVariantGroupId(),
+    };
+  });
+}
+
 export default function ShopProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -87,6 +120,30 @@ export default function ShopProductForm() {
     () => imageFiles.map((file) => file?.name).filter(Boolean),
     [imageFiles]
   );
+  const variantGroups = useMemo(() => {
+    const grouped = new Map();
+
+    variants.forEach((variant, index) => {
+      const groupId = variant.ui_group_id || createVariantGroupId();
+      const currentGroup = grouped.get(groupId);
+
+      if (!currentGroup) {
+        grouped.set(groupId, {
+          groupId,
+          color: variant.color || "",
+          items: [{ variant, index }],
+        });
+        return;
+      }
+
+      currentGroup.items.push({ variant, index });
+      if (!currentGroup.color && variant.color) {
+        currentGroup.color = variant.color;
+      }
+    });
+
+    return Array.from(grouped.values());
+  }, [variants]);
 
   function pushDebugLine(message) {
     setDebugLines((current) => {
@@ -152,7 +209,7 @@ export default function ShopProductForm() {
           }
 
           if (Array.isArray(draft?.variants)) {
-            setVariants(draft.variants);
+            setVariants(normalizeVariantsForUi(draft.variants));
           }
 
           setLoading(false);
@@ -205,7 +262,7 @@ export default function ShopProductForm() {
         }
         setExistingImages(imagesRows || []);
         setRemovedExistingImages([]);
-        setVariants(variantsRows || []);
+        setVariants(normalizeVariantsForUi(variantsRows || []));
 
         const draft = readDraft(draftKey);
 
@@ -222,7 +279,7 @@ export default function ShopProductForm() {
         }
 
         if (Array.isArray(draft?.variants)) {
-          setVariants(draft.variants);
+          setVariants(normalizeVariantsForUi(draft.variants));
         }
       } catch (error) {
         alert(error.message);
@@ -369,15 +426,51 @@ export default function ShopProductForm() {
     );
   }
 
+  function handleVariantGroupColorChange(groupId, value) {
+    setVariants((current) =>
+      current.map((variant) =>
+        variant.ui_group_id === groupId ? { ...variant, color: value } : variant
+      )
+    );
+  }
+
   function handleAddVariant() {
     setVariants((current) => [
       ...current,
-      { color: "", size: "", sku: "", is_active: true },
+      {
+        color: "",
+        size: "",
+        sku: "",
+        is_active: true,
+        ui_group_id: createVariantGroupId(),
+      },
     ]);
+  }
+
+  function handleAddVariantSize(groupId) {
+    setVariants((current) => {
+      const groupColor =
+        current.find((variant) => variant.ui_group_id === groupId)?.color || "";
+
+      return [
+        ...current,
+        {
+          color: groupColor,
+          size: "",
+          sku: "",
+          is_active: true,
+          ui_group_id: groupId,
+        },
+      ];
+    });
   }
 
   function handleRemoveVariant(indexToRemove) {
     setVariants((current) => current.filter((_, index) => index !== indexToRemove));
+  }
+
+  function handleRemoveVariantGroup(groupId) {
+    setVariants((current) => current.filter((variant) => variant.ui_group_id !== groupId));
   }
 
   function handleRemoveExistingImage(imageId) {
@@ -404,13 +497,18 @@ export default function ShopProductForm() {
   async function handleSubmit(event) {
     event.preventDefault();
     setSaving(true);
+    pushDebugLine("Se inició el guardado del producto.");
 
     let uploadedImages = [];
 
     try {
       if (imageFiles.length > 0) {
         for (const file of imageFiles) {
+          pushDebugLine(
+            `Procesando imagen para subida: ${file.name || "imagen"} (${formatFileSize(file.size)}).`
+          );
           const uploaded = await uploadImageFile(file, "shop-products");
+          pushDebugLine(`Imagen subida correctamente: ${uploaded.path}`);
           uploadedImages.push(uploaded);
         }
       }
@@ -433,6 +531,7 @@ export default function ShopProductForm() {
       if (isEdit) {
         const { error } = await supabase.from("shop_products").update(payload).eq("id", id);
         if (error) throw error;
+        pushDebugLine("Producto actualizado correctamente.");
       } else {
         const { data, error } = await supabase
           .from("shop_products")
@@ -442,6 +541,7 @@ export default function ShopProductForm() {
 
         if (error) throw error;
         productId = data.id;
+        pushDebugLine("Producto creado correctamente.");
       }
 
       await supabase.from("shop_product_categories").delete().eq("product_id", productId);
@@ -542,11 +642,14 @@ export default function ShopProductForm() {
 
         const { error } = await supabase.from("shop_product_images").insert(imagesPayload);
         if (error) throw error;
+        pushDebugLine("Las rutas de imagen se guardaron en la base de datos.");
       }
 
       window.localStorage.removeItem(draftKey);
+      pushDebugLine("Guardado completo. Redirigiendo al listado.");
       navigate("/admin/productos");
     } catch (error) {
+      pushDebugLine(`Error al guardar: ${error.message}`);
       alert(error.message);
     } finally {
       setSaving(false);
@@ -710,72 +813,101 @@ export default function ShopProductForm() {
                   className="shop-product-form__addVariant"
                   onClick={handleAddVariant}
                 >
-                  Añadir opción
+                  Añadir color
                 </button>
               </div>
 
               {variants.length === 0 ? (
                 <p className="shop-product-form__variantsEmpty">
-                  Todavía no hay tallas o colores cargados.
+                  Todavía no hay colores cargados. Añade uno y luego sus tallas.
                 </p>
               ) : (
-                <div className="shop-product-form__variantList">
-                  {variants.map((variant, index) => (
-                    <div key={variant.id || index} className="shop-product-form__variantCard">
-                      <div>
-                        <label htmlFor={`variant-color-${index}`}>Color</label>
-                        <input
-                          id={`variant-color-${index}`}
-                          value={variant.color || ""}
-                          onChange={(event) =>
-                            handleVariantChange(index, "color", event.target.value)
-                          }
-                          placeholder="Azul cielo"
-                        />
+                <div className="shop-product-form__variantGroups">
+                  {variantGroups.map((group, groupIndex) => (
+                    <div key={group.groupId} className="shop-product-form__variantGroup">
+                      <div className="shop-product-form__variantGroupHeader">
+                        <div className="shop-product-form__variantGroupColor">
+                          <label htmlFor={`variant-group-color-${groupIndex}`}>Color</label>
+                          <input
+                            id={`variant-group-color-${groupIndex}`}
+                            value={group.color}
+                            onChange={(event) =>
+                              handleVariantGroupColorChange(group.groupId, event.target.value)
+                            }
+                            placeholder="Negro"
+                          />
+                        </div>
+
+                        <div className="shop-product-form__variantGroupActions">
+                          <button
+                            type="button"
+                            className="shop-product-form__addVariant"
+                            onClick={() => handleAddVariantSize(group.groupId)}
+                          >
+                            Añadir talla
+                          </button>
+
+                          <button
+                            type="button"
+                            className="admin-action admin-action--danger"
+                            onClick={() => handleRemoveVariantGroup(group.groupId)}
+                          >
+                            Quitar color
+                          </button>
+                        </div>
                       </div>
 
-                      <div>
-                        <label htmlFor={`variant-size-${index}`}>Talla</label>
-                        <input
-                          id={`variant-size-${index}`}
-                          value={variant.size || ""}
-                          onChange={(event) =>
-                            handleVariantChange(index, "size", event.target.value)
-                          }
-                          placeholder="6 meses"
-                        />
+                      <div className="shop-product-form__variantList">
+                        {group.items.map(({ variant, index }) => (
+                          <div
+                            key={variant.id || `${group.groupId}-${index}`}
+                            className="shop-product-form__variantCard"
+                          >
+                            <div>
+                              <label htmlFor={`variant-size-${index}`}>Talla</label>
+                              <input
+                                id={`variant-size-${index}`}
+                                value={variant.size || ""}
+                                onChange={(event) =>
+                                  handleVariantChange(index, "size", event.target.value)
+                                }
+                                placeholder="6 meses"
+                              />
+                            </div>
+
+                            <div>
+                              <label htmlFor={`variant-sku-${index}`}>SKU variante</label>
+                              <input
+                                id={`variant-sku-${index}`}
+                                value={variant.sku || ""}
+                                onChange={(event) =>
+                                  handleVariantChange(index, "sku", event.target.value)
+                                }
+                                placeholder="Opcional"
+                              />
+                            </div>
+
+                            <label className="checkbox shop-product-form__variantToggle">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(variant.is_active)}
+                                onChange={(event) =>
+                                  handleVariantChange(index, "is_active", event.target.checked)
+                                }
+                              />
+                              <span>Disponible</span>
+                            </label>
+
+                            <button
+                              type="button"
+                              className="admin-action admin-action--danger"
+                              onClick={() => handleRemoveVariant(index)}
+                            >
+                              Quitar talla
+                            </button>
+                          </div>
+                        ))}
                       </div>
-
-                      <div>
-                        <label htmlFor={`variant-sku-${index}`}>SKU variante</label>
-                        <input
-                          id={`variant-sku-${index}`}
-                          value={variant.sku || ""}
-                          onChange={(event) =>
-                            handleVariantChange(index, "sku", event.target.value)
-                          }
-                          placeholder="Opcional"
-                        />
-                      </div>
-
-                      <label className="checkbox shop-product-form__variantToggle">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(variant.is_active)}
-                          onChange={(event) =>
-                            handleVariantChange(index, "is_active", event.target.checked)
-                          }
-                        />
-                        <span>Disponible</span>
-                      </label>
-
-                      <button
-                        type="button"
-                        className="admin-action admin-action--danger"
-                        onClick={() => handleRemoveVariant(index)}
-                      >
-                        Quitar
-                      </button>
                     </div>
                   ))}
                 </div>

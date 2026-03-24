@@ -168,15 +168,24 @@
 .product-detail__addToCart {
   min-height: 44px;
   padding: 10px 18px;
+  border: 1px solid #1f2937;
   border-radius: 999px;
   background: #1f2937;
   color: #fff;
   font: inherit;
   font-weight: 700;
+  transition: background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
 }
 
 .product-detail__addToCart:hover {
   background: #111827;
+}
+
+.product-detail__addToCart:disabled {
+  border-color: rgba(31, 41, 55, 0.16);
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
 .product-detail__addedMsg {
@@ -213,6 +222,7 @@
 .product-detail__chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 38px;
   padding: 8px 14px;
   border-radius: 999px;
@@ -221,12 +231,33 @@
   color: #1f2937;
   font-size: 0.92rem;
   font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.product-detail__chip:hover:not(:disabled) {
+  border-color: rgba(17, 24, 39, 0.3);
+}
+
+.product-detail__chip.is-active {
+  border-color: #1f2937;
+  background: #1f2937;
+  color: #fff;
 }
 
 .product-detail__chip.is-disabled {
   background: #f3f4f6;
   border-color: rgba(107, 114, 128, 0.22);
   color: rgba(107, 114, 128, 0.9);
+  cursor: not-allowed;
+}
+
+.product-detail__selection {
+  margin: 0 0 16px;
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 0.92rem;
+  font-weight: 600;
 }
 
 @media (min-width: 900px) {

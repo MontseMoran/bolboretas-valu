@@ -35,7 +35,7 @@ export default function Cart() {
           <section className="cart-page__layout">
             <div className="cart-page__list">
               {items.map((item) => (
-                <article key={item.id} className="cart-page__item">
+                <article key={item.lineId || item.id} className="cart-page__item">
                   <Link to={`/producto/${item.slug}`} className="cart-page__imageWrap">
                     {item.imageUrl ? <img src={item.imageUrl} alt={item.name} /> : null}
                   </Link>
@@ -44,6 +44,13 @@ export default function Cart() {
                     <Link to={`/producto/${item.slug}`} className="cart-page__name">
                       {item.name}
                     </Link>
+                    {item.color || item.size ? (
+                      <p className="cart-page__meta">
+                        {item.color ? `Color: ${item.color}` : null}
+                        {item.color && item.size ? " · " : null}
+                        {item.size ? `Talla: ${item.size}` : null}
+                      </p>
+                    ) : null}
                     <p className="cart-page__price">
                       {item.price.toFixed(2).replace(".", ",")} €
                     </p>
@@ -55,14 +62,16 @@ export default function Cart() {
                           type="number"
                           min="1"
                           value={item.quantity}
-                          onChange={(event) => updateQuantity(item.id, event.target.value)}
+                          onChange={(event) =>
+                            updateQuantity(item.lineId || item.id, event.target.value)
+                          }
                         />
                       </label>
 
                       <button
                         type="button"
                         className="cart-page__remove"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.lineId || item.id)}
                       >
                         Quitar
                       </button>
@@ -82,7 +91,8 @@ export default function Cart() {
                 {total.toFixed(2).replace(".", ",")} €
               </p>
               <p className="cart-page__summaryText">
-                La compra online todavía no está finalizada. Usa este carrito como preparación del pedido.
+                La compra online todavía no está finalizada. Usa este carrito como
+                preparación del pedido.
               </p>
             </aside>
           </section>
