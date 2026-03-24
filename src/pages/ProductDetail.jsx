@@ -123,6 +123,18 @@ export default function ProductDetail() {
   }, [slug]);
 
   const hasImages = useMemo(() => product?.images?.length > 0, [product]);
+  const activeImageIndex = useMemo(() => {
+    if (!product?.images?.length) return -1;
+    return Math.max(0, product.images.findIndex((image) => image === activeImage));
+  }, [activeImage, product?.images]);
+
+  function handleChangeImage(direction) {
+    if (!product?.images?.length) return;
+
+    const nextIndex =
+      (activeImageIndex + direction + product.images.length) % product.images.length;
+    setActiveImage(product.images[nextIndex]);
+  }
 
   function handleAddToCart() {
     if (!product) return;
@@ -171,6 +183,28 @@ export default function ProductDetail() {
         <section className="product-detail__grid">
           <div className="product-detail__gallery">
             <div className="product-detail__mainImage">
+              {product.images.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    className="product-detail__imageNav product-detail__imageNav--prev"
+                    onClick={() => handleChangeImage(-1)}
+                    aria-label="Imagen anterior"
+                  >
+                    ‹
+                  </button>
+
+                  <button
+                    type="button"
+                    className="product-detail__imageNav product-detail__imageNav--next"
+                    onClick={() => handleChangeImage(1)}
+                    aria-label="Imagen siguiente"
+                  >
+                    ›
+                  </button>
+                </>
+              ) : null}
+
               {activeImage ? (
                 <img src={activeImage} alt={product.name} />
               ) : (

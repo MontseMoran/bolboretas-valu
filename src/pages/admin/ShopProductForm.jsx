@@ -94,15 +94,6 @@ export default function ShopProductForm() {
   }, [imagePreviewUrls]);
 
   useEffect(() => {
-    console.log("shopProductForm:image-state", {
-      imageFilesLength: imageFiles.length,
-      imagePickerMessage,
-      selectedImageNames,
-      imagePreviewUrls,
-    });
-  }, [imageFiles, imagePickerMessage, selectedImageNames, imagePreviewUrls]);
-
-  useEffect(() => {
     let active = true;
 
     async function load() {
@@ -299,21 +290,6 @@ export default function ShopProductForm() {
 
   function handleImageInputChange(event) {
     const newFiles = Array.from(event.target.files || []).slice(0, 1);
-    console.log("shopProductForm:image-change", {
-      filesLength: newFiles.length,
-      firstFile: newFiles[0]
-        ? {
-            name: newFiles[0].name,
-            type: newFiles[0].type,
-            size: newFiles[0].size,
-            lastModified: newFiles[0].lastModified,
-          }
-        : null,
-    });
-    console.log("shopProductForm:before-set", {
-      currentImageFilesLength: imageFiles.length,
-      newFilesLength: newFiles.length,
-    });
 
     if (newFiles.length === 0) {
       setImagePickerMessage("El dispositivo no ha entregado ninguna imagen.");
@@ -338,11 +314,6 @@ export default function ShopProductForm() {
 
     setImageFiles((current) => {
       const nextFiles = [...current, ...newFiles];
-      console.log("shopProductForm:set-image-files", {
-        currentLength: current.length,
-        nextLength: nextFiles.length,
-        nextNames: nextFiles.map((file) => file.name),
-      });
       return nextFiles;
     });
     setLastImageSelectionKey(selectionKey);
@@ -663,10 +634,7 @@ export default function ShopProductForm() {
               <button
                 type="button"
                 className="shop-product-form__fileButton"
-                onClick={() => {
-                  console.log("shopProductForm:open-picker");
-                  imageInputRef.current?.click();
-                }}
+                onClick={() => imageInputRef.current?.click()}
               >
                 Seleccionar archivo
               </button>

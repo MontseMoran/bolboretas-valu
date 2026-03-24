@@ -26,6 +26,7 @@
 }
 
 .product-detail__mainImage {
+  position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
   border-radius: 16px;
@@ -38,6 +39,37 @@
   height: 100%;
   object-fit: contain;
   background: #fff;
+}
+
+.product-detail__imageNav {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(45, 39, 34, 0.72);
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.product-detail__imageNav:hover {
+  background: rgba(45, 39, 34, 0.88);
+}
+
+.product-detail__imageNav--prev {
+  left: 12px;
+}
+
+.product-detail__imageNav--next {
+  right: 12px;
 }
 
 .product-detail__placeholder {
