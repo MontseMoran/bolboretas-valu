@@ -22,6 +22,18 @@ function readDraft(key) {
   }
 }
 
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 KB";
+  }
+
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  return `${Math.round(bytes / 1024)} KB`;
+}
+
 export default function ShopProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -292,6 +304,14 @@ export default function ShopProductForm() {
 
     if (newFiles.length === 0) {
       setImagePickerMessage("El dispositivo no ha entregado ninguna imagen.");
+      return;
+    }
+
+    if (newFiles[0].size > 3 * 1024 * 1024) {
+      setImagePickerMessage(
+        `Imagen demasiado grande: ${formatFileSize(newFiles[0].size)}. Máximo 3 MB.`
+      );
+      event.currentTarget.value = "";
       return;
     }
 
