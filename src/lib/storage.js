@@ -18,7 +18,10 @@ export async function uploadImageFile(file, folder = "uploads") {
   }-${resized.name}`;
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .upload(fileName, resized, { upsert: false });
+    .upload(fileName, resized, {
+      upsert: false,
+      cacheControl: "31536000",
+    });
   if (error) throw error;
   const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
   return { path: data.path, publicUrl: publicData?.publicUrl || "" };

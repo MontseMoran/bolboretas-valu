@@ -3,15 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/categoryPage.scss";
 
-const CATEGORY_IMAGES = {
-  mujer: "/images/mujer.png",
-  hombre: "/images/hombre.png",
-  bebes: "/images/bebe.png",
-  infantil: "/images/infantil-juvenil.png",
-  hogar: "/images/hogar.png",
-  outlet: "/images/outlet.png",
-};
-
 function slugifyValue(value) {
   return String(value || "")
     .toLowerCase()
@@ -208,6 +199,7 @@ export default function CategoryPage() {
       name,
     }));
   }, [slug, subcategories]);
+
   const activeSubcategory = useMemo(
     () => filterOptions.find((subcategory) => subcategory.slug === selectedSubcategory) || null,
     [filterOptions, selectedSubcategory]
@@ -291,12 +283,15 @@ export default function CategoryPage() {
                 <div className="category-page__body">
                   <h2>{product.name}</h2>
                   <p>{product.description}</p>
-                  <p className="category-page__price">
-                    {product.price.toFixed(2).replace(".", ",")} €
-                  </p>
-                  <Link to={`/producto/${product.slug}`} className="category-page__cta">
-                    Ver producto
-                  </Link>
+
+                  <div className="category-page__footer">
+                    <Link to={`/producto/${product.slug}`} className="category-page__cta">
+                      Ver producto
+                    </Link>
+                    <p className="category-page__price">
+                      {product.price.toFixed(2).replace(".", ",")} €
+                    </p>
+                  </div>
                 </div>
               </article>
             ))}

@@ -43,7 +43,7 @@
 
 .product-detail__imageNav {
   position: absolute;
-  top: 50%;
+  top: calc(50% - 19px);
   z-index: 1;
   width: 38px;
   height: 38px;
@@ -56,15 +56,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(-50%);
   cursor: pointer;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .product-detail__imageNav:hover {
   background: rgba(255, 255, 255, 0.94);
-  transform: translateY(-50%);
   box-shadow: none;
 }
 

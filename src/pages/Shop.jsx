@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import ShopRequestForm from "../components/ShopRequestForm/ShopRequestForm";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/shop.scss";
 
@@ -14,7 +13,7 @@ const CATEGORY_PRESETS = {
   hombre: {
     title: "Hombre",
     subtitle: "Ropa, zapatillas y moda casual",
-    collectionLabel: "Basicos",
+    collectionLabel: "Básicos",
     accent: "stone",
   },
   bebes: {
@@ -37,7 +36,7 @@ const CATEGORY_PRESETS = {
   },
   otros: {
     title: "Otros",
-    subtitle: "Hilos, costura y pequeños articulos",
+    subtitle: "Hilos, costura y pequeños artículos",
     collectionLabel: "Otros",
     accent: "rose",
   },
@@ -48,34 +47,25 @@ const CATEGORY_PRESETS = {
     accent: "stone",
   },
 };
+
 const CATEGORY_IMAGES = {
   mujer: "/images/mujer.png",
   hombre: "/images/hombre.png",
   bebes: "/images/bebe.png",
   infantil: "/images/infantil-juvenil.png",
-  hogar: "/images/hogar.png"
+  hogar: "/images/hogar.png",
 };
+
 const FALLBACK_CATEGORIES = [
   { slug: "mujer", name: "Mujer", description: "Moda, bolsos y zapatos" },
   { slug: "hombre", name: "Hombre", description: "Ropa, zapatillas y moda casual" },
   { slug: "bebes", name: "Bebé", description: "Ropa, canastillas y primeras puestas" },
   { slug: "hogar", name: "Hogar", description: "Textiles y detalles para casa" },
   { slug: "infantil", name: "Infantil", description: "Ropa y calzado infantil" },
-  { slug: "otros", name: "Otros", description: "Hilos, costura y pequeños articulos" },
+  { slug: "otros", name: "Otros", description: "Hilos, costura y pequeños artículos" },
   { slug: "outlet", name: "Outlet", description: "Remates y oportunidades" },
-  
 ];
 
-const COPY = {
-  categoriesTitle: "Categorías",
-  productsTitle: "Novedades destacadas",
-  collectionsTitle: "Descubre nuestras colecciones",
-  loading: "Cargando catalogo...",
-  empty: "Todavia no hay productos cargados.",
-  unavailable: "Imagen pendiente",
-  requestHint: "No encuentras lo que buscas?",
-  cta: "Ver producto",
-};
 const HOME_CATEGORIES = [
   {
     slug: "mujer",
@@ -112,14 +102,23 @@ const HOME_CATEGORIES = [
     accent: "linen",
     imageUrl: "/images/hogar.png",
   },
-{
-  slug: "outlet",
-  name: "Outlet",
-  description: "Últimas unidades y oportunidades",
-  accent: "sale",
-  imageUrl: "/images/outlet.png",
-}
+  {
+    slug: "outlet",
+    name: "Outlet",
+    description: "Últimas unidades y oportunidades",
+    accent: "sale",
+    imageUrl: "/images/outlet.png",
+  },
 ];
+
+const COPY = {
+  categoriesTitle: "Categorías",
+  productsTitle: "Novedades destacadas",
+  loading: "Cargando catálogo...",
+  empty: "Todavía no hay productos cargados.",
+  unavailable: "Imagen pendiente",
+  cta: "Ver producto",
+};
 
 function normalizeCategory(raw) {
   const preset = CATEGORY_PRESETS[raw.slug] || {};
@@ -135,8 +134,6 @@ function normalizeCategory(raw) {
     imageUrl: CATEGORY_IMAGES[raw.slug] || "",
   };
 }
-
-
 
 function buildCollectionCards(categories, products) {
   const collectionSlugs = ["infantil", "otros", "outlet"];
@@ -162,6 +159,9 @@ export default function Shop() {
   const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [featuredStart, setFeaturedStart] = useState(0);
+  const [featuredVisibleCount, setFeaturedVisibleCount] = useState(1);
+  const [featuredDirection, setFeaturedDirection] = useState("forward");
 
   useEffect(() => {
     let cancelled = false;
@@ -182,7 +182,6 @@ export default function Shop() {
             .select("id, slug, name, description, sort_order")
             .eq("is_active", true)
             .order("sort_order", { ascending: true }),
-
           supabase
             .from("shop_products")
             .select(`
@@ -242,7 +241,7 @@ export default function Shop() {
             imageUrl: sortedImages[0]?.image_url || "",
             images: sortedImages.map((img) => img.image_url),
             categories: productCategories,
-            categoryName: firstCategory?.name || "Sin categoria",
+            categoryName: firstCategory?.name || "Sin categoría",
             accent: firstCategory?.accent || "rose",
           };
         });
@@ -269,14 +268,60 @@ export default function Shop() {
     };
   }, []);
 
+  useEffect(() => {
+    function syncFeaturedVisibleCount() {
+      if (window.innerWidth >= 1440) {
+        setFeaturedVisibleCount(4);
+        return;
+      }
 
+      if (window.innerWidth >= 900) {
+        setFeaturedVisibleCount(3);
+        return;
+      }
 
-  const featuredProducts = useMemo(() => products.slice(0, 5), [products]);
+      if (window.innerWidth >= 600) {
+        setFeaturedVisibleCount(2);
+        return;
+      }
 
+      setFeaturedVisibleCount(1);
+    }
+
+    syncFeaturedVisibleCount();
+    window.addEventListener("resize", syncFeaturedVisibleCount);
+
+    return () => window.removeEventListener("resize", syncFeaturedVisibleCount);
+  }, []);
+
+  const featuredProducts = useMemo(() => products.slice(0, 8), [products]);
+  const maxFeaturedStart = useMemo(
+    () => Math.max(0, featuredProducts.length - featuredVisibleCount),
+    [featuredProducts.length, featuredVisibleCount]
+  );
+  const visibleFeaturedProducts = useMemo(
+    () => featuredProducts.slice(featuredStart, featuredStart + featuredVisibleCount),
+    [featuredProducts, featuredStart, featuredVisibleCount]
+  );
   const collectionCards = useMemo(
     () => buildCollectionCards(categories, products),
     [categories, products]
   );
+
+  useEffect(() => {
+    setFeaturedStart((current) => Math.min(current, maxFeaturedStart));
+  }, [maxFeaturedStart]);
+
+  function handleFeaturedStep(direction) {
+    setFeaturedDirection(direction > 0 ? "forward" : "backward");
+    setFeaturedStart((current) => {
+      if (direction > 0) {
+        return current >= maxFeaturedStart ? 0 : Math.min(current + 1, maxFeaturedStart);
+      }
+
+      return current <= 0 ? maxFeaturedStart : Math.max(current - 1, 0);
+    });
+  }
 
   return (
     <main className="shop">
@@ -317,7 +362,6 @@ export default function Shop() {
 
                 <div className="shop__categoryBody">
                   <h3>{category.name}</h3>
-                  
                 </div>
               </Link>
             ))}
@@ -336,50 +380,72 @@ export default function Shop() {
             <p className="shop__status">{COPY.empty}</p>
           ) : null}
 
-          <div className="shop__productRail">
-            {featuredProducts.map((product) => (
-              <article key={product.id} className="shop__productCard">
-                <div className={`shop__productMedia shop__productMedia--${product.accent}`}>
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="shop__productImg"
-                    />
-                  ) : (
-                    <div className="shop__productPlaceholder">
-                      <span>{product.categoryName}</span>
-                      <strong>{COPY.unavailable}</strong>
-                    </div>
-                  )}
-                </div>
+          <div className="shop__productCarousel">
+            {featuredProducts.length > featuredVisibleCount ? (
+              <button
+                type="button"
+                className="shop__carouselButton shop__carouselButton--prev"
+                onClick={() => handleFeaturedStep(-1)}
+                aria-label="Productos destacados anteriores"
+              >
+                ‹
+              </button>
+            ) : null}
 
-                <div className="shop__productBody">
-                  <h3>{product.name}</h3>
-                  <p className="shop__productText">{product.description}</p>
-                  <p className="shop__productPrice">
-                    {product.price.toFixed(2).replace(".", ",")} €
-                  </p>
-
-                  <div className="shop__productActions">
-                    <Link to={`/producto/${product.slug}`} className="shop__cta">
-                      {COPY.cta}
-                    </Link>
+            <div
+              key={`${featuredDirection}-${featuredStart}`}
+              className={`shop__productRail shop__productRail--${featuredDirection}`}
+            >
+              {visibleFeaturedProducts.map((product) => (
+                <article key={product.id} className="shop__productCard">
+                  <div className={`shop__productMedia shop__productMedia--${product.accent}`}>
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="shop__productImg"
+                      />
+                    ) : (
+                      <div className="shop__productPlaceholder">
+                        <span>{product.categoryName}</span>
+                        <strong>{COPY.unavailable}</strong>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </article>
-              
-            ))}
+
+                  <div className="shop__productBody">
+                    <h3>{product.name}</h3>
+                    <p className="shop__productText">{product.description}</p>
+
+                    <div className="shop__productFooter">
+                      <div className="shop__productActions">
+                        <Link to={`/producto/${product.slug}`} className="shop__cta">
+                          {COPY.cta}
+                        </Link>
+                      </div>
+                      <p className="shop__productPrice">
+                        {product.price.toFixed(2).replace(".", ",")} €
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {featuredProducts.length > featuredVisibleCount ? (
+              <button
+                type="button"
+                className="shop__carouselButton shop__carouselButton--next"
+                onClick={() => handleFeaturedStep(1)}
+                aria-label="Productos destacados siguientes"
+              >
+                ›
+              </button>
+            ) : null}
           </div>
         </section>
 
         <section className="shop__section" id="colecciones">
-          {/* <div className="shop__heading">
-            <span />
-            <h2>{COPY.collectionsTitle}</h2>
-            <span />
-          </div> */}
-
           <div className="shop__collectionGrid">
             {collectionCards.map((collection) => (
               <Link

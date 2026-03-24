@@ -18,6 +18,8 @@ import ShopSubcategories from "./pages/admin/ShopSubcategories";
 import ShopSubcategoryForm from "./pages/admin/ShopSubcategoryForm";
 import ShopProducts from "./pages/admin/ShopProducts";
 import ShopProductForm from "./pages/admin/ShopProductForm";
+import ShopDiscountCodes from "./pages/admin/ShopDiscountCodes";
+import ShopDiscountCodeForm from "./pages/admin/ShopDiscountCodeForm";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 
@@ -61,6 +63,9 @@ export default function App() {
         <Route path="productos" element={<ShopProducts />} />
         <Route path="productos/nuevo" element={<ShopProductForm />} />
         <Route path="productos/:id/editar" element={<ShopProductForm />} />
+        <Route path="descuentos" element={<ShopDiscountCodes />} />
+        <Route path="descuentos/nuevo" element={<ShopDiscountCodeForm />} />
+        <Route path="descuentos/:id/editar" element={<ShopDiscountCodeForm />} />
       </Route>
     </Routes>
   );
