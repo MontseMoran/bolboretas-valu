@@ -274,6 +274,17 @@ export default function ShopProductForm() {
 
   function handleImageInputChange(event) {
     const newFiles = Array.from(event.target.files || []).slice(0, 1);
+    console.log("shopProductForm:image-change", {
+      filesLength: newFiles.length,
+      firstFile: newFiles[0]
+        ? {
+            name: newFiles[0].name,
+            type: newFiles[0].type,
+            size: newFiles[0].size,
+            lastModified: newFiles[0].lastModified,
+          }
+        : null,
+    });
 
     if (newFiles.length === 0) {
       setImagePickerMessage("El dispositivo no ha entregado ninguna imagen.");
@@ -607,7 +618,10 @@ export default function ShopProductForm() {
               <button
                 type="button"
                 className="shop-product-form__fileButton"
-                onClick={() => imageInputRef.current?.click()}
+                onClick={() => {
+                  console.log("shopProductForm:open-picker");
+                  imageInputRef.current?.click();
+                }}
               >
                 Seleccionar archivo
               </button>
