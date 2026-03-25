@@ -1017,9 +1017,11 @@ export default function ShopProductForm() {
             ) : null}
           </div>
 
-          <button type="submit" className="admin-btn-primary" disabled={saving}>
-            {saving ? "Guardando..." : "Guardar"}
-          </button>
+          <div className="shop-product-form__submit">
+            <button type="submit" className="admin-btn-primary" disabled={saving}>
+              {saving ? "Guardando..." : "Guardar"}
+            </button>
+          </div>
         </form>
       )}
     </div>

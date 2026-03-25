@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/categoryPage.scss";
 
+const PRODUCTS_PER_PAGE = 10;
+
 function slugifyValue(value) {
   return String(value || "")
     .toLowerCase()
@@ -43,6 +45,7 @@ export default function CategoryPage() {
   const [products, setProducts] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -155,7 +158,7 @@ export default function CategoryPage() {
         if (!cancelled) {
           setSubcategories(subcategoriesData);
           setProducts(normalizedProducts);
-          setSelectedSubcategory(subcategoriesData.length > 0 ? "" : "all");
+          setSelectedSubcategory("all");
         }
       } catch (error) {
         console.error("Error en la página de categoría:", error);
@@ -170,6 +173,7 @@ export default function CategoryPage() {
     }
 
     loadCategoryPage();
+
     return () => {
       cancelled = true;
     };
@@ -204,6 +208,24 @@ export default function CategoryPage() {
     () => filterOptions.find((subcategory) => subcategory.slug === selectedSubcategory) || null,
     [filterOptions, selectedSubcategory]
   );
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE)),
+    [visibleProducts.length]
+  );
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return visibleProducts.slice(start, start + PRODUCTS_PER_PAGE);
+  }, [currentPage, visibleProducts]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [slug, selectedSubcategory]);
+
+  useEffect(() => {
+    setCurrentPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
 
   if (loading) {
     return (
@@ -265,37 +287,75 @@ export default function CategoryPage() {
           </div>
         ) : null}
 
-        {selectedSubcategory === "" ? (
-          <p className="category-page__prompt">
-            Elige una subcategoría para empezar a ver productos.
-          </p>
-        ) : null}
-
         {visibleProducts.length === 0 ? (
           <p className="category-page__empty">No hay productos en esta sección todavía.</p>
         ) : (
-          <div className="category-page__grid">
-            {visibleProducts.map((product) => (
-              <article key={product.id} className="category-page__card">
-                <Link to={`/producto/${product.slug}`} className="category-page__imageWrap">
-                  {product.imageUrl ? <img src={product.imageUrl} alt={product.name} /> : null}
-                </Link>
-                <div className="category-page__body">
-                  <h2>{product.name}</h2>
-                  <p>{product.description}</p>
+          <>
+            <div className="category-page__grid">
+              {paginatedProducts.map((product) => (
+                <article key={product.id} className="category-page__card">
+                  <Link to={`/producto/${product.slug}`} className="category-page__imageWrap">
+                    {product.imageUrl ? <img src={product.imageUrl} alt={product.name} /> : null}
+                  </Link>
 
-                  <div className="category-page__footer">
-                    <Link to={`/producto/${product.slug}`} className="category-page__cta">
-                      Ver producto
-                    </Link>
-                    <p className="category-page__price">
-                      {product.price.toFixed(2).replace(".", ",")} €
-                    </p>
+                  <div className="category-page__body">
+                    <h2>{product.name}</h2>
+                    <p>{product.description}</p>
+
+                    <div className="category-page__footer">
+                      <Link to={`/producto/${product.slug}`} className="category-page__cta">
+                        Ver producto
+                      </Link>
+                      <p className="category-page__price">
+                        {product.price.toFixed(2).replace(".", ",")} €
+                      </p>
+                    </div>
                   </div>
+                </article>
+              ))}
+            </div>
+
+            {totalPages > 1 ? (
+              <nav className="category-page__pagination" aria-label="Paginación de productos">
+                <button
+                  type="button"
+                  className="category-page__pageBtn"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </button>
+
+                <div className="category-page__pageNumbers">
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const page = index + 1;
+
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`category-page__pageBtn ${
+                          currentPage === page ? "is-active" : ""
+                        }`}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
-              </article>
-            ))}
-          </div>
+
+                <button
+                  type="button"
+                  className="category-page__pageBtn"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Siguiente
+                </button>
+              </nav>
+            ) : null}
+          </>
         )}
       </div>
     </main>
