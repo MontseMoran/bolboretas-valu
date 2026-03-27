@@ -48,7 +48,7 @@ export default function ShopProducts() {
         ] = await Promise.all([
           supabase
             .from("shop_products")
-            .select("id, sku, slug, name, description, price_eur, is_pack, is_active, created_at")
+            .select("id, sku, slug, name, description, price_eur, is_pack, is_heavy_shipping, is_active, created_at")
             .order("created_at", { ascending: false }),
 
           supabase.from("shop_product_categories").select("product_id, category_id"),
@@ -320,6 +320,10 @@ export default function ShopProducts() {
 
               <p>
                 <strong>Tipo:</strong> {item.is_pack ? "Pack" : "Producto"}
+              </p>
+
+              <p>
+                <strong>Envío:</strong> {item.is_heavy_shipping ? "Pesado" : "Estándar"}
               </p>
 
               <p>

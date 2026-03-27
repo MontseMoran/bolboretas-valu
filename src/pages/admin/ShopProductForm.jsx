@@ -89,6 +89,7 @@ export default function ShopProductForm() {
     description: "",
     price_eur: "",
     is_pack: false,
+    is_heavy_shipping: false,
     is_active: true,
   });
   const [imageFiles, setImageFiles] = useState([]);
@@ -252,6 +253,7 @@ export default function ShopProductForm() {
           description: productRow.description || "",
           price_eur: productRow.price_eur ?? "",
           is_pack: productRow.is_pack ?? false,
+          is_heavy_shipping: productRow.is_heavy_shipping ?? false,
           is_active: productRow.is_active ?? true,
         });
         setSelectedCategoryIds((productCategories || []).map((item) => item.category_id));
@@ -520,6 +522,7 @@ export default function ShopProductForm() {
         description: form.description.trim() || null,
         price_eur: form.price_eur === "" ? null : Number(form.price_eur),
         is_pack: form.is_pack,
+        is_heavy_shipping: form.is_heavy_shipping,
         is_active: form.is_active,
       };
 
@@ -695,6 +698,19 @@ export default function ShopProductForm() {
               value={form.price_eur}
               onChange={handleChange}
             />
+          </div>
+
+          <div>
+            <label className="checkbox" htmlFor="is_heavy_shipping">
+              <input
+                id="is_heavy_shipping"
+                name="is_heavy_shipping"
+                type="checkbox"
+                checked={form.is_heavy_shipping}
+                onChange={handleChange}
+              />
+              <span>Producto pesado (envío 7,95 €)</span>
+            </label>
           </div>
 
           <div className="full">

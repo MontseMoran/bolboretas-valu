@@ -9,7 +9,12 @@ import "./styles/global.scss";
 
 createRoot(document.getElementById("root")).render(
   <CartProvider>
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <App />
     </BrowserRouter>
   </CartProvider>

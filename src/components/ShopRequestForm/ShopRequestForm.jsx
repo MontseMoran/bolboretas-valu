@@ -1,7 +1,10 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import "./ShopRequestForm.scss";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
+const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
 
 const COPY = {
   title: "¿Necesitas otra talla o una prenda parecida?",
@@ -20,9 +23,13 @@ const COPY = {
   category: "Categoría",
   success: "Petición enviada correctamente.",
   error: "No se pudo enviar la petición. Inténtalo de nuevo.",
-  emailWarning: "La petición se guardó, pero no se pudo enviar el aviso por correo.",
   sending: "Enviando...",
   submit: "Enviar petición",
+  captchaRequired: "Completa la verificación anti-spam para continuar.",
+  captchaLoading: "Cargando verificación...",
+  captchaLabel: "Verificación anti-spam",
+  captchaLoadError:
+    "No se pudo cargar la verificación anti-spam. Revisa bloqueadores, extensiones o prueba a recargar.",
   privacyPrefix: "He leído y acepto la ",
   privacyLink: "política de privacidad",
   privacyRequired: "Debes aceptar la política de privacidad para continuar.",
@@ -40,7 +47,103 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
   const [sending, setSending] = useState(false);
   const [okMsg, setOkMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
-  const [warnMsg, setWarnMsg] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaReady, setCaptchaReady] = useState(!TURNSTILE_SITE_KEY);
+  const [captchaLoadError, setCaptchaLoadError] = useState("");
+  const turnstileContainerId = `shop-request-turnstile-${product?.id || "default"}`;
+  const turnstileWidgetIdRef = useRef(null);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !isOpen) return undefined;
+
+    let cancelled = false;
+    let loadTimeoutId = null;
+    let readinessIntervalId = null;
+
+    function renderTurnstile() {
+      if (cancelled || !window.turnstile) return;
+
+      const container = document.getElementById(turnstileContainerId);
+      if (!container || container.dataset.rendered === "true") return;
+
+      setCaptchaLoadError("");
+
+      turnstileWidgetIdRef.current = window.turnstile.render(`#${turnstileContainerId}`, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "light",
+        callback: (token) => setCaptchaToken(token || ""),
+        "expired-callback": () => setCaptchaToken(""),
+        "error-callback": () => {
+          setCaptchaToken("");
+          setCaptchaLoadError(COPY.captchaLoadError);
+        },
+      });
+
+      container.dataset.rendered = "true";
+      setCaptchaReady(true);
+
+      if (loadTimeoutId) {
+        window.clearTimeout(loadTimeoutId);
+      }
+    }
+
+    function handleScriptError() {
+      setCaptchaReady(false);
+      setCaptchaLoadError(COPY.captchaLoadError);
+    }
+
+    const existingScript = document.getElementById(TURNSTILE_SCRIPT_ID);
+
+    loadTimeoutId = window.setTimeout(() => {
+      if (!window.turnstile) {
+        handleScriptError();
+      }
+    }, 6000);
+
+    readinessIntervalId = window.setInterval(() => {
+      if (window.turnstile) {
+        renderTurnstile();
+      }
+    }, 250);
+
+    if (existingScript) {
+      if (window.turnstile) {
+        renderTurnstile();
+      } else {
+        existingScript.addEventListener("load", renderTurnstile, { once: true });
+        existingScript.addEventListener("error", handleScriptError, { once: true });
+      }
+
+      return () => {
+        cancelled = true;
+        if (loadTimeoutId) {
+          window.clearTimeout(loadTimeoutId);
+        }
+        if (readinessIntervalId) {
+          window.clearInterval(readinessIntervalId);
+        }
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = TURNSTILE_SCRIPT_ID;
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.addEventListener("load", renderTurnstile, { once: true });
+    script.addEventListener("error", handleScriptError, { once: true });
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      if (loadTimeoutId) {
+        window.clearTimeout(loadTimeoutId);
+      }
+      if (readinessIntervalId) {
+        window.clearInterval(readinessIntervalId);
+      }
+    };
+  }, [isOpen, turnstileContainerId]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -48,11 +151,14 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
     setSending(true);
     setOkMsg("");
     setErrMsg("");
-    setWarnMsg("");
 
     try {
       if (!supabase) {
         throw new Error("El cliente de Supabase no está configurado.");
+      }
+
+      if (TURNSTILE_SITE_KEY && !captchaToken) {
+        throw new Error(COPY.captchaRequired);
       }
 
       const payload = {
@@ -68,15 +174,19 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
         lang: "es",
       };
 
-      const { error } = await supabase.from("shop_requests").insert([payload]);
-      if (error) throw error;
-
-      const { error: notifyError } = await supabase.functions.invoke("send-inquiry-email", {
+      const { error } = await supabase.functions.invoke("send-inquiry-email", {
         body: {
           mode: "shop_request",
           name: payload.name,
           email: payload.email,
           phone: payload.phone,
+          product_id: payload.product_id,
+          product_name: payload.product_name,
+          category_slug: payload.category_slug,
+          requested_item: payload.requested_item,
+          requested_size: payload.requested_size,
+          notes: payload.notes,
+          captcha_token: captchaToken,
           message: [
             `${COPY.product}: ${product?.name || "-"}`,
             `${COPY.category}: ${categoryName || "-"}`,
@@ -89,9 +199,7 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
         },
       });
 
-      if (notifyError) {
-        setWarnMsg(COPY.emailWarning);
-      }
+      if (error) throw error;
 
       setName("");
       setEmail("");
@@ -100,12 +208,17 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
       setRequestedSize("");
       setNotes("");
       setAcceptedPrivacy(false);
+      setCaptchaToken("");
       setOkMsg(COPY.success);
       setIsOpen(true);
       onSuccess?.();
+
+      if (TURNSTILE_SITE_KEY && window.turnstile && turnstileWidgetIdRef.current !== null) {
+        window.turnstile.reset(turnstileWidgetIdRef.current);
+      }
     } catch (error) {
       console.error("Error al enviar el formulario de solicitud:", error);
-      setErrMsg(COPY.error);
+      setErrMsg(error?.message || COPY.error);
     } finally {
       setSending(false);
     }
@@ -115,11 +228,11 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
     <section className="shop-request">
       <button
         type="button"
-        className={`shop-request__toggle ${isOpen ? "is-open" : ""}`}
+        className="shop-request__toggle"
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
       >
-        <span>
+        <span className="shop-request__header">
           <strong className="shop-request__title">{COPY.title}</strong>
           <span className="shop-request__intro">{COPY.intro}</span>
         </span>
@@ -129,7 +242,7 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
       </button>
 
       <form
-        className={`shop-request__grid ${isOpen ? "is-open" : ""}`}
+        className="shop-request__grid"
         onSubmit={handleSubmit}
         hidden={!isOpen}
       >
@@ -203,11 +316,25 @@ export default function ShopRequestForm({ product, categoryName, onSuccess }) {
           </span>
         </label>
 
+        {TURNSTILE_SITE_KEY ? (
+          <div className="shop-request__captcha shop-request__field--full">
+            <span>{COPY.captchaLabel}</span>
+            <div id={turnstileContainerId} />
+            {captchaLoadError ? (
+              <div className="shop-request__msg shop-request__msg--err">{captchaLoadError}</div>
+            ) : null}
+            {!captchaReady ? <div className="shop-request__msg">{COPY.captchaLoading}</div> : null}
+          </div>
+        ) : null}
+
         {errMsg ? <div className="shop-request__msg shop-request__msg--err">{errMsg}</div> : null}
         {okMsg ? <div className="shop-request__msg shop-request__msg--ok">{okMsg}</div> : null}
-        {warnMsg ? <div className="shop-request__msg shop-request__msg--warn">{warnMsg}</div> : null}
 
-        <button type="submit" className="shop-request__btn" disabled={sending}>
+        <button
+          type="submit"
+          className="shop-request__btn"
+          disabled={sending || (Boolean(TURNSTILE_SITE_KEY) && (!captchaReady || Boolean(captchaLoadError)))}
+        >
           {sending ? COPY.sending : COPY.submit}
         </button>
       </form>

@@ -46,6 +46,7 @@ export default function ProductDetail() {
             description,
             price_eur,
             is_pack,
+            is_heavy_shipping,
             shop_product_images (
               image_url,
               sort_order
@@ -96,6 +97,7 @@ export default function ProductDetail() {
           description: data.description || "",
           price: Number(data.price_eur || 0),
           isPack: Boolean(data.is_pack),
+          isHeavyShipping: Boolean(data.is_heavy_shipping),
           images: sortedImages,
           variants,
           categoryName: categories[0]?.name || "Sin categoría",
@@ -283,6 +285,9 @@ export default function ProductDetail() {
         name: product.name,
         price: product.price,
         imageUrl: product.images[0] || "",
+        isHeavyShipping: product.isHeavyShipping,
+        categorySlug: product.categories?.[0]?.slug || "",
+        categoryName: product.categories?.[0]?.name || product.categoryName || "",
         color: selectedColor || "",
         size: selectedSize || "",
         variantId: activeVariant?.id || "",

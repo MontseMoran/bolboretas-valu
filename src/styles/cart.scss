@@ -281,6 +281,217 @@
   line-height: 1.5;
 }
 
+.cart-page__checkoutToggle {
+  width: 100%;
+  margin-top: 16px;
+  border: 1px solid #2d2722;
+  border-radius: 999px;
+  background: #2d2722;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 18px;
+  cursor: pointer;
+}
+
+.cart-page__orderForm {
+  display: grid;
+  gap: 14px;
+}
+
+.cart-page__orderTitle {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.cart-page__checkoutPanel {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 22px;
+  border: 1px solid rgba(45, 39, 34, 0.08);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.cart-page__field {
+  display: grid;
+  gap: 6px;
+}
+
+.cart-page__field--full {
+  grid-column: 1 / -1;
+}
+
+.cart-page__field span {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(45, 39, 34, 0.62);
+}
+
+.cart-page__field input,
+.cart-page__field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #d7dce3;
+  font: inherit;
+  resize: vertical;
+}
+
+.cart-page__paymentOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cart-page__paymentOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(45, 39, 34, 0.14);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.cart-page__paymentOption input {
+  margin: 0;
+}
+
+.cart-page__paymentInfo {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(47, 93, 98, 0.06);
+  border: 1px solid rgba(47, 93, 98, 0.12);
+}
+
+.cart-page__paymentInfoTitle,
+.cart-page__paymentInfoValue,
+.cart-page__paymentInfoText,
+.cart-page__paymentInfoConcept {
+  margin: 0;
+}
+
+.cart-page__paymentInfoTitle {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #2d2722;
+}
+
+.cart-page__paymentInfoValue {
+  margin-top: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2f5d62;
+  word-break: break-word;
+}
+
+.cart-page__paymentInfoText {
+  margin-top: 6px;
+  color: rgba(45, 39, 34, 0.74);
+  line-height: 1.45;
+}
+
+.cart-page__paymentInfoConcept {
+  margin-top: 8px;
+  color: #2d2722;
+}
+
+.cart-page__privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cart-page__privacy input {
+  margin-top: 3px;
+}
+
+.cart-page__privacy span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.92rem;
+}
+
+.cart-page__privacy a {
+  color: #2f5d62;
+}
+
+.cart-page__captcha {
+  display: grid;
+  gap: 10px;
+}
+
+.cart-page__captchaHelp {
+  margin: 0;
+  color: rgba(45, 39, 34, 0.68);
+  font-size: 0.92rem;
+}
+
+.cart-page__captchaHelp--error {
+  color: #b42318;
+}
+
+.cart-page__orderNotice {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.cart-page__orderNotice p {
+  margin: 0;
+}
+
+.cart-page__orderNotice p + p {
+  margin-top: 4px;
+}
+
+.cart-page__receiptActions {
+  margin-top: 12px;
+}
+
+.cart-page__receiptActions button {
+  border: 1px solid #2d2722;
+  border-radius: 999px;
+  background: #fff;
+  color: #2d2722;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.cart-page__orderNotice--error {
+  background: rgba(180, 35, 24, 0.08);
+  color: #b42318;
+}
+
+.cart-page__orderNotice--success {
+  background: rgba(47, 93, 98, 0.08);
+  color: #2f5d62;
+}
+
+.cart-page__submitOrder {
+  width: 100%;
+  border: 1px solid #2d2722;
+  border-radius: 999px;
+  background: #2d2722;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 18px;
+  cursor: pointer;
+}
+
+.cart-page__submitOrder:disabled,
+.cart-page__discountBtn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
 @media (max-width: 899px) {
   .cart-page__header {
     align-items: flex-start;
@@ -314,6 +525,10 @@
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .cart-page__paymentOptions {
+    flex-direction: column;
+  }
 }
 
 @media (min-width: 900px) {
@@ -333,6 +548,14 @@
 
   .cart-page__imageWrap {
     aspect-ratio: 1 / 1.2;
+  }
+
+  .cart-page__orderForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cart-page__checkoutPanel {
+    grid-template-columns: 1fr;
   }
 }
 
