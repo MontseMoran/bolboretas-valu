@@ -71,6 +71,7 @@ export default function ShopProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const imageInputRef = useRef(null);
+  const savingRef = useRef(false);
   const isEdit = useMemo(() => Boolean(id), [id]);
   const draftKey = useMemo(() => `shop-product-form-draft:${id || "new"}`, [id]);
 
@@ -383,8 +384,11 @@ export default function ShopProductForm() {
     const selectionKey = newFiles
       .map((file) => `${file.name}:${file.size}:${file.lastModified}`)
       .join("|");
+    const isDuplicateSelection = imageFiles.some(
+      (file) => `${file.name}:${file.size}:${file.lastModified}` === selectionKey
+    );
 
-    if (selectionKey === lastImageSelectionKey) {
+    if (selectionKey === lastImageSelectionKey || isDuplicateSelection) {
       pushDebugLine("Se repitió la misma imagen y no se añadió de nuevo.");
       return;
     }
@@ -498,6 +502,12 @@ export default function ShopProductForm() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (savingRef.current) {
+      pushDebugLine("Se ignoró un segundo intento de guardado mientras el anterior seguía en curso.");
+      return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     pushDebugLine("Se inició el guardado del producto.");
 
@@ -655,6 +665,7 @@ export default function ShopProductForm() {
       pushDebugLine(`Error al guardar: ${error.message}`);
       alert(error.message);
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }

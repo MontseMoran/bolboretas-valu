@@ -26,11 +26,48 @@ export default function AdminLayout() {
   useEffect(() => {
     let alive = true;
 
-    const goLogin = () => {
+    const goLogin = (errorMsg = "") => {
       if (!alive) return;
       setUser(null);
       setLoading(false);
-      nav("/admin/login", { replace: true });
+      nav("/admin/login", {
+        replace: true,
+        state: errorMsg ? { errorMsg } : {},
+      });
+    };
+
+    const validateUser = async (currentUser) => {
+      if (!currentUser) {
+        resetCache();
+        goLogin("No se ha encontrado una sesión activa. Vuelve a iniciar sesión.");
+        return;
+      }
+
+      if (lastUidRef.current === currentUser.id && isAdminRef.current === true) {
+        setUser(currentUser);
+        setLoading(false);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (!alive) return;
+
+      if (profileError || !profile) {
+        resetCache();
+        goLogin("La cuenta ha iniciado sesión, pero no tiene permisos de administración.");
+        return;
+      }
+
+      lastUidRef.current = currentUser.id;
+      isAdminRef.current = true;
+      hasUserRef.current = true;
+      setUser(currentUser);
+      setLoading(false);
     };
 
     const validate = async () => {
@@ -40,69 +77,43 @@ export default function AdminLayout() {
       const timeoutId = setTimeout(() => {
         if (!alive) return;
         resetCache();
-        goLogin();
+        goLogin("La comprobación de acceso tardó demasiado. Vuelve a intentarlo.");
       }, 3000);
 
       try {
         setLoading((current) => (hasUserRef.current ? current : true));
 
-        const { data: userRes, error: userErr } = await supabase.auth.getUser();
-        const currentUser = userRes?.user;
+        const { data: sessionRes, error: sessionErr } = await supabase.auth.getSession();
+        const currentUser = sessionRes?.session?.user;
 
         if (!alive) return;
 
-        if (userErr || !currentUser) {
+        if (sessionErr || !currentUser) {
           resetCache();
-          goLogin();
+          goLogin("No se pudo recuperar la sesión. Vuelve a iniciar sesión.");
           return;
         }
 
-        if (lastUidRef.current === currentUser.id && isAdminRef.current === true) {
-          setUser(currentUser);
-          setLoading(false);
-          return;
-        }
-
-        const { data: profile, error: profileError } = await supabase
-          .from("admin_users")
-          .select("id")
-          .eq("id", currentUser.id)
-          .maybeSingle();
-
-        if (!alive) return;
-
-        if (profileError || !profile ) {
-          resetCache();
-          goLogin();
-          return;
-        }
-
-        lastUidRef.current = currentUser.id;
-        isAdminRef.current = true;
-        hasUserRef.current = true;
-        setUser(currentUser);
-        setLoading(false);
+        await validateUser(currentUser);
       } finally {
         clearTimeout(timeoutId);
         validatingRef.current = false;
       }
     };
 
-    validate();
-
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "INITIAL_SESSION") return;
-
       if (event === "SIGNED_OUT") {
         resetCache();
-        goLogin();
+        goLogin("La sesión se ha cerrado.");
         return;
       }
 
-      if (event === "SIGNED_IN") {
-        validate();
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+        void validate();
       }
     });
+
+    void validate();
 
     return () => {
       alive = false;

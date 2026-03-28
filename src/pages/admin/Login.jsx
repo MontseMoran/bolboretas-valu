@@ -1,16 +1,44 @@
-﻿import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/admin.scss";
+
+function mapLoginError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  if (message.includes("invalid login credentials")) {
+    return "Usuario o contraseña incorrectos.";
+  }
+
+  if (message.includes("email not confirmed")) {
+    return "La cuenta no tiene el correo confirmado.";
+  }
+
+  if (message.includes("too many requests")) {
+    return "Demasiados intentos de acceso. Espera un momento y vuelve a probar.";
+  }
+
+  return error?.message || "No se pudo iniciar sesión.";
+}
 
 export default function Login() {
   const nav = useNavigate();
+  const location = useLocation();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    const stateMessage = location.state?.errorMsg;
+
+    if (stateMessage) {
+      setErrorMsg(stateMessage);
+      nav(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, nav]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -22,18 +50,17 @@ export default function Login() {
 
       const { error } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
-        
         password,
       });
 
       if (error) {
-        setErrorMsg(error.message);
+        setErrorMsg(mapLoginError(error));
         return;
       }
 
       nav("/admin", { replace: true });
     } catch {
-      setErrorMsg("Error inesperado.");
+      setErrorMsg("Error inesperado al iniciar sesión.");
     } finally {
       setLoading(false);
     }
