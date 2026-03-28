@@ -135,6 +135,10 @@ export default function AdminLayout() {
             Productos
           </NavLink>
 
+          <NavLink to="pedidos" className={({ isActive }) => `admin-link ${isActive ? "is-active" : ""}`}>
+            Pedidos
+          </NavLink>
+
           <NavLink to="descuentos" className={({ isActive }) => `admin-link ${isActive ? "is-active" : ""}`}>
             Descuentos
           </NavLink>

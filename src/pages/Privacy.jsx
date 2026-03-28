@@ -23,8 +23,14 @@ export default function Privacy() {
         <section className="privacy__section">
           <h2>Finalidad</h2>
           <p>
-            Gestionar solicitudes relacionadas con productos, tallas, variantes y
-            consultas comerciales enviadas desde la web.
+            Gestionar solicitudes relacionadas con productos, tallas, variantes,
+            consultas comerciales y pedidos realizados desde la web.
+          </p>
+          <p>
+            En el caso de los pedidos, los datos de contacto y entrega se usan para
+            preparar el pedido, emitir la documentación asociada y gestionar el envío.
+            El teléfono facilitado podrá incluirse en la documentación de entrega
+            cuando resulte necesario para la correcta gestión del transporte.
           </p>
         </section>
 
@@ -38,7 +44,8 @@ export default function Privacy() {
           <p>
             Los datos pueden ser tratados por proveedores necesarios para el servicio,
             como Supabase para infraestructura y base de datos, y Resend para el envío
-            de correos electrónicos.
+            de correos electrónicos. También podrán comunicarse a proveedores logísticos
+            o de transporte cuando sea necesario para la entrega del pedido.
           </p>
         </section>
 

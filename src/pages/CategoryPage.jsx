@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/categoryPage.scss";
@@ -226,6 +226,7 @@ export default function CategoryPage() {
   useEffect(() => {
     setCurrentPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
 
   if (loading) {
     return (

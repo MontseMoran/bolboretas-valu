@@ -17,6 +17,9 @@ export default function Dashboard() {
         <Link to="/admin/productos" className="admin-action admin-action--ghost">
           Gestionar productos
         </Link>
+        <Link to="/admin/pedidos" className="admin-action admin-action--ghost">
+          Gestionar pedidos
+        </Link>
         <Link to="/admin/descuentos" className="admin-action admin-action--ghost">
           Gestionar descuentos
         </Link>

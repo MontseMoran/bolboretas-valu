@@ -12,7 +12,7 @@
   min-height: 76px;
   display: grid;
   grid-template-columns: 72px 1fr 72px;
-  grid-template-areas: "cart brand menu";
+  grid-template-areas: "menu brand cart";
   align-items: center;
   gap: 10px;
   padding: 10px 0;
@@ -34,7 +34,7 @@
 
 .hamburger {
   grid-area: menu;
-  justify-self: end;
+  justify-self: start;
   display: inline-flex;
   flex-direction: column;
   gap: 4px;
@@ -82,11 +82,11 @@
 
 .nav-icons {
   grid-area: cart;
-  justify-self: start;
+  justify-self: end;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  width: 72px;
+  width: auto;
 }
 
 .nav-iconLink {

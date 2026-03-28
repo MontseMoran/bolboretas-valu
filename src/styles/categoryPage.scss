@@ -226,6 +226,20 @@
   .category-page__subtitle {
     font-size: 1rem;
   }
+
+  .category-page__filtersWrap {
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .category-page__filters {
+    gap: 8px;
+  }
+
+  .category-page__filter {
+    padding: 8px 13px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (min-width: 700px) {

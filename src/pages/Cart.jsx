@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../lib/cartContext";
+import { downloadReceipt } from "../lib/orderReceipt";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/cart.scss";
 
@@ -73,184 +74,6 @@ function formatPrice(value) {
   return `${Number(value || 0).toFixed(2).replace(".", ",")} €`;
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function buildReceiptHtml(receipt) {
-  const itemsHtml = receipt.items
-    .map((item) => {
-      const details = [
-        item.color ? `Color: ${escapeHtml(item.color)}` : "",
-        item.size ? `Talla: ${escapeHtml(item.size)}` : "",
-      ]
-        .filter(Boolean)
-        .join(" · ");
-
-      return `
-        <tr>
-          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;">
-            <strong style="display:block;font-size:14px;line-height:1.45;">${escapeHtml(item.name)}</strong>
-            ${details ? `<div style="margin-top:6px;color:#7b6f67;font-size:12px;">${details}</div>` : ""}
-          </td>
-          <td style="padding:18px 12px;border-bottom:1px solid #ece4de;text-align:center;">${escapeHtml(item.quantity)}</td>
-          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;text-align:right;white-space:nowrap;">${escapeHtml(formatPrice(item.unit_price))}</td>
-          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;text-align:right;white-space:nowrap;font-weight:700;">${escapeHtml(formatPrice(item.line_total))}</td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  const deliveryLines = [
-    receipt.delivery.address_line_1,
-    receipt.delivery.address_line_2,
-    [receipt.delivery.postal_code, receipt.delivery.city].filter(Boolean).join(" "),
-    receipt.delivery.province,
-  ]
-    .filter(Boolean)
-    .map((line) => `<div class="address-line">${escapeHtml(line)}</div>`)
-    .join("");
-
-  const logoUrl = `${window.location.origin}/images/logo.png`;
-
-  return `
-    <!doctype html>
-    <html lang="es">
-      <head>
-        <meta charset="utf-8" />
-        <title>Albarán ${escapeHtml(receipt.reference)}</title>
-        <style>
-          :root { color-scheme: light; }
-          * { box-sizing: border-box; }
-          body { margin: 0; background: #f6f0ea; color: #2d2722; font-family: Georgia, "Times New Roman", serif; }
-          .page { max-width: 920px; margin: 0 auto; padding: 40px 24px 56px; }
-          .sheet { background: #fffdfa; border: 1px solid #eadfd8; border-radius: 28px; overflow: hidden; box-shadow: 0 24px 60px rgba(72, 47, 31, 0.08); }
-          .hero { padding: 32px 36px 28px; background: radial-gradient(circle at top right, rgba(212, 180, 148, 0.28), transparent 32%), linear-gradient(135deg, #f8eee6 0%, #fffdfa 55%, #f7f1ec 100%); border-bottom: 1px solid #efe4dc; }
-          .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
-          .brand-logo { width: 78px; height: 78px; object-fit: contain; border-radius: 18px; background: rgba(255,255,255,0.9); padding: 8px; }
-          .eyebrow { margin: 0 0 10px; font: 600 11px/1.2 Arial, sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #8a6f5a; }
-          h1 { margin: 0; font-size: 34px; line-height: 1.05; font-weight: 700; }
-          .hero-grid, .grid { display: grid; gap: 18px; }
-          .hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 22px; gap: 12px; }
-          .hero-card, .panel, .totals { border: 1px solid #efe4dc; border-radius: 20px; background: rgba(255, 255, 255, 0.78); }
-          .hero-card { padding: 16px 18px; }
-          .hero-label, .panel-label { margin: 0 0 8px; font: 600 11px/1.2 Arial, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8a6f5a; }
-          .hero-value { margin: 0; font: 700 15px/1.45 Arial, sans-serif; color: #2d2722; }
-          .content { padding: 28px 36px 36px; }
-          .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 20px; }
-          .panel { padding: 20px 22px; }
-          h2 { margin: 0 0 14px; font-size: 18px; line-height: 1.2; }
-          .stack { display: grid; gap: 8px; }
-          .row { display: grid; gap: 3px; }
-          .row strong { font: 600 11px/1.2 Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #8a6f5a; }
-          .row span, .address-line, .notes { font: 400 14px/1.55 Arial, sans-serif; color: #3e342d; }
-          .notes-wrap { margin-bottom: 20px; }
-          .table-wrap { border: 1px solid #efe4dc; border-radius: 22px; overflow: hidden; background: #fff; }
-          table { width: 100%; border-collapse: collapse; }
-          thead th { padding: 14px 20px; background: #f8f2ee; font: 600 11px/1.2 Arial, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8a6f5a; }
-          tbody td { font: 400 14px/1.45 Arial, sans-serif; color: #3e342d; }
-          .totals { width: min(100%, 320px); margin-left: auto; margin-top: 22px; padding: 18px 20px; }
-          .total-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; font: 400 14px/1.5 Arial, sans-serif; color: #4a4038; }
-          .total-row + .total-row { margin-top: 10px; }
-          .grand-total { margin-top: 14px; padding-top: 14px; border-top: 1px solid #efe4dc; font-weight: 700; color: #2d2722; }
-          @media print { body { background: #fff; } .page { padding: 0; } .sheet { border: 0; border-radius: 0; box-shadow: none; } }
-          @media (max-width: 720px) { .hero, .content { padding-left: 20px; padding-right: 20px; } .hero-grid, .grid { grid-template-columns: 1fr; } }
-        </style>
-      </head>
-      <body>
-        <div class="page">
-          <div class="sheet">
-            <section class="hero">
-              <div class="brand">
-                <img class="brand-logo" src="${logoUrl}" alt="Bolboretas & Valu" />
-                <div>
-                  <p class="eyebrow">Bolboretas & Valu</p>
-                  <h1>Albarán de pedido</h1>
-                </div>
-              </div>
-              <div class="hero-grid">
-                <div class="hero-card"><p class="hero-label">Referencia</p><p class="hero-value">${escapeHtml(receipt.reference)}</p></div>
-                <div class="hero-card"><p class="hero-label">Fecha</p><p class="hero-value">${escapeHtml(receipt.created_at)}</p></div>
-                <div class="hero-card"><p class="hero-label">Forma de pago</p><p class="hero-value">${escapeHtml(receipt.payment_method_label)}</p></div>
-              </div>
-            </section>
-            <section class="content">
-              <div class="grid">
-                <section class="panel">
-                  <p class="panel-label">Datos del cliente</p>
-                  <h2>Cliente</h2>
-                  <div class="stack">
-                    <div class="row"><strong>Nombre</strong><span>${escapeHtml(receipt.customer.name)}</span></div>
-                    <div class="row"><strong>Correo</strong><span>${escapeHtml(receipt.customer.email)}</span></div>
-                    <div class="row"><strong>Teléfono</strong><span>${escapeHtml(receipt.customer.phone)}</span></div>
-                  </div>
-                </section>
-                <section class="panel">
-                  <p class="panel-label">Entrega</p>
-                  <h2>Dirección de entrega</h2>
-                  <div class="stack">${deliveryLines || '<div class="address-line">-</div>'}</div>
-                </section>
-              </div>
-              ${
-                receipt.notes
-                  ? `
-                <section class="panel notes-wrap">
-                  <p class="panel-label">Indicaciones</p>
-                  <h2>Notas del pedido</h2>
-                  <p class="notes">${escapeHtml(receipt.notes).replaceAll("\n", "<br/>")}</p>
-                </section>
-              `
-                  : ""
-              }
-              <section class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th style="text-align:left;">Producto</th>
-                      <th style="text-align:center;">Cant.</th>
-                      <th style="text-align:right;">Precio</th>
-                      <th style="text-align:right;">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>${itemsHtml}</tbody>
-                </table>
-              </section>
-              <section class="totals">
-                <p class="total-row"><span>Subtotal</span><strong>${escapeHtml(formatPrice(receipt.subtotal))}</strong></p>
-                ${
-                  Number(receipt.discount_amount || 0) > 0
-                    ? `<p class="total-row"><span>Descuento</span><strong>-${escapeHtml(formatPrice(receipt.discount_amount))}</strong></p>`
-                    : ""
-                }
-                <p class="total-row"><span>${escapeHtml(receipt.shipping_label || "Envío")}</span><strong>${Number(receipt.shipping_amount || 0) > 0 ? escapeHtml(formatPrice(receipt.shipping_amount)) : "Gratis"}</strong></p>
-                <p class="total-row grand-total"><span>Total</span><strong>${escapeHtml(formatPrice(receipt.total))}</strong></p>
-              </section>
-            </section>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-}
-
-function downloadReceipt(receipt) {
-  const html = buildReceiptHtml(receipt);
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `albaran-${receipt.reference}.html`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
 function paymentLabel(value) {
   return PAYMENT_OPTIONS.find((option) => option.value === value)?.label || "No especificado";
 }
@@ -296,6 +119,7 @@ export default function Cart() {
   const [captchaLoadError, setCaptchaLoadError] = useState("");
   const turnstileContainerId = "cart-turnstile";
   const turnstileWidgetIdRef = useRef(null);
+  const checkoutPanelRef = useRef(null);
 
   useEffect(() => {
     setCode(appliedDiscount?.code || "");
@@ -396,6 +220,19 @@ export default function Cart() {
       }
     };
   }, [turnstileContainerId]);
+
+  useEffect(() => {
+    if (!showCheckoutForm || !checkoutPanelRef.current) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      checkoutPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [showCheckoutForm]);
 
   const orderItems = useMemo(
     () =>
@@ -799,6 +636,10 @@ export default function Cart() {
                   Envío gratis a partir de {formatPrice(FREE_SHIPPING_THRESHOLD)}. Completa tus
                   datos para enviar el pedido y recibir el albarán.
                 </p>
+                <p className="cart-page__summaryText">
+                  El teléfono podrá incluirse en la documentación de entrega cuando sea
+                  necesario para gestionar el envío.
+                </p>
 
                 <button
                   type="button"
@@ -811,7 +652,11 @@ export default function Cart() {
             </section>
 
             {showCheckoutForm ? (
-              <form className="cart-page__checkoutPanel reveal-on-scroll" onSubmit={handleSubmitOrder}>
+              <form
+                ref={checkoutPanelRef}
+                className="cart-page__checkoutPanel reveal-on-scroll"
+                onSubmit={handleSubmitOrder}
+              >
                 <h2 className="cart-page__orderTitle">Datos del pedido</h2>
 
                 <div className="cart-page__orderForm">

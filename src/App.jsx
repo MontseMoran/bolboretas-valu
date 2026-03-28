@@ -20,6 +20,8 @@ import ShopProducts from "./pages/admin/ShopProducts";
 import ShopProductForm from "./pages/admin/ShopProductForm";
 import ShopDiscountCodes from "./pages/admin/ShopDiscountCodes";
 import ShopDiscountCodeForm from "./pages/admin/ShopDiscountCodeForm";
+import Orders from "./pages/admin/Orders";
+import OrderDetail from "./pages/admin/OrderDetail";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 
@@ -63,6 +65,8 @@ export default function App() {
         <Route path="productos" element={<ShopProducts />} />
         <Route path="productos/nuevo" element={<ShopProductForm />} />
         <Route path="productos/:id/editar" element={<ShopProductForm />} />
+        <Route path="pedidos" element={<Orders />} />
+        <Route path="pedidos/:id" element={<OrderDetail />} />
         <Route path="descuentos" element={<ShopDiscountCodes />} />
         <Route path="descuentos/nuevo" element={<ShopDiscountCodeForm />} />
         <Route path="descuentos/:id/editar" element={<ShopDiscountCodeForm />} />
