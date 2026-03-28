@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { uploadImageFile } from "../../lib/storage";
+import { cropImageFile } from "../../utils/imageResize";
 import "../../styles/shopProductForm.scss";
 
 function slugify(value) {
@@ -77,6 +78,24 @@ function normalizeVariantsForUi(items) {
   });
 }
 
+function getCropPreviewStyle({ width, height, zoom, offsetX, offsetY }) {
+  const frameWidth = 280;
+  const frameHeight = 350;
+  const baseScale = Math.max(frameWidth / width, frameHeight / height);
+  const finalScale = baseScale * Math.max(1, zoom);
+  const scaledWidth = width * finalScale;
+  const scaledHeight = height * finalScale;
+  const maxShiftX = Math.max(0, (scaledWidth - frameWidth) / 2);
+  const maxShiftY = Math.max(0, (scaledHeight - frameHeight) / 2);
+
+  return {
+    width: `${scaledWidth}px`,
+    height: `${scaledHeight}px`,
+    left: `${(frameWidth - scaledWidth) / 2 + offsetX * maxShiftX}px`,
+    top: `${(frameHeight - scaledHeight) / 2 + offsetY * maxShiftY}px`,
+  };
+}
+
 export default function ShopProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -107,6 +126,7 @@ export default function ShopProductForm() {
   const [imagePickerMessage, setImagePickerMessage] = useState("");
   const [lastImageSelectionKey, setLastImageSelectionKey] = useState("");
   const [debugLines, setDebugLines] = useState([]);
+  const [cropState, setCropState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -131,6 +151,10 @@ export default function ShopProductForm() {
   const selectedImageNames = useMemo(
     () => imageFiles.map((file) => file?.name).filter(Boolean),
     [imageFiles]
+  );
+  const cropPreviewStyle = useMemo(
+    () => (cropState ? getCropPreviewStyle(cropState) : null),
+    [cropState]
   );
   const variantGroups = useMemo(() => {
     const grouped = new Map();
@@ -173,6 +197,14 @@ export default function ShopProductForm() {
       imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [imagePreviewUrls]);
+
+  useEffect(() => {
+    return () => {
+      if (cropState?.previewUrl) {
+        URL.revokeObjectURL(cropState.previewUrl);
+      }
+    };
+  }, [cropState]);
 
   useEffect(() => {
     let active = true;
@@ -371,7 +403,25 @@ export default function ShopProductForm() {
     pushDebugLine("Se eliminó una imagen seleccionada.");
   }
 
-  function handleImageInputChange(event) {
+  function addSelectedImage(file, selectionKey) {
+    const isDuplicateSelection = imageFiles.some(
+      (currentFile) =>
+        `${currentFile.name}:${currentFile.size}:${currentFile.lastModified}` === selectionKey
+    );
+
+    if (selectionKey === lastImageSelectionKey || isDuplicateSelection) {
+      pushDebugLine("Se repitió la misma imagen y no se añadió de nuevo.");
+      return false;
+    }
+
+    setImageFiles((current) => [...current, file]);
+    setLastImageSelectionKey(selectionKey);
+    setImagePickerMessage(`Imagen añadida: ${file?.name || "imagen"}`);
+    pushDebugLine(`Imagen recibida: ${file?.name || "imagen"} (${formatFileSize(file.size)}).`);
+    return true;
+  }
+
+  async function handleImageInputChange(event) {
     const newFiles = Array.from(event.target.files || []).slice(0, 1);
 
     if (newFiles.length === 0) {
@@ -394,28 +444,77 @@ export default function ShopProductForm() {
     const selectionKey = newFiles
       .map((file) => `${file.name}:${file.size}:${file.lastModified}`)
       .join("|");
-    const isDuplicateSelection = imageFiles.some(
-      (file) => `${file.name}:${file.size}:${file.lastModified}` === selectionKey
-    );
+    const selectedFile = newFiles[0];
 
-    if (selectionKey === lastImageSelectionKey || isDuplicateSelection) {
-      pushDebugLine("Se repitió la misma imagen y no se añadió de nuevo.");
-      return;
+    try {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      const imageData = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.width, height: img.height });
+        img.onerror = reject;
+        img.src = previewUrl;
+      });
+
+      setCropState({
+        file: selectedFile,
+        originalSelectionKey: selectionKey,
+        previewUrl,
+        width: imageData.width,
+        height: imageData.height,
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+        processing: false,
+      });
+      pushDebugLine(`Imagen lista para recorte: ${selectedFile.name || "imagen"}.`);
+    } catch {
+      setImagePickerMessage("No se pudo preparar la imagen para recortarla.");
+      pushDebugLine("Error al abrir el recorte de la imagen.");
     }
 
-    setImageFiles((current) => {
-      const nextFiles = [...current, ...newFiles];
-      return nextFiles;
-    });
-    setLastImageSelectionKey(selectionKey);
-    setImagePickerMessage(
-      `Imagen añadida: ${newFiles[0]?.name || "imagen"}`
-    );
-
-    pushDebugLine(
-      `Imagen recibida: ${newFiles[0]?.name || "imagen"} (${formatFileSize(newFiles[0].size)}).`
-    );
     event.currentTarget.value = "";
+  }
+
+  function handleCropCancel() {
+    if (cropState?.previewUrl) {
+      URL.revokeObjectURL(cropState.previewUrl);
+    }
+
+    setCropState(null);
+    setImagePickerMessage("Selección cancelada antes de añadir la imagen.");
+    pushDebugLine("Se canceló el recorte de la imagen.");
+  }
+
+  async function handleCropConfirm() {
+    if (!cropState?.file) return;
+
+    setCropState((current) => (current ? { ...current, processing: true } : current));
+
+    try {
+      const croppedFile = await cropImageFile(cropState.file, {
+        aspectRatio: 4 / 5,
+        zoom: cropState.zoom,
+        offsetX: cropState.offsetX,
+        offsetY: cropState.offsetY,
+      });
+
+      const croppedSelectionKey = `${cropState.originalSelectionKey}:crop:${Math.round(
+        cropState.zoom * 100
+      )}:${Math.round(cropState.offsetX * 100)}:${Math.round(cropState.offsetY * 100)}`;
+
+      addSelectedImage(croppedFile, croppedSelectionKey);
+      pushDebugLine("Recorte aplicado antes de añadir la imagen.");
+
+      if (cropState.previewUrl) {
+        URL.revokeObjectURL(cropState.previewUrl);
+      }
+
+      setCropState(null);
+    } catch (error) {
+      setImagePickerMessage(error.message || "No se pudo recortar la imagen.");
+      pushDebugLine(`Error al recortar imagen: ${error.message}`);
+      setCropState((current) => (current ? { ...current, processing: false } : current));
+    }
   }
 
   function moveItem(items, fromIndex, toIndex) {
@@ -1077,6 +1176,89 @@ export default function ShopProductForm() {
           </div>
         </form>
       )}
+
+      {cropState ? (
+        <div className="shop-product-form__cropOverlay" role="dialog" aria-modal="true">
+          <div className="shop-product-form__cropModal">
+            <div className="shop-product-form__cropHeader">
+              <h3>Encuadrar imagen</h3>
+              <p>
+                Ajusta el encuadre principal antes de añadir la imagen al producto.
+              </p>
+            </div>
+
+            <div className="shop-product-form__cropPreview">
+              <div className="shop-product-form__cropFrame">
+                <img
+                  src={cropState.previewUrl}
+                  alt="Vista previa del recorte"
+                  className="shop-product-form__cropImage"
+                  style={cropPreviewStyle || undefined}
+                />
+              </div>
+            </div>
+
+            <div className="shop-product-form__cropControls">
+              <label>
+                Zoom
+                <input
+                  type="range"
+                  min="1"
+                  max="2.2"
+                  step="0.01"
+                  value={cropState.zoom}
+                  onChange={(event) =>
+                    setCropState((current) =>
+                      current ? { ...current, zoom: Number(event.target.value) } : current
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Mover horizontal
+                <input
+                  type="range"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  value={cropState.offsetX}
+                  onChange={(event) =>
+                    setCropState((current) =>
+                      current ? { ...current, offsetX: Number(event.target.value) } : current
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Mover vertical
+                <input
+                  type="range"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  value={cropState.offsetY}
+                  onChange={(event) =>
+                    setCropState((current) =>
+                      current ? { ...current, offsetY: Number(event.target.value) } : current
+                    )
+                  }
+                />
+              </label>
+            </div>
+
+            <div className="shop-product-form__cropActions">
+              <button type="button" className="admin-action admin-action--ghost" onClick={handleCropCancel}>
+                Cancelar
+              </button>
+              <button type="button" className="admin-btn-primary" onClick={handleCropConfirm} disabled={cropState.processing}>
+                {cropState.processing ? "Aplicando..." : "Usar este recorte"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

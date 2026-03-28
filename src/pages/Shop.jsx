@@ -399,18 +399,21 @@ export default function Shop() {
                   style={{ "--reveal-delay": `${180 + index * 70}ms` }}
                 >
                   <div className={`shop__productMedia shop__productMedia--${product.accent}`}>
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="shop__productImg"
-                      />
-                    ) : (
-                      <div className="shop__productPlaceholder">
-                        <span>{product.categoryName}</span>
-                        <strong>{COPY.unavailable}</strong>
-                      </div>
-                    )}
+                    <div className="shop__productMediaFrame">
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="shop__productImg"
+                        />
+                      ) : (
+                        <div className="shop__productPlaceholder">
+                          <span>{product.categoryName}</span>
+                          <strong>{COPY.unavailable}</strong>
+                        </div>
+                      )}
+                    </div>
+                    <div className="shop__productMediaGlow" aria-hidden="true" />
                   </div>
 
                   <div className="shop__productBody">
