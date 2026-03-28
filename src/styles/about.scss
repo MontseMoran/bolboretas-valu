@@ -1,7 +1,6 @@
 .about {
   position: relative;
-  padding: 48px 0 145px;
-  
+  padding: 40px 0 140px;
 }
 
 .about::before {
@@ -11,180 +10,168 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100vw;
-  z-index: -1;
+  z-index: -3;
   background:
-    radial-gradient(900px 520px at 18% 0%, rgba(255, 190, 150, 0.22), transparent 60%),
-    radial-gradient(900px 520px at 82% 10%, rgba(255, 220, 190, 0.18), transparent 55%),
-    linear-gradient(180deg, rgb(218, 218, 217), rgba(252, 252, 250, 1));
+    radial-gradient(720px 420px at 12% 4%, rgba(228, 196, 158, 0.14), transparent 62%),
+    radial-gradient(860px 520px at 88% 12%, rgba(223, 206, 184, 0.12), transparent 58%),
+    linear-gradient(180deg, #fbf8f3 0%, #fffdf9 50%, #f8f4ee 100%);
 }
 
+.about::after {
+  content: "";
+  position: absolute;
+  inset: 40px 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 88vw);
+  aspect-ratio: 1;
+  z-index: -2;
+  background: url("/images/logo.png") no-repeat center;
+  background-size: contain;
+  opacity: 0.07;
+  filter: blur(1px);
+  pointer-events: none;
+}
 
 .about-hero,
-.about-section {
-  max-width: 1100px;
+.about-band {
+  max-width: 1120px;
   margin: 0 auto;
 }
 
 .about-hero {
-  position: relative;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 26px;
-  padding: 28px 20px 34px;
-  margin-bottom: 26px;
-  margin-top: 18px;
-  box-shadow: 0 14px 30px rgba(25, 18, 10, 0.10);
+  display: grid;
+  gap: 28px;
+  align-items: center;
+  padding: 22px 0 30px;
+  border-bottom: 1px solid rgba(111, 84, 52, 0.14);
 }
 
-.about-claim {
-  font-size: 1.45rem;
+.about-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.about-kicker,
+.about-band__eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9f6a3d;
+}
+
+.about-title {
+  max-width: 12ch;
+  margin: 0 0 18px;
+  font-size: clamp(2.2rem, 6vw, 4.6rem);
+  line-height: 0.94;
   font-weight: 600;
-  margin: 0 0 14px;
-  color: #3a2f27;
+  color: #2e241d;
 }
 
 .about-intro {
-  line-height: 1.7;
-  margin: 0 0 18px;
-  color: rgba(0, 0, 0, 0.75);
+  max-width: 52ch;
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: rgba(28, 23, 18, 0.82);
+}
+
+.about-portrait {
+  margin: 0;
+  align-self: start;
 }
 
 .about-image {
   width: 100%;
   display: block;
-  border-radius: 20px;
   object-fit: cover;
-  height: clamp(220px, 32vw, 420px);
-  margin: 0 auto 12px;
-  box-shadow: 0 12px 24px rgba(25, 18, 10, 0.12);
+  object-position: center top;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.96), rgba(248, 243, 236, 0.82));
+  border-radius: 32px;
+  height: auto;
+  max-height: 760px;
 }
 
 .about-caption {
-  font-size: 0.85rem;
+  margin: 14px 0 0;
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(56, 44, 32, 0.76);
+}
+
+.about-band {
+  display: grid;
+  gap: 18px;
+  padding: 34px 0;
+  border-bottom: 1px solid rgba(111, 84, 52, 0.12);
+}
+
+.about-band:last-child {
+  border-bottom: 0;
+}
+
+.about-band__header h2 {
+  max-width: 14ch;
   margin: 0;
-  color: rgba(0, 0, 0, 0.6);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  line-height: 1.02;
+  color: #31261f;
 }
 
-.about-section {
-  position: relative;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(236, 220, 203, 0.68));
-  border: 1px solid rgba(105, 76, 51, 0.10);
-  border-radius: 26px;
-  padding: 24px 20px;
-  margin: 0 auto 22px;
-  box-shadow: 0 12px 26px rgba(25, 18, 10, 0.08);
-  overflow: hidden;
+.about-band__content {
+  max-width: 62ch;
 }
 
-.about > .about-section:nth-of-type(2n):not(.about-highlight) {
-  background: linear-gradient(145deg, rgba(255, 250, 244, 0.9), rgba(226, 206, 185, 0.70));
-}
-
-.about > .about-section:nth-of-type(2n + 1):not(.about-highlight) {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(241, 229, 216, 0.72));
-}
-
-.about > .about-section:last-of-type {
-  margin-bottom: 40px;
-}
-
-.about-hero::after,
-.about-section::after {
-  content: "";
-  position: absolute;
-  top: -18px;
-  right: -18px;
-  width: 110px;
-  height: 110px;
-  background: url("/images/huella.svg") no-repeat center;
-  background-size: contain;
-  opacity: 0.05;
-  pointer-events: none;
-}
-
-.about-section h2 {
-  font-size: 1.3rem;
-  margin: 0 0 12px;
-  color: #3b3128;
-}
-
-.about-section p {
-  line-height: 1.7;
-  margin: 0 0 12px;
-  color: rgba(0, 0, 0, 0.75);
-}
-
-.about-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.about-list li {
+.about-band__content p {
   margin: 0 0 16px;
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: rgba(31, 25, 20, 0.82);
 }
 
-.about-list strong {
-  display: block;
-  margin: 0 0 6px;
-  color: #3a2f27;
+.about-band__content p:last-child {
+  margin-bottom: 0;
 }
 
-.about-list p {
-  margin: 0;
+.about-band--closing .about-band__header h2 {
+  color: #8f4e1e;
 }
 
-.about-highlight {
-  background: linear-gradient(145deg, rgba(255, 236, 212, 0.7), rgba(232, 178, 120, 0.32));
-  border: 1px solid rgba(232, 178, 120, 0.35);
-}
-
-
-@media (min-width: 600px) {
+@media (min-width: 820px) {
   .about {
-    padding: 64px 0 175px;
+    padding: 56px 0 170px;
   }
 
   .about-hero {
-    padding: 40px 36px 46px;
-    margin-top: 26px;
-    
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    gap: 44px;
+    padding: 34px 0 44px;
   }
 
-  .about-section {
-    padding: 32px 36px;
+  .about-band {
+    grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1fr);
+    gap: 42px;
+    align-items: start;
+    padding: 42px 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  .about::after {
+    width: min(880px, 76vw);
+    top: 20px;
+  }
+
+  .about-hero,
+  .about-band {
+    max-width: 1180px;
   }
 
   .about-image {
-    height: clamp(260px, 26vw, 440px);
-  }
-}
-
-@media (min-width: 900px) {
-  .about-hero {
-    padding: 54px 54px 60px;
-  }
-
-  .about-section {
-    padding: 40px 54px;
-  }
-
-  .about-image {
-    height: clamp(300px, 22vw, 460px);
-  }
-}
-
-@media (min-width: 1440px) {
-  .about-hero,
-  .about-section {
-    max-width: 1200px;
-  }
-}
-
-@media (min-width: 1800px) {
-  .about-hero,
-  .about-section {
-    max-width: 1280px;
+    max-height: 820px;
   }
 }
