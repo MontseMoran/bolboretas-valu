@@ -78,7 +78,7 @@ export default function AdminLayout() {
         if (!alive) return;
         resetCache();
         goLogin("La comprobación de acceso está tardando demasiado. Revisa la conexión e inténtalo de nuevo.");
-      }, 10000);
+      }, 30000);
 
       try {
         setLoading((current) => (hasUserRef.current ? current : true));
