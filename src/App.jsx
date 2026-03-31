@@ -7,6 +7,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
 import Shop from "./pages/Shop";
 import CategoryPage from "./pages/CategoryPage";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="quienes-somos" element={<About />} />
         <Route path="contacto" element={<Contact />} />
         <Route path="privacidad" element={<Privacy />} />
+        <Route path="politica-de-devoluciones" element={<ReturnsPolicy />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
 

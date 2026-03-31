@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import "../styles/privacy.scss";
 
 export default function Privacy() {
@@ -58,8 +58,8 @@ export default function Privacy() {
           <h2>Derechos</h2>
           <p>
             Puedes ejercer tus derechos de acceso, rectificación, supresión,
-            oposición, limitación del tratamiento y portabilidad escribiendo a
-            bolboretasvalu@gmail.com.
+            oposición, limitación del tratamiento y portabilidad escribiendo a{" "}
+            <a href="mailto:bolboretasvalu@gmail.com">bolboretasvalu@gmail.com</a>.
           </p>
         </section>
       </div>

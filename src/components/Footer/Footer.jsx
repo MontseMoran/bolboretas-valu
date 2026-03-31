@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="site-footer__col">
           <h3>Envíos y devoluciones</h3>
           <p>Envío gratis a partir de 60 EUR</p>
-          <p>Petición directa por talla y variante</p>
+          <Link to="/politica-de-devoluciones">Política de devoluciones</Link>
           <p>Atención personalizada</p>
         </div>
 
@@ -61,7 +61,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               aria-label="Threads"
             >
-               <img src="/images/icons/treads.png" alt="Logo Threads" />
+              <img src="/images/icons/treads.png" alt="Logo Threads" />
             </a>
           </div>
         </div>
