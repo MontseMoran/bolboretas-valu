@@ -1,95 +1,423 @@
-.contact-page {
+.contact {
   position: relative;
-  padding: 70px 0 72px;
+  padding: 40px 0 140px;
 }
 
-
-.contact-page::before {
+.contact::before {
   content: "";
   position: absolute;
   inset: 0;
-  width: 100%;
-
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  z-index: -3;
   background:
-    radial-gradient(900px 520px at 18% 0%, rgba(230, 200, 175, 0.28), transparent 60%),
-    radial-gradient(900px 520px at 82% 10%, rgba(240, 215, 195, 0.22), transparent 55%),
-    linear-gradient(180deg, #e7ded4 0%, #fbfaf7 65%, #ffffff 100%);
+    radial-gradient(760px 440px at 14% 6%, rgba(233, 193, 149, 0.11), transparent 64%),
+    radial-gradient(820px 480px at 84% 10%, rgba(226, 206, 186, 0.09), transparent 60%),
+    radial-gradient(680px 380px at 50% 78%, rgba(244, 224, 197, 0.08), transparent 66%),
+    linear-gradient(180deg, #faf7f2 0%, #fffdfa 52%, #f7f2eb 100%);
+}
 
+.contact::after {
+  content: "";
+  position: absolute;
+  inset: 36px 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 88vw);
+  aspect-ratio: 1;
+  z-index: -2;
+  background: url("/images/logo.png") no-repeat center;
+  background-size: contain;
+  opacity: 0.06;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+.contact-hero::before,
+.contact-band::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: url("/images/butterfly-logo.png") no-repeat center;
+  background-size: contain;
+  opacity: 0.055;
+  filter: blur(0.4px);
+  pointer-events: none;
   z-index: 0;
 }
 
+.contact-hero,
+.contact-band {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+}
 
-.contact-page__content {
+.contact-hero {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+  padding: 22px 0 34px;
+  border-bottom: 1px solid rgba(111, 84, 52, 0.14);
+}
+
+.contact-hero::before {
+  top: 70px;
+  right: 8%;
+  width: 220px;
+  height: 220px;
+  transform: rotate(-16deg) scale(1.02);
+}
+
+.contact-copy,
+.contact-highlight,
+.contact-band__header,
+.contact-band__content,
+.contact-channelGrid,
+.contact-socialGrid,
+.contact-steps {
   position: relative;
   z-index: 1;
 }
 
-.contact-page__content h1 {
+.contact-kicker,
+.contact-band__eyebrow,
+.contact-highlight__eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9f6a3d;
+}
+
+.contact-title {
+  max-width: 11ch;
+  margin: 0 0 18px;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 0.94;
+  font-weight: 600;
+  color: #2e241d;
+}
+
+.contact-intro {
+  max-width: 56ch;
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: rgba(28, 23, 18, 0.82);
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-top: 28px;
 }
 
-.contact-page__content .card + .card {
-  margin-top: 16px;
- 
+.contact-primaryAction,
+.contact-secondaryAction,
+.contact-locationLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 156px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
-.contact-page__content .card h2,
-.contact-page__content .card p,
-.contact-page__content .card ul {
-  padding-left: 44px;
+
+.contact-primaryAction {
+  background: #8f4e1e;
+  border: 1px solid #8f4e1e;
+  color: #fffaf4;
 }
-.contact-page__content .card:first-of-type {
-  margin-top: 40px;
+
+.contact-primaryAction:hover {
+  transform: translateY(-1px);
+  background: #7b4218;
+  border-color: #7b4218;
 }
-.contact-page__content .card:last-of-type {
-  margin-bottom: 24px;
+
+.contact-secondaryAction,
+.contact-locationLink {
+  background: rgba(159, 106, 61, 0.1);
+  border: 1px solid rgba(159, 106, 61, 0.18);
+  color: #8f4e1e;
 }
-.contact-page__content .muted + .secondary-list {
-  margin-top: 10px;
+
+.contact-secondaryAction:hover,
+.contact-locationLink:hover {
+  transform: translateY(-1px);
+  background: rgba(159, 106, 61, 0.16);
+  border-color: rgba(159, 106, 61, 0.3);
 }
-.card {
+
+.contact-highlight {
+  padding: 28px 24px;
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(246, 238, 229, 0.94));
+  border: 1px solid rgba(111, 84, 52, 0.12);
+  box-shadow: 0 22px 48px rgba(64, 44, 24, 0.08);
+}
+
+.contact-highlight h2,
+.contact-band__header h2 {
+  margin: 0;
+  color: #31261f;
+  line-height: 1.02;
+}
+
+.contact-highlight h2 {
+  max-width: 10ch;
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+}
+
+.contact-highlight__list {
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 0;
+}
+
+.contact-highlight__list li {
   position: relative;
-  background: rgba(255, 255, 255, 0.86);
+  padding-left: 18px;
+  margin-bottom: 12px;
+  color: rgba(31, 25, 20, 0.82);
+  line-height: 1.7;
+}
+
+.contact-highlight__list li::before {
+  content: "";
+  position: absolute;
+  top: 0.72em;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #9f6a3d;
+}
+
+.contact-band {
+  display: grid;
+  gap: 18px;
+  padding: 34px 0;
+  border-bottom: 1px solid rgba(111, 84, 52, 0.12);
+}
+
+.contact-band::before {
+  top: 22px;
+  right: 6%;
+  width: 156px;
+  height: 156px;
+  transform: rotate(14deg) scaleX(-1);
+}
+
+.contact-band:nth-of-type(3)::before {
+  right: auto;
+  left: 16%;
+  top: 46px;
+  width: 138px;
+  height: 138px;
+  transform: rotate(-28deg) scale(0.92);
+}
+
+.contact-band--steps::before {
+  right: 18%;
+  top: auto;
+  bottom: 16px;
+  width: 182px;
+  height: 182px;
+  transform: rotate(26deg) scaleX(-1);
+}
+
+.contact-band--location::before {
+  display: none;
+}
+
+.contact-band:last-child {
+  border-bottom: 0;
+}
+
+.contact-band__header h2 {
+  max-width: 14ch;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+}
+
+.contact-band__content {
+  max-width: 62ch;
+}
+
+.contact-band__content p {
+  margin: 0 0 16px;
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: rgba(31, 25, 20, 0.82);
+}
+
+.contact-channelGrid,
+.contact-socialGrid,
+.contact-steps {
+  display: grid;
+  gap: 18px;
+}
+
+.contact-channelCard,
+.contact-socialCard,
+.contact-step {
+  text-decoration: none;
+  border-radius: 26px;
+  border: 1px solid rgba(111, 84, 52, 0.12);
+  background: rgba(255, 252, 247, 0.88);
+  box-shadow: 0 18px 38px rgba(64, 44, 24, 0.07);
+}
+
+.contact-channelCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.contact-channelCard:hover,
+.contact-socialCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 44px rgba(64, 44, 24, 0.1);
+  border-color: rgba(143, 78, 30, 0.22);
+}
+
+.contact-channelCard__iconWrap {
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 18px;
-  padding: 22px 22px 22px 56px; 
-
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f4ece5 58%, #e7dbcf 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -6px 12px rgba(176, 151, 124, 0.16);
 }
 
-/* doble marco suave tipo adopción */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  pointer-events: none;
-   background:
-    radial-gradient(
-      320px 240px at 0% 0%,
-      rgba(159, 159, 193, 0.45),  
-      transparent 75%
-    );
+.contact-channelCard__icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
-.card:hover {
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.08);
+.contact-channelCard__meta {
+  display: grid;
+  gap: 6px;
 }
 
-/* opcional: dos huellitas sutiles, como Donate */
-.card::after {
-  content: "";
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 80px;
-  height: 80px;
-  pointer-events: none;
-  opacity: 0.08;
+.contact-channelCard__title,
+.contact-socialCard__name {
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: #2f241d;
+}
 
-  background-image: url("/images/huella.svg"), url("/images/huella.svg");
-  background-repeat: no-repeat, no-repeat;
-  background-size: 28px 28px, 22px 22px;
-  background-position: 0 20px, 28px 0;
+.contact-channelCard__handle,
+.contact-socialCard__handle {
+  color: #8f4e1e;
+  font-weight: 600;
+}
+
+.contact-channelCard__description {
+  color: rgba(31, 25, 20, 0.78);
+  line-height: 1.75;
+}
+
+.contact-socialGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.contact-socialCard {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 22px 18px;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.contact-socialCard__icon {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.contact-step {
+  padding: 22px 22px 20px;
+}
+
+.contact-step__index {
+  display: inline-flex;
+  margin-bottom: 16px;
+  color: #9f6a3d;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.contact-step p {
+  margin: 0;
+  color: rgba(31, 25, 20, 0.82);
+  line-height: 1.82;
+}
+
+@media (max-width: 639px) {
+  .contact-socialGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 820px) {
+  .contact {
+    padding: 56px 0 170px;
+  }
+
+  .contact-hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.78fr);
+    gap: 44px;
+    padding: 34px 0 44px;
+  }
+
+  .contact-band {
+    grid-template-columns: minmax(260px, 0.68fr) minmax(0, 1fr);
+    gap: 42px;
+    align-items: start;
+    padding: 42px 0;
+  }
+
+  .contact-channelGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .contact::after {
+    width: min(880px, 76vw);
+    top: 18px;
+  }
+
+  .contact-hero,
+  .contact-band {
+    max-width: 1180px;
+  }
 }
