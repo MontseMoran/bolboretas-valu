@@ -14,6 +14,36 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+async function resolveUniqueProductSlug(supabaseClient, desiredSlug, currentProductId = null) {
+  const baseSlug = slugify(desiredSlug) || "producto";
+
+  const { data, error } = await supabaseClient
+    .from("shop_products")
+    .select("id, slug")
+    .ilike("slug", `${baseSlug}%`);
+
+  if (error) throw error;
+
+  const takenSlugs = new Set(
+    (data || [])
+      .filter((row) => !currentProductId || row.id !== currentProductId)
+      .map((row) => String(row.slug || "").trim())
+      .filter(Boolean)
+  );
+
+  if (!takenSlugs.has(baseSlug)) {
+    return baseSlug;
+  }
+
+  let nextSuffix = 2;
+
+  while (takenSlugs.has(`${baseSlug}-${nextSuffix}`)) {
+    nextSuffix += 1;
+  }
+
+  return `${baseSlug}-${nextSuffix}`;
+}
+
 function mapProductSaveError(error) {
   const message = String(error?.message || "");
 
@@ -625,9 +655,15 @@ export default function ShopProductForm() {
     let uploadedImages = [];
 
     try {
+      const resolvedSlug = await resolveUniqueProductSlug(
+        supabase,
+        form.slug || form.name,
+        isEdit ? id : null
+      );
+
       const payload = {
         sku: form.sku.trim(),
-        slug: slugify(form.slug || form.name),
+        slug: resolvedSlug,
         name: form.name.trim(),
         description: form.description.trim() || null,
         price_eur: form.price_eur === "" ? null : Number(form.price_eur),
@@ -638,21 +674,6 @@ export default function ShopProductForm() {
 
       if (!payload.sku) throw new Error("SKU obligatorio");
       if (!payload.name) throw new Error("Nombre obligatorio");
-
-      const slugQuery = supabase
-        .from("shop_products")
-        .select("id")
-        .eq("slug", payload.slug)
-        .limit(1);
-
-      const { data: existingSlugRows, error: slugError } = isEdit
-        ? await slugQuery.neq("id", id)
-        : await slugQuery;
-
-      if (slugError) throw slugError;
-      if ((existingSlugRows || []).length > 0) {
-        throw new Error("Ya existe otro producto con la misma URL. Cambia el nombre del producto para que sea distinto.");
-      }
 
       let productId = id;
 
