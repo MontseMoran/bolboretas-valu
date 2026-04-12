@@ -149,7 +149,10 @@ export default function CategoryPage() {
             subcategoriesByProductId[row.product_id] = [];
           }
 
-          subcategoriesByProductId[row.product_id].push(subcategory);
+          subcategoriesByProductId[row.product_id].push({
+  ...subcategory,
+  slug: slugifyValue(subcategory.slug || subcategory.name),
+});
         });
 
         const normalizedProducts = (productsData || [])
@@ -205,10 +208,10 @@ export default function CategoryPage() {
     const normalizedSelected = slugifyValue(selectedSubcategory);
 
     return products.filter((product) =>
-      product.subcategories.some(
-        (subcategory) => slugifyValue(subcategory.slug || subcategory.name) === normalizedSelected
-      )
-    );
+  product.subcategories.some(
+    (subcategory) => subcategory.slug === normalizedSelected
+  )
+);
   }, [products, selectedSubcategory]);
 
   const filterOptions = useMemo(() => {
