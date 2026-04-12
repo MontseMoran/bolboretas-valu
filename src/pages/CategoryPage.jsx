@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/categoryPage.scss";
 
 const PRODUCTS_PER_PAGE = 10;
+const CATEGORY_SKELETON_CARDS = Array.from({ length: PRODUCTS_PER_PAGE }, (_, index) => index);
+const CATEGORY_SKELETON_FILTERS = Array.from({ length: 6 }, (_, index) => index);
 
 function slugifyValue(value) {
   return String(value || "")
@@ -17,7 +19,7 @@ function slugifyValue(value) {
 const CATEGORY_SUBCATEGORY_FALLBACKS = {
   mujer: [
     "Calzado",
-    "Lencería",
+    "Lenceria",
     "Camisetas",
     "Pantalones",
     "Conjuntos",
@@ -26,16 +28,16 @@ const CATEGORY_SUBCATEGORY_FALLBACKS = {
     "Calcetines",
     "Medias",
     "Pijamas",
-    "Bañadores",
+    "Banadores",
     "Bolsos",
-    "Jerséis",
+    "Jerseis",
     "Chaquetas",
   ],
   hombre: ["Camisetas", "Pantalones", "Sudaderas", "Zapatillas", "Complementos"],
   bebes: ["Primera puesta", "Canastilla", "Pijamas", "Conjuntos", "Complementos"],
   "infantil-juvenil": ["Camisetas", "Pantalones", "Vestidos", "Calzado", "Abrigos"],
-  hogar: ["Toallas", "Sábanas", "Mantelería", "Decoración", "Textil"],
-  outlet: ["Últimas unidades", "Oportunidades"],
+  hogar: ["Toallas", "Sabanas", "Manteleria", "Decoracion", "Textil"],
+  outlet: ["Ultimas unidades", "Oportunidades"],
 };
 
 export default function CategoryPage() {
@@ -52,6 +54,11 @@ export default function CategoryPage() {
     let cancelled = false;
 
     async function loadCategoryPage() {
+      if (!supabase) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
+
       try {
         const { data: categoryData, error: categoryError } = await supabase
           .from("shop_categories")
@@ -118,7 +125,7 @@ export default function CategoryPage() {
           subcategoriesData = subcategoryRows || [];
           productSubcategoryRows = productSubcategoryData || [];
         } catch (error) {
-          console.warn("Aviso al cargar subcategorías de la categoría:", error.message);
+          console.warn("Aviso al cargar subcategorias de la categoria:", error.message);
         }
 
         const subcategoriesByProductId = {};
@@ -161,7 +168,7 @@ export default function CategoryPage() {
           setSelectedSubcategory("all");
         }
       } catch (error) {
-        console.error("Error en la página de categoría:", error);
+        console.error("Error en la pagina de categoria:", error);
         if (!cancelled) {
           setCategory(null);
           setProducts([]);
@@ -227,12 +234,46 @@ export default function CategoryPage() {
     setCurrentPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
 
-
   if (loading) {
     return (
-      <main className="category-page">
+      <main className="category-page category-page--loading" aria-busy="true">
         <div className="category-page__container">
-          <p>Cargando categoría...</p>
+          <header className="category-page__header">
+            <div className="category-page__skeleton category-page__skeleton--breadcrumb" />
+            <div className="category-page__skeleton category-page__skeleton--title" />
+            <div className="category-page__skeleton category-page__skeleton--subtitle" />
+          </header>
+
+          <div className="category-page__filtersWrap">
+            <div className="category-page__filters">
+              <div className="category-page__skeleton category-page__skeleton--filter" />
+              {CATEGORY_SKELETON_FILTERS.map((item) => (
+                <div
+                  key={item}
+                  className="category-page__skeleton category-page__skeleton--filter"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="category-page__grid">
+            {CATEGORY_SKELETON_CARDS.map((item) => (
+              <article key={item} className="category-page__card category-page__card--skeleton">
+                <div className="category-page__imageWrap category-page__imageWrap--skeleton" />
+
+                <div className="category-page__body">
+                  <div className="category-page__skeleton category-page__skeleton--cardTitle" />
+                  <div className="category-page__skeleton category-page__skeleton--cardText" />
+                  <div className="category-page__skeleton category-page__skeleton--cardText category-page__skeleton--cardTextShort" />
+
+                  <div className="category-page__footer">
+                    <div className="category-page__skeleton category-page__skeleton--cta" />
+                    <div className="category-page__skeleton category-page__skeleton--price" />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </main>
     );
@@ -242,7 +283,7 @@ export default function CategoryPage() {
     return (
       <main className="category-page">
         <div className="category-page__container">
-          <p>Categoría no encontrada.</p>
+          <p>Categoria no encontrada.</p>
         </div>
       </main>
     );
@@ -261,7 +302,7 @@ export default function CategoryPage() {
             {activeSubcategory ? ` > ${activeSubcategory.name}` : ""}
           </p>
           <h1>{category.name}</h1>
-          <p className="category-page__subtitle">Explora por subcategoría</p>
+          <p className="category-page__subtitle">Explora por subcategoria</p>
         </header>
 
         {filterOptions.length > 0 ? (
@@ -295,7 +336,7 @@ export default function CategoryPage() {
         ) : null}
 
         {visibleProducts.length === 0 ? (
-          <p className="category-page__empty">No hay productos en esta sección todavía.</p>
+          <p className="category-page__empty">No hay productos en esta seccion todavia.</p>
         ) : (
           <>
             <div className="category-page__grid">
@@ -326,7 +367,7 @@ export default function CategoryPage() {
                         Ver producto
                       </Link>
                       <p className="category-page__price">
-                        {product.price.toFixed(2).replace(".", ",")} €
+                        {product.price.toFixed(2).replace(".", ",")} EUR
                       </p>
                     </div>
                   </div>
@@ -337,7 +378,7 @@ export default function CategoryPage() {
             {totalPages > 1 ? (
               <nav
                 className="category-page__pagination reveal-on-scroll"
-                aria-label="Paginación de productos"
+                aria-label="Paginacion de productos"
                 style={{ "--reveal-delay": "220ms" }}
               >
                 <button

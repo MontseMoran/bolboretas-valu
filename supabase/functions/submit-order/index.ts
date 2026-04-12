@@ -118,6 +118,308 @@ async function buildSequentialReference(supabase: ReturnType<typeof createClient
   return `${prefix}${String(nextNumber).padStart(4, "0")}`;
 }
 
+function formatReceiptPrice(value?: number | null) {
+  return `${Number(value || 0).toFixed(2).replace(".", ",")} EUR`;
+}
+
+function buildReceiptHtml(
+  receipt: Record<string, unknown>,
+  options: { introHtml?: string; siteUrl?: string | null } = {}
+) {
+  const itemsHtml = (Array.isArray(receipt.items) ? receipt.items : [])
+    .map((item: Record<string, unknown>) => {
+      const details = [
+        item.color ? `Color: ${escapeHtml(String(item.color))}` : "",
+        item.size ? `Talla: ${escapeHtml(String(item.size))}` : "",
+      ]
+        .filter(Boolean)
+        .join(" &middot; ");
+
+      return `
+        <tr>
+          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;">
+            <strong style="display:block;font-size:14px;line-height:1.45;">${escapeHtml(String(item.name || ""))}</strong>
+            ${details ? `<div style="margin-top:6px;color:#7b6f67;font-size:12px;">${details}</div>` : ""}
+          </td>
+          <td style="padding:18px 12px;border-bottom:1px solid #ece4de;text-align:center;">${escapeHtml(String(item.quantity || 0))}</td>
+          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;text-align:right;white-space:nowrap;">${escapeHtml(formatReceiptPrice(Number(item.unit_price || 0)))}</td>
+          <td style="padding:18px 20px;border-bottom:1px solid #ece4de;text-align:right;white-space:nowrap;font-weight:700;">${escapeHtml(formatReceiptPrice(Number(item.line_total || 0)))}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const delivery = (receipt.delivery || {}) as Record<string, unknown>;
+  const deliveryLines = [
+    delivery.address_line_1,
+    delivery.address_line_2,
+    [delivery.postal_code, delivery.city].filter(Boolean).join(" "),
+    delivery.province,
+  ]
+    .filter(Boolean)
+    .map((line) => `<div class="address-line">${escapeHtml(String(line))}</div>`)
+    .join("");
+
+  const customer = (receipt.customer || {}) as Record<string, unknown>;
+  const normalizedSiteUrl = String(options.siteUrl || "").replace(/\/$/, "");
+  const logoUrl = normalizedSiteUrl ? `${normalizedSiteUrl}/images/logo.png` : "";
+
+  return `
+    <!doctype html>
+    <html lang="es">
+      <head>
+        <meta charset="utf-8" />
+        <title>Albaran ${escapeHtml(String(receipt.reference || ""))}</title>
+        <style>
+          :root { color-scheme: light; }
+          * { box-sizing: border-box; }
+          body { margin: 0; background: #f6f1ea; color: #2d2722; font-family: Inter, Arial, sans-serif; }
+          .page { width: 100%; max-width: 186mm; margin: 0 auto; padding: 0; }
+          .sheet { background: #fffdfa; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 14px; padding: 10mm 10mm 8mm; box-shadow: 0 12px 30px rgba(61, 44, 31, 0.06); }
+          .hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(72mm, 1fr); gap: 10mm; align-items: start; padding-bottom: 5mm; border-bottom: 1px solid rgba(102, 76, 58, 0.12); break-inside: avoid; page-break-inside: avoid; }
+          .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4mm; grid-column: 1 / -1; }
+          .brand-logo { width: 13mm; height: 13mm; object-fit: contain; }
+          .eyebrow { margin: 0 0 1mm; font-size: 15px; line-height: 1.05; font-weight: 800; color: #2d2722; }
+          h1 { margin: 0; font-size: 16px; line-height: 1.1; font-weight: 600; color: rgba(45, 39, 34, 0.7); }
+          .hero-customer { min-width: 0; }
+          .hero-customer-name { margin: 0; font-size: 18px; line-height: 1.05; font-weight: 800; text-transform: uppercase; color: #201915; }
+          .hero-customer-address { margin: 2.5mm 0 0; font-size: 12px; line-height: 1.45; color: #4a3f37; }
+          .hero-customer-address div + div { margin-top: 0.8mm; }
+          .hero-contact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3mm 5mm; margin-top: 4mm; padding-top: 3.5mm; border-top: 1px solid rgba(102, 76, 58, 0.12); }
+          .hero-contact-item { display: grid; gap: 1mm; min-width: 0; }
+          .meta-label { margin: 0; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.62); }
+          .meta-value { margin: 0; font-size: 11px; line-height: 1.35; font-weight: 600; color: #342823; overflow-wrap: anywhere; }
+          .hero-side { display: grid; gap: 3mm; align-content: start; }
+          .hero-side-card { display: grid; gap: 1mm; padding: 3.2mm 3.5mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .hero-side-card .meta-value { font-size: 12px; font-weight: 800; }
+          .content { display: grid; gap: 5mm; padding-top: 5mm; }
+          .intro { padding: 3.5mm 4mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fffaf5; break-inside: avoid; page-break-inside: avoid; }
+          .intro p { margin: 0; font-size: 11px; line-height: 1.45; color: #3e342d; }
+          .intro p + p { margin-top: 2mm; }
+          .info-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(58mm, 0.85fr); gap: 5mm; break-inside: avoid; page-break-inside: avoid; }
+          .panel { padding: 4mm 4.2mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .panel-label { margin: 0 0 1.4mm; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.62); }
+          h2 { margin: 0 0 2mm; font-size: 14px; line-height: 1.15; color: #2d2722; }
+          .stack { display: grid; gap: 2mm; }
+          .row { display: grid; gap: 0.8mm; }
+          .row strong { font-size: 8px; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(98, 79, 67, 0.58); }
+          .row span, .address-line, .notes { font-size: 11px; line-height: 1.45; color: #3e342d; }
+          .notes-panel { break-inside: avoid; page-break-inside: avoid; }
+          .notes { margin: 0; }
+          .order-summary { display: grid; grid-template-columns: minmax(0, 1fr) 54mm; gap: 5mm; align-items: start; break-inside: avoid; page-break-inside: avoid; }
+          .table-wrap { border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; overflow: hidden; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          table { width: 100%; border-collapse: collapse; }
+          thead th { padding: 3mm 3.2mm; background: #f5eee7; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.65); }
+          tbody td { padding: 3.2mm 3.2mm; font-size: 10.5px; line-height: 1.35; color: #3e342d; vertical-align: top; }
+          tbody tr + tr td { border-top: 1px solid #ece4de; }
+          .totals { padding: 3.5mm 4mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .total-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; font-size: 11px; line-height: 1.35; color: #4a4038; }
+          .total-row + .total-row { margin-top: 2mm; }
+          .grand-total { margin-top: 3mm; padding-top: 2.4mm; border-top: 1px solid rgba(102, 76, 58, 0.12); font-weight: 800; color: #2d2722; }
+          .footer-wrap { margin-top: 4mm; padding-top: 2mm; break-inside: avoid; page-break-inside: avoid; }
+          .footer-line { width: 100%; height: 1px; border: 0; margin: 0 0 14px; background: linear-gradient(90deg, rgba(45, 39, 34, 0), rgba(45, 39, 34, 0.22), rgba(45, 39, 34, 0)); }
+          .footer-note { margin: 0; text-align: center; font-size: 15px; line-height: 1.45; font-weight: 600; letter-spacing: 0.01em; color: rgba(45, 39, 34, 0.78); }
+          @media screen and (max-width: 640px) { .sheet { padding: 16px; } .hero, .info-grid, .order-summary, .hero-contact { grid-template-columns: 1fr; } }
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <div class="sheet">
+            <section class="hero">
+              <div class="brand">
+                ${logoUrl ? `<img class="brand-logo" src="${escapeHtml(logoUrl)}" alt="Bolboretas & Valu" />` : ""}
+                <div>
+                  <p class="eyebrow">Bolboretas & Valu</p>
+                  <h1>Albaran de pedido</h1>
+                </div>
+              </div>
+              <div class="hero-customer">
+                <p class="hero-customer-name">${escapeHtml(String(customer.name || ""))}</p>
+                <div class="hero-customer-address">${deliveryLines || '<div>-</div>'}</div>
+                <div class="hero-contact">
+                  <div class="hero-contact-item">
+                    <p class="meta-label">Correo</p>
+                    <p class="meta-value">${escapeHtml(String(customer.email || ""))}</p>
+                  </div>
+                  <div class="hero-contact-item">
+                    <p class="meta-label">Telefono</p>
+                    <p class="meta-value">${escapeHtml(String(customer.phone || ""))}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-side">
+                <div class="hero-side-card"><p class="meta-label">Referencia</p><p class="meta-value">${escapeHtml(String(receipt.reference || ""))}</p></div>
+                <div class="hero-side-card"><p class="meta-label">Fecha</p><p class="meta-value">${escapeHtml(String(receipt.created_at || ""))}</p></div>
+                <div class="hero-side-card"><p class="meta-label">Forma de pago</p><p class="meta-value">${escapeHtml(String(receipt.payment_method_label || ""))}</p></div>
+              </div>
+            </section>
+            <section class="content">
+              ${options.introHtml ? `<section class="intro">${options.introHtml}</section>` : ""}
+              ${
+                ""
+              }
+              ${
+                receipt.notes
+                  ? `
+                <section class="panel notes-panel">
+                  <p class="panel-label">Indicaciones</p>
+                  <h2>Notas del pedido</h2>
+                  <p class="notes">${escapeHtml(String(receipt.notes)).replaceAll("\n", "<br/>")}</p>
+                </section>
+              `
+                  : ""
+              }
+              <section class="order-summary">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style="text-align:left;">Producto</th>
+                        <th style="text-align:center;">Cant.</th>
+                        <th style="text-align:right;">Precio</th>
+                        <th style="text-align:right;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>${itemsHtml}</tbody>
+                  </table>
+                </div>
+                <section class="totals">
+                  <p class="total-row"><span>Subtotal</span><strong>${escapeHtml(formatReceiptPrice(Number(receipt.subtotal || 0)))}</strong></p>
+                  ${
+                    Number(receipt.discount_amount || 0) > 0
+                      ? `<p class="total-row"><span>Descuento</span><strong>-${escapeHtml(formatReceiptPrice(Number(receipt.discount_amount || 0)))}</strong></p>`
+                      : ""
+                  }
+                  <p class="total-row"><span>${escapeHtml(String(receipt.shipping_label || "Envio"))}</span><strong>${Number(receipt.shipping_amount || 0) > 0 ? escapeHtml(formatReceiptPrice(Number(receipt.shipping_amount || 0))) : "Gratis"}</strong></p>
+                  <p class="total-row grand-total"><span>Total</span><strong>${escapeHtml(formatReceiptPrice(Number(receipt.total || 0)))}</strong></p>
+                </section>
+              </section>
+              <div class="footer-wrap">
+                <hr class="footer-line" />
+                <p class="footer-note">Gracias por apoyar al comercio local.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+function buildInternalOrderEmailHtml(params: {
+  payload: Record<string, unknown>;
+  items: Array<Record<string, unknown>>;
+  shippingSummary: { shippingAmount: number; label: string };
+  finalTotal: number;
+  reference: string;
+}) {
+  const { payload, items, shippingSummary, finalTotal, reference } = params;
+  const customer = (payload.customer || {}) as Record<string, unknown>;
+  const delivery = (payload.delivery || {}) as Record<string, unknown>;
+
+  const itemRows = items
+    .map((item) => {
+      const details = [
+        item.color ? `Color: ${escapeHtml(String(item.color))}` : "",
+        item.size ? `Talla: ${escapeHtml(String(item.size))}` : "",
+        item.variant_sku ? `SKU variante: ${escapeHtml(String(item.variant_sku))}` : "",
+      ]
+        .filter(Boolean)
+        .join(" &middot; ");
+
+      return `
+        <tr>
+          <td style="padding:10px 8px;border-bottom:1px solid #ece7e4;">
+            <strong>${escapeHtml(String(item.name || "-"))}</strong>
+            ${details ? `<div style="color:#666;font-size:12px;margin-top:4px;">${details}</div>` : ""}
+          </td>
+          <td style="padding:10px 8px;border-bottom:1px solid #ece7e4;text-align:center;">${escapeHtml(String(item.quantity || 0))}</td>
+          <td style="padding:10px 8px;border-bottom:1px solid #ece7e4;text-align:right;">${escapeHtml(formatPrice(Number(item.unit_price || 0)))}</td>
+          <td style="padding:10px 8px;border-bottom:1px solid #ece7e4;text-align:right;">${escapeHtml(formatPrice(Number(item.line_total || 0)))}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const deliveryLines = [
+    delivery.address_line_1 || "",
+    delivery.address_line_2 || "",
+    [delivery.postal_code || "", delivery.city || ""].filter(Boolean).join(" "),
+    delivery.province || "",
+  ]
+    .filter(Boolean)
+    .map((line) => `<div>${escapeHtml(String(line))}</div>`)
+    .join("");
+
+  const appliedDiscount = payload.applied_discount as Record<string, unknown> | undefined;
+  const discountBlock = appliedDiscount
+    ? `
+      <p><strong>Cupon aplicado:</strong> ${escapeHtml(String(appliedDiscount.code || "-"))}</p>
+      ${appliedDiscount.description ? `<p><strong>Descripcion:</strong> ${escapeHtml(String(appliedDiscount.description))}</p>` : ""}
+    `
+    : "";
+
+  return `
+    <h2>Nuevo pedido recibido</h2>
+    <p><strong>Referencia:</strong> ${escapeHtml(reference)}</p>
+    <p><strong>Fecha:</strong> ${escapeHtml(String(payload.created_at || new Date().toISOString()))}</p>
+    <hr />
+    <h3>Cliente</h3>
+    <p><strong>Nombre:</strong> ${escapeHtml(String(customer.name || "-"))}</p>
+    <p><strong>Email:</strong> ${escapeHtml(String(customer.email || "-"))}</p>
+    <p><strong>Telefono:</strong> ${escapeHtml(String(customer.phone || "-"))}</p>
+    <hr />
+    <h3>Entrega</h3>
+    ${deliveryLines || "<p>-</p>"}
+    <p><strong>Forma de pago:</strong> ${escapeHtml(paymentLabel(String(payload.payment_method || "")))}</p>
+    ${payload.notes ? `<p><strong>Notas:</strong><br/>${escapeHtml(String(payload.notes)).replaceAll("\n", "<br/>")}</p>` : ""}
+    <hr />
+    <h3>Albaran</h3>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="padding:10px 8px;text-align:left;border-bottom:1px solid #d8cfca;">Producto</th>
+          <th style="padding:10px 8px;text-align:center;border-bottom:1px solid #d8cfca;">Cant.</th>
+          <th style="padding:10px 8px;text-align:right;border-bottom:1px solid #d8cfca;">Precio</th>
+          <th style="padding:10px 8px;text-align:right;border-bottom:1px solid #d8cfca;">Total</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows}</tbody>
+    </table>
+    <div style="margin-top:16px;">
+      <p><strong>Subtotal:</strong> ${escapeHtml(formatPrice(Number(payload.subtotal || 0)))}</p>
+      ${Number(payload.discount_amount || 0) > 0 ? `<p><strong>Descuento:</strong> -${escapeHtml(formatPrice(Number(payload.discount_amount || 0)))}</p>` : ""}
+      ${discountBlock}
+      <p><strong>${escapeHtml(shippingSummary.label)}:</strong> ${shippingSummary.shippingAmount > 0 ? escapeHtml(formatPrice(shippingSummary.shippingAmount)) : "Gratis"}</p>
+      <p style="font-size:18px;"><strong>Total pedido:</strong> ${escapeHtml(formatPrice(finalTotal))}</p>
+    </div>
+  `;
+}
+
+async function sendResendEmail(params: {
+  apiKey: string;
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+  replyTo?: string;
+}) {
+  return await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${params.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: params.from,
+      to: params.to,
+      subject: params.subject,
+      reply_to: params.replyTo || undefined,
+      html: params.html,
+    }),
+  });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -337,10 +639,15 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("ORDER_RECIPIENTS") ||
       Deno.env.get("INQUIRY_RECIPIENTS") ||
       "bolboretasvalu@gmail.com";
+    const siteUrl =
+      Deno.env.get("SITE_URL") ||
+      Deno.env.get("PUBLIC_SITE_URL") ||
+      Deno.env.get("APP_URL") ||
+      null;
 
     let emailWarning = null;
 
-    if (resendApiKey) {
+    if (resendApiKey && false) {
       const recipients = recipientsRaw
         .split(",")
         .map((email) => email.trim())
@@ -443,6 +750,90 @@ Deno.serve(async (req: Request) => {
       }
     } else {
       emailWarning = "Pedido guardado, pero falta RESEND_API_KEY para enviar el albarán.";
+    }
+
+    if (resendApiKey) {
+      const recipients = recipientsRaw
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean);
+      const reference = createdOrder.reference || orderReference;
+      const receipt = {
+        reference,
+        created_at: payload.created_at || new Date().toISOString(),
+        customer: payload.customer,
+        delivery: payload.delivery,
+        payment_method: payload.payment_method,
+        payment_method_label: paymentLabel(payload.payment_method),
+        notes: payload.notes,
+        items: items.map((item) => ({
+          name: item.name,
+          color: item.color,
+          size: item.size,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          line_total: item.line_total,
+        })),
+        subtotal,
+        discount_amount: discountAmount,
+        shipping_amount: shippingSummary.shippingAmount,
+        shipping_label: shippingSummary.label,
+        total: finalTotal,
+      };
+
+      const internalHtml = buildInternalOrderEmailHtml({
+        payload,
+        items,
+        shippingSummary,
+        finalTotal,
+        reference,
+      });
+
+      const customerIntroHtml = `
+        <p>Hola ${escapeHtml(String(payload.customer?.name || ""))},</p>
+        <p>Gracias por tu pedido. Te enviamos el mismo albaran que puedes ver y descargar en la web para que tengas una copia en tu correo.</p>
+        <p>Referencia del pedido: <strong>${escapeHtml(reference)}</strong></p>
+      `;
+
+      const customerHtml = buildReceiptHtml(receipt, {
+        introHtml: customerIntroHtml,
+        siteUrl,
+      });
+
+      const emailErrors = [];
+
+      const internalResp = await sendResendEmail({
+        apiKey: resendApiKey,
+        from: senderEmail,
+        to: recipients,
+        subject: `Bolboretas & Valu: nuevo pedido ${reference}`,
+        replyTo: payload.customer.email || undefined,
+        html: internalHtml,
+      });
+
+      if (!internalResp.ok) {
+        emailErrors.push("aviso interno");
+      }
+
+      const customerEmail = String(payload.customer?.email || "").trim();
+
+      if (customerEmail) {
+        const customerResp = await sendResendEmail({
+          apiKey: resendApiKey,
+          from: senderEmail,
+          to: [customerEmail],
+          subject: `Bolboretas & Valu: tu albaran ${reference}`,
+          html: customerHtml,
+        });
+
+        if (!customerResp.ok) {
+          emailErrors.push("albaran al cliente");
+        }
+      }
+
+      emailWarning = emailErrors.length
+        ? `Pedido guardado, pero no se pudo enviar: ${emailErrors.join(", ")}.`
+        : null;
     }
 
     return new Response(

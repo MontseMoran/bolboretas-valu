@@ -58,38 +58,48 @@ export function buildReceiptHtml(receipt) {
         <style>
           :root { color-scheme: light; }
           * { box-sizing: border-box; }
-          body { margin: 0; background: #f7f5f2; color: #2d2722; font-family: Inter, Arial, sans-serif; }
-          .page { max-width: 920px; margin: 0 auto; padding: 28px 18px 40px; }
-          .sheet { background: #fff; border: 1px solid rgba(45, 39, 34, 0.08); border-radius: 20px; overflow: hidden; box-shadow: 0 16px 36px rgba(45, 39, 34, 0.06); }
-          .hero { padding: 28px 30px 24px; border-bottom: 1px solid rgba(45, 39, 34, 0.08); }
-          .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-          .brand-logo { width: 58px; height: 58px; object-fit: contain; }
-          .eyebrow { margin: 0 0 4px; font-size: 18px; line-height: 1.1; letter-spacing: 0.04em; font-weight: 700; color: #2d2722; }
-          h1 { margin: 0; font-size: 20px; line-height: 1.1; font-weight: 600; color: rgba(45, 39, 34, 0.74); }
-          .hero-grid, .grid { display: grid; gap: 14px; }
-          .hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-          .hero-card, .panel, .totals { border: 1px solid rgba(45, 39, 34, 0.08); border-radius: 16px; background: #fff; }
-          .hero-card { padding: 14px 16px; }
-          .hero-label, .panel-label { margin: 0 0 6px; font-size: 11px; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(45, 39, 34, 0.56); }
-          .hero-value { margin: 0; font-size: 15px; line-height: 1.45; font-weight: 700; color: #2d2722; }
-          .content { padding: 24px 30px 30px; }
-          .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
-          .panel { padding: 18px; }
-          h2 { margin: 0 0 12px; font-size: 17px; line-height: 1.2; }
-          .stack { display: grid; gap: 8px; }
-          .row { display: grid; gap: 3px; }
-          .row strong { font-size: 11px; line-height: 1.2; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(45, 39, 34, 0.56); }
-          .row span, .address-line, .notes { font-size: 14px; line-height: 1.55; color: #3e342d; }
-          .notes-wrap { margin-bottom: 18px; }
-          .table-wrap { border: 1px solid rgba(45, 39, 34, 0.08); border-radius: 16px; overflow: hidden; background: #fff; }
+          @page { size: A4 portrait; margin: 12mm; }
+          body { margin: 0; background: #f6f1ea; color: #2d2722; font-family: Inter, Arial, sans-serif; }
+          .page { width: 100%; max-width: 186mm; margin: 0 auto; padding: 0; }
+          .sheet { background: #fffdfa; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 14px; padding: 10mm 10mm 8mm; box-shadow: 0 12px 30px rgba(61, 44, 31, 0.06); }
+          .hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(72mm, 1fr); gap: 10mm; align-items: start; padding-bottom: 5mm; border-bottom: 1px solid rgba(102, 76, 58, 0.12); break-inside: avoid; page-break-inside: avoid; }
+          .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4mm; grid-column: 1 / -1; }
+          .brand-logo { width: 13mm; height: 13mm; object-fit: contain; }
+          .eyebrow { margin: 0 0 1mm; font-size: 15px; line-height: 1.05; font-weight: 800; color: #2d2722; }
+          h1 { margin: 0; font-size: 16px; line-height: 1.1; font-weight: 600; color: rgba(45, 39, 34, 0.7); }
+          .hero-customer { min-width: 0; }
+          .hero-customer-name { margin: 0; font-size: 18px; line-height: 1.05; font-weight: 800; text-transform: uppercase; color: #201915; }
+          .hero-customer-address { margin: 2.5mm 0 0; font-size: 12px; line-height: 1.45; color: #4a3f37; }
+          .hero-customer-address div + div { margin-top: 0.8mm; }
+          .hero-contact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3mm 5mm; margin-top: 4mm; padding-top: 3.5mm; border-top: 1px solid rgba(102, 76, 58, 0.12); }
+          .hero-contact-item { display: grid; gap: 1mm; min-width: 0; }
+          .meta-label { margin: 0; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.62); }
+          .meta-value { margin: 0; font-size: 11px; line-height: 1.35; font-weight: 600; color: #342823; overflow-wrap: anywhere; }
+          .hero-side { display: grid; gap: 3mm; align-content: start; }
+          .hero-side-card { display: grid; gap: 1mm; padding: 3.2mm 3.5mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .hero-side-card .meta-value { font-size: 12px; font-weight: 800; }
+          .content { display: grid; gap: 5mm; padding-top: 5mm; }
+          .info-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(58mm, 0.85fr); gap: 5mm; break-inside: avoid; page-break-inside: avoid; }
+          .panel { padding: 4mm 4.2mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .panel-label { margin: 0 0 1.4mm; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.62); }
+          h2 { margin: 0 0 2mm; font-size: 14px; line-height: 1.15; color: #2d2722; }
+          .stack { display: grid; gap: 2mm; }
+          .row { display: grid; gap: 0.8mm; }
+          .row strong { font-size: 8px; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(98, 79, 67, 0.58); }
+          .row span, .address-line, .notes { font-size: 11px; line-height: 1.45; color: #3e342d; }
+          .notes-panel { break-inside: avoid; page-break-inside: avoid; }
+          .notes { margin: 0; }
+          .order-summary { display: grid; grid-template-columns: minmax(0, 1fr) 54mm; gap: 5mm; align-items: start; break-inside: avoid; page-break-inside: avoid; }
+          .table-wrap { border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; overflow: hidden; background: #fff; break-inside: avoid; page-break-inside: avoid; }
           table { width: 100%; border-collapse: collapse; }
-          thead th { padding: 12px 16px; background: #f7f5f2; font-size: 11px; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(45, 39, 34, 0.56); }
-          tbody td { font-size: 14px; line-height: 1.45; color: #3e342d; }
-          .totals { width: min(100%, 320px); margin-left: auto; margin-top: 18px; padding: 16px 18px; }
-          .total-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; font-size: 14px; line-height: 1.5; color: #4a4038; }
-          .total-row + .total-row { margin-top: 8px; }
-          .grand-total { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(45, 39, 34, 0.08); font-weight: 700; color: #2d2722; }
-          .footer-wrap { margin-top: 22px; padding-top: 18px; }
+          thead th { padding: 3mm 3.2mm; background: #f5eee7; font-size: 8px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(98, 79, 67, 0.65); }
+          tbody td { padding: 3.2mm 3.2mm; font-size: 10.5px; line-height: 1.35; color: #3e342d; vertical-align: top; }
+          tbody tr + tr td { border-top: 1px solid #ece4de; }
+          .totals { padding: 3.5mm 4mm; border: 1px solid rgba(102, 76, 58, 0.1); border-radius: 10px; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+          .total-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; font-size: 11px; line-height: 1.35; color: #4a4038; }
+          .total-row + .total-row { margin-top: 2mm; }
+          .grand-total { margin-top: 3mm; padding-top: 2.4mm; border-top: 1px solid rgba(102, 76, 58, 0.12); font-weight: 800; color: #2d2722; }
+          .footer-wrap { margin-top: 4mm; padding-top: 2mm; break-inside: avoid; page-break-inside: avoid; }
           .footer-line {
             width: 100%;
             height: 1px;
@@ -106,8 +116,8 @@ export function buildReceiptHtml(receipt) {
             letter-spacing: 0.01em;
             color: rgba(45, 39, 34, 0.78);
           }
-          @media print { body { background: #fff; } .page { padding: 0; } .sheet { border: 0; border-radius: 0; box-shadow: none; } }
-          @media (max-width: 720px) { .hero, .content { padding-left: 18px; padding-right: 18px; } .hero-grid, .grid { grid-template-columns: 1fr; } }
+          @media print { body { background: #fff; } .sheet { border: 0; border-radius: 0; box-shadow: none; } }
+          @media screen and (max-width: 640px) { .sheet { padding: 16px; } .hero, .info-grid, .order-summary, .hero-contact { grid-template-columns: 1fr; } }
         </style>
       </head>
       <body>
@@ -121,33 +131,35 @@ export function buildReceiptHtml(receipt) {
                   <h1>Albarán de pedido</h1>
                 </div>
               </div>
-              <div class="hero-grid">
-                <div class="hero-card"><p class="hero-label">Referencia</p><p class="hero-value">${escapeReceiptHtml(receipt.reference)}</p></div>
-                <div class="hero-card"><p class="hero-label">Fecha</p><p class="hero-value">${escapeReceiptHtml(receipt.created_at)}</p></div>
-                <div class="hero-card"><p class="hero-label">Forma de pago</p><p class="hero-value">${escapeReceiptHtml(receipt.payment_method_label)}</p></div>
+              <div class="hero-customer">
+                  <p class="hero-customer-name">${escapeReceiptHtml(customer.name)}</p>
+                  <div class="hero-customer-address">${deliveryLines || '<div>-</div>'}</div>
+                  <div class="hero-contact">
+                    <div class="hero-contact-item">
+                      <p class="meta-label">Correo</p>
+                      <p class="meta-value">${escapeReceiptHtml(customer.email)}</p>
+                    </div>
+                    <div class="hero-contact-item">
+                      <p class="meta-label">Teléfono</p>
+                      <p class="meta-value">${escapeReceiptHtml(customer.phone)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="hero-side-card"><p class="meta-label">Referencia</p><p class="meta-value">${escapeReceiptHtml(receipt.reference)}</p></div>
+                  <div class="hero-side-card"><p class="meta-label">Fecha</p><p class="meta-value">${escapeReceiptHtml(receipt.created_at)}</p></div>
+                  <div class="hero-side-card"><p class="meta-label">Forma de pago</p><p class="meta-value">${escapeReceiptHtml(receipt.payment_method_label)}</p></div>
+                </div>
               </div>
             </section>
             <section class="content">
-              <div class="grid">
-                <section class="panel">
-                  <p class="panel-label">Datos del cliente</p>
-                  <h2>Cliente</h2>
-                  <div class="stack">
-                    <div class="row"><strong>Nombre</strong><span>${escapeReceiptHtml(customer.name)}</span></div>
-                    <div class="row"><strong>Correo</strong><span>${escapeReceiptHtml(customer.email)}</span></div>
-                    <div class="row"><strong>Teléfono</strong><span>${escapeReceiptHtml(customer.phone)}</span></div>
-                  </div>
-                </section>
-                <section class="panel">
-                  <p class="panel-label">Entrega</p>
-                  <h2>Dirección de entrega</h2>
-                  <div class="stack">${deliveryLines || '<div class="address-line">-</div>'}</div>
-                </section>
-              </div>
+              ${
+                ""
+              }
               ${
                 receipt.notes
                   ? `
-                <section class="panel notes-wrap">
+                <section class="panel notes-panel">
                   <p class="panel-label">Indicaciones</p>
                   <h2>Notas del pedido</h2>
                   <p class="notes">${escapeReceiptHtml(receipt.notes).replaceAll("\n", "<br/>")}</p>
@@ -155,28 +167,30 @@ export function buildReceiptHtml(receipt) {
               `
                   : ""
               }
-              <section class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th style="text-align:left;">Producto</th>
-                      <th style="text-align:center;">Cant.</th>
-                      <th style="text-align:right;">Precio</th>
-                      <th style="text-align:right;">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>${itemsHtml}</tbody>
-                </table>
-              </section>
-              <section class="totals">
-                <p class="total-row"><span>Subtotal</span><strong>${escapeReceiptHtml(formatReceiptPrice(receipt.subtotal))}</strong></p>
-                ${
-                  Number(receipt.discount_amount || 0) > 0
-                    ? `<p class="total-row"><span>Descuento</span><strong>-${escapeReceiptHtml(formatReceiptPrice(receipt.discount_amount))}</strong></p>`
-                    : ""
-                }
-                <p class="total-row"><span>${escapeReceiptHtml(receipt.shipping_label || "Envío")}</span><strong>${Number(receipt.shipping_amount || 0) > 0 ? escapeReceiptHtml(formatReceiptPrice(receipt.shipping_amount)) : "Gratis"}</strong></p>
-                <p class="total-row grand-total"><span>Total</span><strong>${escapeReceiptHtml(formatReceiptPrice(receipt.total))}</strong></p>
+              <section class="order-summary">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style="text-align:left;">Producto</th>
+                        <th style="text-align:center;">Cant.</th>
+                        <th style="text-align:right;">Precio</th>
+                        <th style="text-align:right;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>${itemsHtml}</tbody>
+                  </table>
+                </div>
+                <section class="totals">
+                  <p class="total-row"><span>Subtotal</span><strong>${escapeReceiptHtml(formatReceiptPrice(receipt.subtotal))}</strong></p>
+                  ${
+                    Number(receipt.discount_amount || 0) > 0
+                      ? `<p class="total-row"><span>Descuento</span><strong>-${escapeReceiptHtml(formatReceiptPrice(receipt.discount_amount))}</strong></p>`
+                      : ""
+                  }
+                  <p class="total-row"><span>${escapeReceiptHtml(receipt.shipping_label || "Envío")}</span><strong>${Number(receipt.shipping_amount || 0) > 0 ? escapeReceiptHtml(formatReceiptPrice(receipt.shipping_amount)) : "Gratis"}</strong></p>
+                  <p class="total-row grand-total"><span>Total</span><strong>${escapeReceiptHtml(formatReceiptPrice(receipt.total))}</strong></p>
+                </section>
               </section>
               <div class="footer-wrap">
                 <hr class="footer-line" />

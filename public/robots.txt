@@ -1,4 +1,7 @@
 ﻿User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /carrito
 
 Sitemap: https://www.bolboretasvalu.com/sitemap.xml

@@ -92,96 +92,143 @@ function buildShippingLabelHtml(order) {
         <title>Etiqueta ${order.reference || ""}</title>
         <style>
           * { box-sizing: border-box; }
-          body { margin: 0; background: #fff; color: #111; font-family: Arial, sans-serif; }
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 210mm;
+            min-height: 297mm;
+            background: #f3efe9;
+            color: #1f1713;
+            font-family: "Segoe UI", Arial, sans-serif;
+          }
+          body { display: block; }
+          .page {
+            width: 210mm;
+            height: 148.5mm;
+            overflow: hidden;
+            padding: 8mm;
+          }
           .label {
-            width: 150mm;
-            min-height: 100mm;
-            padding: 8mm 10mm;
+            width: 100%;
+            height: 100%;
+            padding: 10mm;
             display: grid;
             grid-template-rows: auto 1fr auto;
-            gap: 6mm;
+            gap: 7mm;
+            background: linear-gradient(180deg, #fffdfa 0%, #fff 100%);
+            border: 0.5mm solid #d8cec4;
+            box-shadow: inset 0 0 0 0.6mm rgba(255, 255, 255, 0.75);
+            position: relative;
           }
           .topbar {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 10mm;
+            padding-bottom: 5mm;
+            border-bottom: 0.45mm solid #d9cec2;
+          }
+          .brand {
+            margin: 0;
+            font-size: 8pt;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #9a7f6d;
+          }
+          .ref {
+            margin: 0;
+            font-size: 11pt;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #2b211c;
+            text-align: right;
+          }
+          .main {
+            display: grid;
+            align-content: center;
+            gap: 5mm;
+          }
+          .recipient {
+            padding: 7mm 8mm;
+            background: #fff;
+            border: 0.45mm solid #e4d9ce;
+          }
+          .recipient-label {
+            margin: 0 0 3mm;
+            font-size: 8pt;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #a08572;
+          }
+          .name {
+            margin: 0;
+            font-size: 22pt;
+            font-weight: 800;
+            line-height: 1.02;
+            text-transform: uppercase;
+            max-width: 150mm;
+          }
+          .address {
+            margin: 0;
+            font-size: 14.5pt;
+            line-height: 1.4;
+            color: #342823;
+            max-width: 132mm;
+          }
+          .address div + div { margin-top: 1.8mm; }
+          .footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8mm;
-            padding-bottom: 4mm;
-            border-bottom: 0.4mm solid #d9d9d9;
-          }
-          .brand {
-            margin: 0;
-            font-size: 9pt;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #666;
-          }
-          .ref {
-            margin: 0;
-            font-size: 10pt;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            color: #333;
-          }
-          .main {
-            display: grid;
-            align-content: start;
-            gap: 4mm;
-          }
-          .name {
-            margin: 0;
-            font-size: 20pt;
-            font-weight: 800;
-            line-height: 1.08;
-            text-transform: uppercase;
-          }
-          .address {
-            margin: 0;
-            font-size: 14pt;
-            line-height: 1.35;
-          }
-          .address div + div { margin-top: 1.4mm; }
-          .footer {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            gap: 8mm;
-            padding-top: 4mm;
-            border-top: 0.4mm solid #d9d9d9;
+            padding-top: 5mm;
+            border-top: 0.45mm solid #d9cec2;
           }
           .phone {
             margin: 0;
-            font-size: 13pt;
-            font-weight: 700;
+            font-size: 12pt;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+          }
+          .phone-label {
+            color: #8b7262;
+            font-weight: 600;
           }
           .meta {
             margin: 0;
-            font-size: 9.5pt;
-            color: #666;
+            font-size: 8.5pt;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #9a7f6d;
             text-align: right;
           }
-          @page { size: 150mm 100mm; margin: 0; }
+          @page { size: A4 portrait; margin: 0; }
         </style>
       </head>
       <body>
-        <section class="label">
+        <div class="page">
+          <section class="label">
           <div class="topbar">
             <p class="brand">Bolboretas & Valu</p>
             <p class="ref">Pedido ${order.reference || "-"}</p>
           </div>
 
           <div class="main">
-            <p class="name">${order.customer_name || "-"}</p>
-            <div class="address">
-              ${addressLines.map((line) => `<div>${line}</div>`).join("")}
+            <div class="recipient">
+              <p class="recipient-label">Destinataria</p>
+              <p class="name">${order.customer_name || "-"}</p>
+              <div class="address">
+                ${addressLines.map((line) => `<div>${line}</div>`).join("")}
+              </div>
             </div>
           </div>
 
           <div class="footer">
-            <p class="phone">Tel. ${order.phone || "-"}</p>
+            <p class="phone"><span class="phone-label">Tel.</span> ${order.phone || "-"}</p>
             <p class="meta">Etiqueta de envío</p>
           </div>
-        </section>
+          </section>
+        </div>
       </body>
     </html>
   `;
