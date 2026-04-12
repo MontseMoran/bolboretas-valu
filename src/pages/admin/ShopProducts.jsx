@@ -147,7 +147,11 @@ export default function ShopProducts() {
               subcategoriesByProductId[row.product_id] = [];
             }
 
-            subcategoriesByProductId[row.product_id].push(subcategory);
+            subcategoriesByProductId[row.product_id].push({
+              ...subcategory,
+              slug: slugifyValue(subcategory.slug || subcategory.name),
+              normalizedName: slugifyValue(subcategory.name),
+            });
           });
 
           if (active) {

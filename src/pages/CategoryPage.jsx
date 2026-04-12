@@ -9,21 +9,16 @@ const CATEGORY_SKELETON_CARDS = Array.from({ length: PRODUCTS_PER_PAGE }, (_, in
 const CATEGORY_SKELETON_FILTERS = Array.from({ length: 6 }, (_, index) => index);
 
 function slugifyValue(value) {
-  const text = String(value || "").toLowerCase().trim();
-
-  const safeText =
-    typeof text.normalize === "function"
-      ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      : text
-        .replaceAll("á", "a")
-        .replaceAll("é", "e")
-        .replaceAll("í", "i")
-        .replaceAll("ó", "o")
-        .replaceAll("ú", "u")
-        .replaceAll("ü", "u")
-        .replaceAll("ñ", "n");
-
-  return safeText
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/á/g, "a")
+    .replace(/é/g, "e")
+    .replace(/í/g, "i")
+    .replace(/ó/g, "o")
+    .replace(/ú/g, "u")
+    .replace(/ü/g, "u")
+    .replace(/ñ/g, "n")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -360,11 +355,6 @@ export default function CategoryPage() {
                   className={`category-page__filter ${slugifyValue(selectedSubcategory) === slugifyValue(subcategory.slug) ? "is-active" : ""
                     }`}
                   onClick={() => {
-                    console.log("CLICK", {
-                      name: subcategory.name,
-                      slug: subcategory.slug,
-                      normalized: slugifyValue(subcategory.slug),
-                    });
                     setSelectedSubcategory(subcategory.slug);
                   }}
                 >
