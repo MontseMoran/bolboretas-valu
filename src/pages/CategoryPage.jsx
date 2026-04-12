@@ -126,8 +126,9 @@ export default function CategoryPage() {
           subcategoriesData = subcategoryRows || [];
           productSubcategoryRows = productSubcategoryData || [];
         } catch (error) {
-          console.warn("Aviso al cargar subcategorias de la categoria:", error.message);
-        }
+  console.error("Error real al cargar subcategorias:", error);
+  throw error;
+}
 
         const subcategoriesByProductId = {};
         productSubcategoryRows.forEach((row) => {

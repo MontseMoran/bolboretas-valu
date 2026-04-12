@@ -4,6 +4,7 @@ import ShopRequestForm from "../components/ShopRequestForm/ShopRequestForm";
 import { useCart } from "../lib/cartContext";
 import { useSeo } from "../lib/seo";
 import { supabase } from "../lib/supabaseClient";
+import "../styles/productDetail.scss"
 
 function formatPrice(value) {
   return `${Number(value || 0).toFixed(2).replace(".", ",")} EUR`;
@@ -14,7 +15,7 @@ export default function ProductDetail() {
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState("");
-const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addedMessage, setAddedMessage] = useState("");
@@ -103,7 +104,7 @@ const [selectedSize, setSelectedSize] = useState("");
           categories,
         });
         setSelectedColor(variants[0]?.color || "");
-setSelectedSize(variants[0]?.size || "");
+        setSelectedSize(variants[0]?.size || "");
       } catch (loadError) {
         console.error("Error al cargar el producto:", loadError);
         if (!active) return;
@@ -122,29 +123,29 @@ setSelectedSize(variants[0]?.size || "");
   }, [slug]);
 
   const availableColors = useMemo(() => {
-  const colors = product?.variants?.map((variant) => variant.color).filter(Boolean) || [];
-  return [...new Set(colors)];
-}, [product]);
+    const colors = product?.variants?.map((variant) => variant.color).filter(Boolean) || [];
+    return [...new Set(colors)];
+  }, [product]);
 
-const availableSizes = useMemo(() => {
-  const filtered = (product?.variants || []).filter((variant) => {
-    if (!selectedColor) return true;
-    return variant.color === selectedColor;
-  });
+  const availableSizes = useMemo(() => {
+    const filtered = (product?.variants || []).filter((variant) => {
+      if (!selectedColor) return true;
+      return variant.color === selectedColor;
+    });
 
-  const sizes = filtered.map((variant) => variant.size).filter(Boolean);
-  return [...new Set(sizes)];
-}, [product, selectedColor]);
+    const sizes = filtered.map((variant) => variant.size).filter(Boolean);
+    return [...new Set(sizes)];
+  }, [product, selectedColor]);
 
-const selectedVariant = useMemo(() => {
-  return (
-    product?.variants?.find((variant) => {
-      const colorMatches = selectedColor ? variant.color === selectedColor : true;
-      const sizeMatches = selectedSize ? variant.size === selectedSize : true;
-      return colorMatches && sizeMatches;
-    }) || null
-  );
-}, [product, selectedColor, selectedSize]);
+  const selectedVariant = useMemo(() => {
+    return (
+      product?.variants?.find((variant) => {
+        const colorMatches = selectedColor ? variant.color === selectedColor : true;
+        const sizeMatches = selectedSize ? variant.size === selectedSize : true;
+        return colorMatches && sizeMatches;
+      }) || null
+    );
+  }, [product, selectedColor, selectedSize]);
 
   useSeo({
     title: product?.name
@@ -246,64 +247,48 @@ const selectedVariant = useMemo(() => {
 
             {product.description ? <p style={{ margin: 0 }}>{product.description}</p> : null}
             {product.material ? <p style={{ margin: 0 }}><strong>Material:</strong> {product.material}</p> : null}
-            
-        {availableColors.length > 0 ? (
-  <div style={{ display: "grid", gap: 8 }}>
-    <span>Color</span>
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {availableColors.map((color) => (
-        <button
-          key={color}
-          type="button"
-          onClick={() => {
-            setSelectedColor(color);
-            setAddedMessage("");
-          }}
-        style={{
-  border: selectedColor === color ? "2px solid #2d2722" : "1px solid #d6d0c8",
-  background: selectedColor === color ? "#2d2722" : "#fff",
-  color: selectedColor === color ? "#fff" : "#2d2722",
-  borderRadius: 999,
-  padding: "8px 14px",
-  cursor: "pointer",
-  fontWeight: 600,
-}}
-        >
-          {color}
-        </button>
-      ))}
-    </div>
-  </div>
-) : null}
 
-{availableSizes.length > 0 ? (
-  <div style={{ display: "grid", gap: 8 }}>
-    <span>Talla</span>
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {availableSizes.map((size) => (
-        <button
-          key={size}
-          type="button"
-          onClick={() => {
-            setSelectedSize(size);
-            setAddedMessage("");
-          }}
-          style={{
-            color: selectedSize === size ? "#fff" : "#2d2722",
-            border: selectedSize === size ? "2px solid #2d2722" : "1px solid #d6d0c8",
-            background: selectedSize === size ? "#2d2722" : "#fff",
-            borderRadius: 999,
-            padding: "8px 14px",
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          {size}
-        </button>
-      ))}
-    </div>
-  </div>
-) : null}
+            {availableColors.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Color</p>
+                <div className="product-detail__chips">
+                  {availableColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColor(color);
+                        setAddedMessage("");
+                      }}
+                      className={`product-detail__chip ${selectedColor === color ? "is-active" : ""}`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {availableSizes.length > 0 ? (
+              <div className="product-detail__options">
+                <p className="product-detail__optionTitle">Talla</p>
+                <div className="product-detail__chips">
+                  {availableSizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSize(size);
+                        setAddedMessage("");
+                      }}
+                      className={`product-detail__chip ${selectedSize === size ? "is-active" : ""}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <button
               type="button"
