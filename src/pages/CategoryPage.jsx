@@ -8,44 +8,9 @@ const PRODUCTS_PER_PAGE = 10;
 const CATEGORY_SKELETON_CARDS = Array.from({ length: PRODUCTS_PER_PAGE }, (_, index) => index);
 const CATEGORY_SKELETON_FILTERS = Array.from({ length: 6 }, (_, index) => index);
 
-function slugifyValue(value) {
-  return String(value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/á/g, "a")
-    .replace(/é/g, "e")
-    .replace(/í/g, "i")
-    .replace(/ó/g, "o")
-    .replace(/ú/g, "u")
-    .replace(/ü/g, "u")
-    .replace(/ñ/g, "n")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
-const CATEGORY_SUBCATEGORY_FALLBACKS = {
-  mujer: [
-    "Calzado",
-    "Lenceria",
-    "Camisetas",
-    "Pantalones",
-    "Conjuntos",
-    "Gorros",
-    "Bufandas",
-    "Calcetines",
-    "Medias",
-    "Pijamas",
-    "Banadores",
-    "Bolsos",
-    "Jerseis",
-    "Chaquetas",
-  ],
-  hombre: ["Camisetas", "Pantalones", "Sudaderas", "Zapatillas", "Complementos"],
-  bebes: ["Primera puesta", "Canastilla", "Pijamas", "Conjuntos", "Complementos"],
-  "infantil-juvenil": ["Camisetas", "Pantalones", "Vestidos", "Calzado", "Abrigos"],
-  hogar: ["Toallas", "Sabanas", "Manteleria", "Decoracion", "Textil"],
-  outlet: ["Ultimas unidades", "Oportunidades"],
-};
+
+
 
 export default function CategoryPage() {
   const { slug } = useParams();
@@ -53,7 +18,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -145,9 +110,8 @@ export default function CategoryPage() {
           }
 
           subcategoriesByProductId[row.product_id].push({
-  ...subcategory,
-  slug: slugifyValue(subcategory.slug || subcategory.name),
-});
+            ...subcategory,
+          });
         });
 
         const normalizedProducts = (productsData || [])
@@ -175,7 +139,7 @@ export default function CategoryPage() {
         if (!cancelled) {
           setSubcategories(subcategoriesData);
           setProducts(normalizedProducts);
-          setSelectedSubcategory("all");
+          setSelectedSubcategoryId("all");
         }
       } catch (error) {
         console.error("Error en la pagina de categoria:", error);
@@ -197,41 +161,31 @@ export default function CategoryPage() {
   }, [slug]);
 
   const visibleProducts = useMemo(() => {
-    if (selectedSubcategory === "") return [];
-    if (selectedSubcategory === "all") return products;
-
-    const normalizedSelected = slugifyValue(selectedSubcategory);
+    if (selectedSubcategoryId === "") return [];
+    if (selectedSubcategoryId === "all") return products;
 
     return products.filter((product) =>
-  product.subcategories.some(
-    (subcategory) => subcategory.slug === normalizedSelected
-  )
-);
-  }, [products, selectedSubcategory]);
+      product.subcategories.some(
+        (subcategory) => subcategory.id === selectedSubcategoryId
+      )
+    );
+  }, [products, selectedSubcategoryId]);
 
   const filterOptions = useMemo(() => {
-    if (subcategories.length > 0) {
-      return subcategories.map((subcategory) => ({
-        id: subcategory.id,
-        slug: slugifyValue(subcategory.slug || subcategory.name),
-        name: subcategory.name,
-      }));
-    }
+  return subcategories.map((subcategory) => ({
+    id: subcategory.id,
+    slug: subcategory.slug,
+    name: subcategory.name,
+  }));
+}, [subcategories]);
 
-    return (CATEGORY_SUBCATEGORY_FALLBACKS[slug] || []).map((name) => ({
-      id: slugifyValue(name),
-      slug: slugifyValue(name),
-      name,
-    }));
-  }, [slug, subcategories]);
-
-  const activeSubcategory = useMemo(
-    () =>
-      filterOptions.find(
-        (subcategory) => slugifyValue(subcategory.slug) === slugifyValue(selectedSubcategory)
-      ) || null,
-    [filterOptions, selectedSubcategory]
-  );
+const activeSubcategory = useMemo(
+  () =>
+    filterOptions.find(
+      (subcategory) => subcategory.id === selectedSubcategoryId
+    ) || null,
+  [filterOptions, selectedSubcategoryId]
+);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE)),
@@ -255,9 +209,9 @@ export default function CategoryPage() {
     return visibleProducts.slice(start, start + PRODUCTS_PER_PAGE);
   }, [currentPage, visibleProducts]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [slug, selectedSubcategory]);
+ useEffect(() => {
+  setCurrentPage(1);
+}, [slug, selectedSubcategoryId]);
 
   useEffect(() => {
     setCurrentPage((current) => Math.min(current, totalPages));
@@ -327,7 +281,7 @@ export default function CategoryPage() {
         >
           <p className="category-page__breadcrumb">
             {category.name}
-            {selectedSubcategory === "all" ? " > Todo" : ""}
+            {selectedSubcategoryId === "all" ? " > Todo" : ""}
             {activeSubcategory ? ` > ${activeSubcategory.name}` : ""}
           </p>
           <h1>{category.name}</h1>
@@ -342,8 +296,8 @@ export default function CategoryPage() {
             <div className="category-page__filters">
               <button
                 type="button"
-                className={`category-page__filter ${selectedSubcategory === "all" ? "is-active" : ""}`}
-                onClick={() => setSelectedSubcategory("all")}
+                className={`category-page__filter ${selectedSubcategoryId === "all" ? "is-active" : ""}`}
+onClick={() => setSelectedSubcategoryId("all")}
               >
                 Todo
               </button>
@@ -352,10 +306,9 @@ export default function CategoryPage() {
                 <button
                   key={subcategory.id}
                   type="button"
-                  className={`category-page__filter ${slugifyValue(selectedSubcategory) === slugifyValue(subcategory.slug) ? "is-active" : ""
-                    }`}
+                  className={`category-page__filter ${selectedSubcategoryId === subcategory.id ? "is-active" : ""}`}
                   onClick={() => {
-                    setSelectedSubcategory(subcategory.slug);
+                    setSelectedSubcategoryId(subcategory.id);
                   }}
                 >
                   {subcategory.name}
