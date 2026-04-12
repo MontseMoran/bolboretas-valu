@@ -102,7 +102,8 @@ const [selectedSize, setSelectedSize] = useState("");
           variants,
           categories,
         });
-        setSelectedVariantId(variants[0]?.id || "");
+        setSelectedColor(variants[0]?.color || "");
+setSelectedSize(variants[0]?.size || "");
       } catch (loadError) {
         console.error("Error al cargar el producto:", loadError);
         if (!active) return;
@@ -120,10 +121,30 @@ const [selectedSize, setSelectedSize] = useState("");
     };
   }, [slug]);
 
-  const selectedVariant = useMemo(
-    () => product?.variants?.find((variant) => variant.id === selectedVariantId) || null,
-    [product, selectedVariantId]
+  const availableColors = useMemo(() => {
+  const colors = product?.variants?.map((variant) => variant.color).filter(Boolean) || [];
+  return [...new Set(colors)];
+}, [product]);
+
+const availableSizes = useMemo(() => {
+  const filtered = (product?.variants || []).filter((variant) => {
+    if (!selectedColor) return true;
+    return variant.color === selectedColor;
+  });
+
+  const sizes = filtered.map((variant) => variant.size).filter(Boolean);
+  return [...new Set(sizes)];
+}, [product, selectedColor]);
+
+const selectedVariant = useMemo(() => {
+  return (
+    product?.variants?.find((variant) => {
+      const colorMatches = selectedColor ? variant.color === selectedColor : true;
+      const sizeMatches = selectedSize ? variant.size === selectedSize : true;
+      return colorMatches && sizeMatches;
+    }) || null
   );
+}, [product, selectedColor, selectedSize]);
 
   useSeo({
     title: product?.name
@@ -226,25 +247,63 @@ const [selectedSize, setSelectedSize] = useState("");
             {product.description ? <p style={{ margin: 0 }}>{product.description}</p> : null}
             {product.material ? <p style={{ margin: 0 }}><strong>Material:</strong> {product.material}</p> : null}
             
-            {product.variants.length > 0 ? (
-              <label style={{ display: "grid", gap: 8 }}>
-                <span>Variante</span>
-                <select
-                  value={selectedVariantId}
-                  onChange={(event) => {
-                    setSelectedVariantId(event.target.value);
-                    setAddedMessage("");
-                  }}
-                  style={{ padding: 12, borderRadius: 10 }}
-                >
-                  {product.variants.map((variant) => (
-                    <option key={variant.id} value={variant.id}>
-                      {[variant.color, variant.size].filter(Boolean).join(" / ") || variant.sku || "Variante"}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
+        {availableColors.length > 0 ? (
+  <div style={{ display: "grid", gap: 8 }}>
+    <span>Color</span>
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {availableColors.map((color) => (
+        <button
+          key={color}
+          type="button"
+          onClick={() => {
+            setSelectedColor(color);
+            setAddedMessage("");
+          }}
+        style={{
+  border: selectedColor === color ? "2px solid #2d2722" : "1px solid #d6d0c8",
+  background: selectedColor === color ? "#2d2722" : "#fff",
+  color: selectedColor === color ? "#fff" : "#2d2722",
+  borderRadius: 999,
+  padding: "8px 14px",
+  cursor: "pointer",
+  fontWeight: 600,
+}}
+        >
+          {color}
+        </button>
+      ))}
+    </div>
+  </div>
+) : null}
+
+{availableSizes.length > 0 ? (
+  <div style={{ display: "grid", gap: 8 }}>
+    <span>Talla</span>
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {availableSizes.map((size) => (
+        <button
+          key={size}
+          type="button"
+          onClick={() => {
+            setSelectedSize(size);
+            setAddedMessage("");
+          }}
+          style={{
+            color: selectedSize === size ? "#fff" : "#2d2722",
+            border: selectedSize === size ? "2px solid #2d2722" : "1px solid #d6d0c8",
+            background: selectedSize === size ? "#2d2722" : "#fff",
+            borderRadius: 999,
+            padding: "8px 14px",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          {size}
+        </button>
+      ))}
+    </div>
+  </div>
+) : null}
 
             <button
               type="button"
