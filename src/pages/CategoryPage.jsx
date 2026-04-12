@@ -202,25 +202,28 @@ const visibleProducts = useMemo(() => {
 }, [products, selectedSubcategory]);
 
   const filterOptions = useMemo(() => {
-    if (subcategories.length > 0) {
-      return subcategories.map((subcategory) => ({
-        id: subcategory.id,
-        slug: subcategory.slug,
-        name: subcategory.name,
-      }));
-    }
-
-    return (CATEGORY_SUBCATEGORY_FALLBACKS[slug] || []).map((name) => ({
-      id: slugifyValue(name),
-      slug: slugifyValue(name),
-      name,
+  if (subcategories.length > 0) {
+    return subcategories.map((subcategory) => ({
+      id: subcategory.id,
+      slug: slugifyValue(subcategory.slug || subcategory.name),
+      name: subcategory.name,
     }));
-  }, [slug, subcategories]);
+  }
 
-  const activeSubcategory = useMemo(
-    () => filterOptions.find((subcategory) => subcategory.slug === selectedSubcategory) || null,
-    [filterOptions, selectedSubcategory]
-  );
+  return (CATEGORY_SUBCATEGORY_FALLBACKS[slug] || []).map((name) => ({
+    id: slugifyValue(name),
+    slug: slugifyValue(name),
+    name,
+  }));
+}, [slug, subcategories]);
+
+const activeSubcategory = useMemo(
+  () =>
+    filterOptions.find(
+      (subcategory) => slugifyValue(subcategory.slug) === slugifyValue(selectedSubcategory)
+    ) || null,
+  [filterOptions, selectedSubcategory]
+);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE)),
