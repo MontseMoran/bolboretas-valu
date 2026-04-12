@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSeo } from "../lib/seo";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/shop.scss";
 
@@ -140,6 +141,13 @@ function normalizeCategory(raw) {
 }
 
 export default function Shop() {
+  useSeo({
+    title: "Bolboretas & Valu | Tienda online de ropa y complementos",
+    description:
+      "Descubre ropa, complementos y textil hogar en Bolboretas & Valu. Colecciones para mujer, hombre, bebé, infantil y hogar.",
+    path: "/tienda",
+  });
+
   const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

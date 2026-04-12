@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ShopRequestForm from "../components/ShopRequestForm/ShopRequestForm";
 import { useCart } from "../lib/cartContext";
+import { useSeo } from "../lib/seo";
 import { supabase } from "../lib/supabaseClient";
 
 function formatPrice(value) {
@@ -12,7 +13,8 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
-  const [selectedVariantId, setSelectedVariantId] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [addedMessage, setAddedMessage] = useState("");
@@ -123,6 +125,19 @@ export default function ProductDetail() {
     [product, selectedVariantId]
   );
 
+  useSeo({
+    title: product?.name
+      ? `${product.name} | Bolboretas & Valu`
+      : "Producto | Bolboretas & Valu",
+    description:
+      product?.description ||
+      (product?.name
+        ? `Consulta los detalles de ${product.name} en Bolboretas & Valu.`
+        : "Consulta el detalle de producto en Bolboretas & Valu."),
+    path: slug ? `/producto/${slug}` : "/tienda",
+    image: product?.imageUrl || undefined,
+  });
+
   function handleAddToCart() {
     if (!product) return;
 
@@ -210,8 +225,7 @@ export default function ProductDetail() {
 
             {product.description ? <p style={{ margin: 0 }}>{product.description}</p> : null}
             {product.material ? <p style={{ margin: 0 }}><strong>Material:</strong> {product.material}</p> : null}
-            {product.sku ? <p style={{ margin: 0 }}><strong>SKU:</strong> {product.sku}</p> : null}
-
+            
             {product.variants.length > 0 ? (
               <label style={{ display: "grid", gap: 8 }}>
                 <span>Variante</span>

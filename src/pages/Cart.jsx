@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../lib/cartContext";
 import { downloadReceipt } from "../lib/orderReceipt";
+import { useSeo } from "../lib/seo";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/cart.scss";
 

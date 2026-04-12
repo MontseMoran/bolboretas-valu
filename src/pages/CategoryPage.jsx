@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useSeo } from "../lib/seo";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/categoryPage.scss";
 
@@ -220,6 +221,18 @@ export default function CategoryPage() {
     () => Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE)),
     [visibleProducts.length]
   );
+
+  useSeo({
+    title: category?.name
+      ? `${category.name} | Bolboretas & Valu`
+      : "Categoría | Bolboretas & Valu",
+    description:
+      category?.description ||
+      (category?.name
+        ? `Explora la categoría ${category.name} en Bolboretas & Valu.`
+        : "Explora nuestras categorías de tienda en Bolboretas & Valu."),
+    path: slug ? `/categoria/${slug}` : "/tienda",
+  });
 
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
