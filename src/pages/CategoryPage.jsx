@@ -15,13 +15,13 @@ function slugifyValue(value) {
     typeof text.normalize === "function"
       ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       : text
-          .replaceAll("á", "a")
-          .replaceAll("é", "e")
-          .replaceAll("í", "i")
-          .replaceAll("ó", "o")
-          .replaceAll("ú", "u")
-          .replaceAll("ü", "u")
-          .replaceAll("ñ", "n");
+        .replaceAll("á", "a")
+        .replaceAll("é", "e")
+        .replaceAll("í", "i")
+        .replaceAll("ó", "o")
+        .replaceAll("ú", "u")
+        .replaceAll("ü", "u")
+        .replaceAll("ñ", "n");
 
   return safeText
     .replace(/[^a-z0-9]+/g, "-")
@@ -137,8 +137,8 @@ export default function CategoryPage() {
           subcategoriesData = subcategoryRows || [];
           productSubcategoryRows = productSubcategoryData || [];
         } catch (error) {
-  console.error("Error real al cargar subcategorias:", error);
-}
+          console.error("Error real al cargar subcategorias:", error);
+        }
 
         const subcategoriesByProductId = {};
         productSubcategoryRows.forEach((row) => {
@@ -198,42 +198,42 @@ export default function CategoryPage() {
     };
   }, [slug]);
 
-const visibleProducts = useMemo(() => {
-  if (selectedSubcategory === "") return [];
-  if (selectedSubcategory === "all") return products;
+  const visibleProducts = useMemo(() => {
+    if (selectedSubcategory === "") return [];
+    if (selectedSubcategory === "all") return products;
 
-  const normalizedSelected = slugifyValue(selectedSubcategory);
+    const normalizedSelected = slugifyValue(selectedSubcategory);
 
-  return products.filter((product) =>
-    product.subcategories.some(
-      (subcategory) => slugifyValue(subcategory.slug || subcategory.name) === normalizedSelected
-    )
-  );
-}, [products, selectedSubcategory]);
+    return products.filter((product) =>
+      product.subcategories.some(
+        (subcategory) => slugifyValue(subcategory.slug || subcategory.name) === normalizedSelected
+      )
+    );
+  }, [products, selectedSubcategory]);
 
   const filterOptions = useMemo(() => {
-  if (subcategories.length > 0) {
-    return subcategories.map((subcategory) => ({
-      id: subcategory.id,
-      slug: slugifyValue(subcategory.slug || subcategory.name),
-      name: subcategory.name,
+    if (subcategories.length > 0) {
+      return subcategories.map((subcategory) => ({
+        id: subcategory.id,
+        slug: slugifyValue(subcategory.slug || subcategory.name),
+        name: subcategory.name,
+      }));
+    }
+
+    return (CATEGORY_SUBCATEGORY_FALLBACKS[slug] || []).map((name) => ({
+      id: slugifyValue(name),
+      slug: slugifyValue(name),
+      name,
     }));
-  }
+  }, [slug, subcategories]);
 
-  return (CATEGORY_SUBCATEGORY_FALLBACKS[slug] || []).map((name) => ({
-    id: slugifyValue(name),
-    slug: slugifyValue(name),
-    name,
-  }));
-}, [slug, subcategories]);
-
-const activeSubcategory = useMemo(
-  () =>
-    filterOptions.find(
-      (subcategory) => slugifyValue(subcategory.slug) === slugifyValue(selectedSubcategory)
-    ) || null,
-  [filterOptions, selectedSubcategory]
-);
+  const activeSubcategory = useMemo(
+    () =>
+      filterOptions.find(
+        (subcategory) => slugifyValue(subcategory.slug) === slugifyValue(selectedSubcategory)
+      ) || null,
+    [filterOptions, selectedSubcategory]
+  );
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE)),
@@ -354,10 +354,16 @@ const activeSubcategory = useMemo(
                 <button
                   key={subcategory.id}
                   type="button"
-                 className={`category-page__filter ${
-  slugifyValue(selectedSubcategory) === slugifyValue(subcategory.slug) ? "is-active" : ""
-}`}
-                  onClick={() => setSelectedSubcategory(subcategory.slug)}
+                  className={`category-page__filter ${slugifyValue(selectedSubcategory) === slugifyValue(subcategory.slug) ? "is-active" : ""
+                    }`}
+                  onClick={() => {
+                    console.log("CLICK", {
+                      name: subcategory.name,
+                      slug: subcategory.slug,
+                      normalized: slugifyValue(subcategory.slug),
+                    });
+                    setSelectedSubcategory(subcategory.slug);
+                  }}
                 >
                   {subcategory.name}
                 </button>
@@ -429,9 +435,8 @@ const activeSubcategory = useMemo(
                       <button
                         key={page}
                         type="button"
-                        className={`category-page__pageBtn ${
-                          currentPage === page ? "is-active" : ""
-                        }`}
+                        className={`category-page__pageBtn ${currentPage === page ? "is-active" : ""
+                          }`}
                         onClick={() => setCurrentPage(page)}
                       >
                         {page}
