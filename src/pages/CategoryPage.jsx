@@ -14,7 +14,8 @@ const CATEGORY_SKELETON_FILTERS = Array.from({ length: 6 }, (_, index) => index)
 
 export default function CategoryPage() {
   const { slug } = useParams();
-
+const [subcategoriesErrorMessage, setSubcategoriesErrorMessage] = useState("");
+const [productSubcategoriesErrorMessage, setProductSubcategoriesErrorMessage] = useState("");
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -70,8 +71,7 @@ export default function CategoryPage() {
         if (productsError) throw productsError;
         let subcategoriesData = [];
         let productSubcategoryRows = [];
-        let subcategoriesErrorMessage = "";
-        let productSubcategoriesErrorMessage = "";
+        
 
     const [
   { data: subcategoryRows, error: subcategoryRowsError },
@@ -87,11 +87,13 @@ export default function CategoryPage() {
     .from("shop_product_subcategories")
     .select("product_id, subcategory_id"),
 ]);
-
+if (!cancelled) {
+  setSubcategoriesErrorMessage(subcategoryRowsError?.message || "");
+  setProductSubcategoriesErrorMessage(productSubcategoryDataError?.message || "");
+}
 subcategoriesData = subcategoryRows || [];
 productSubcategoryRows = productSubcategoryData || [];
-subcategoriesErrorMessage = subcategoryRowsError?.message || "";
-productSubcategoriesErrorMessage = productSubcategoryDataError?.message || "";
+
 
         const subcategoryMap = {};
         (subcategoriesData || []).forEach((subcategory) => {
