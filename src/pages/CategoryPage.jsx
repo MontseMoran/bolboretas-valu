@@ -286,19 +286,7 @@ productSubcategoryRows = productSubcategoryData || [];
           <h1>{category.name}</h1>
           <p className="category-page__subtitle">Explora por subcategoria</p>
         </header>
-        <pre style={{ fontSize: "12px", padding: "8px", background: "#f5f5f5" }}>
-          {JSON.stringify({
-            subcategories: subcategories.length,
-            products: products.length,
-            filterOptions: filterOptions.length,
-            productsWithSubcategories: products.filter(
-              (product) => product.subcategories.length > 0
-            ).length,
-            firstProductSubcategories: products[0]?.subcategories || [],
-            subcategoriesErrorMessage,
-productSubcategoriesErrorMessage,
-          }, null, 2)}
-        </pre>
+     
         {filterOptions.length > 0 ? (
           <div
             className="category-page__filtersWrap reveal-on-scroll"
