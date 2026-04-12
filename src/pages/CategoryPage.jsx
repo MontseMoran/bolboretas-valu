@@ -73,26 +73,17 @@ export default function CategoryPage() {
         let productSubcategoryRows = [];
 
         try {
-          const [{ data: subcategoryRows }, { data: productSubcategoryData }] = await Promise.all([
-            supabase
-              .from("shop_subcategories")
-              .select("id, category_id, slug, name, sort_order")
-              .eq("category_id", categoryData.id)
-              .eq("is_active", true)
-              .order("sort_order", { ascending: true }),
-            supabase
-              .from("shop_product_subcategories")
-              .select(`
-                product_id,
-                subcategory_id,
-                shop_subcategories (
-                  id,
-                  slug,
-                  name,
-                  category_id
-                )
-              `),
-          ]);
+       const [{ data: subcategoryRows }, { data: productSubcategoryData }] = await Promise.all([
+  supabase
+    .from("shop_subcategories")
+    .select("id, category_id, slug, name, sort_order")
+    .eq("category_id", categoryData.id)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true }),
+  supabase
+    .from("shop_product_subcategories")
+    .select("product_id, subcategory_id"),
+]);
 
           subcategoriesData = subcategoryRows || [];
           productSubcategoryRows = productSubcategoryData || [];
@@ -100,19 +91,23 @@ export default function CategoryPage() {
           console.error("Error real al cargar subcategorias:", error);
         }
 
-        const subcategoriesByProductId = {};
-        productSubcategoryRows.forEach((row) => {
-          const subcategory = row.shop_subcategories;
-          if (!subcategory || subcategory.category_id !== categoryData.id) return;
+  const subcategoryMap = {};
+(subcategoriesData || []).forEach((subcategory) => {
+  subcategoryMap[subcategory.id] = subcategory;
+});
 
-          if (!subcategoriesByProductId[row.product_id]) {
-            subcategoriesByProductId[row.product_id] = [];
-          }
 
-          subcategoriesByProductId[row.product_id].push({
-            ...subcategory,
-          });
-        });
+      const subcategoriesByProductId = {};
+(productSubcategoryRows || []).forEach((row) => {
+  const subcategory = subcategoryMap[row.subcategory_id];
+  if (!subcategory) return;
+
+  if (!subcategoriesByProductId[row.product_id]) {
+    subcategoriesByProductId[row.product_id] = [];
+  }
+
+  subcategoriesByProductId[row.product_id].push(subcategory);
+});
 
         const normalizedProducts = (productsData || [])
           .filter((product) =>
@@ -171,10 +166,9 @@ export default function CategoryPage() {
     );
   }, [products, selectedSubcategoryId]);
 
-  const filterOptions = useMemo(() => {
+ const filterOptions = useMemo(() => {
   return subcategories.map((subcategory) => ({
     id: subcategory.id,
-    slug: subcategory.slug,
     name: subcategory.name,
   }));
 }, [subcategories]);
