@@ -270,7 +270,7 @@ export default function Cart() {
 
       renderFrameId = window.requestAnimationFrame(() => {
         if (cancelled || !window.turnstile || container.dataset.rendered === "true") return;
-        const hasLayout = container.offsetWidth > 0 && container.offsetHeight >= 0;
+        const hasLayout = container.offsetWidth > 0 && container.offsetHeight > 0;
 
         if (!hasLayout) {
           if (retryAttempts < 12) {
@@ -603,11 +603,11 @@ export default function Cart() {
       total: finalTotal,
       applied_discount: appliedDiscount
         ? {
-            code: appliedDiscount.code,
-            description: appliedDiscount.description || "",
-            type: appliedDiscount.type,
-            value: appliedDiscount.value,
-          }
+          code: appliedDiscount.code,
+          description: appliedDiscount.description || "",
+          type: appliedDiscount.type,
+          value: appliedDiscount.value,
+        }
         : null,
       captcha_token: resolvedCaptchaToken,
     };
@@ -872,12 +872,13 @@ export default function Cart() {
               </aside>
             </section>
 
-            {showCheckoutForm ? (
-              <form
-                ref={checkoutPanelRef}
-                className="cart-page__checkoutPanel"
-                onSubmit={handleSubmitOrder}
-              >
+            <form
+              ref={checkoutPanelRef}
+              className="cart-page__checkoutPanel"
+              onSubmit={handleSubmitOrder}
+              hidden={!showCheckoutForm}
+              aria-hidden={!showCheckoutForm}
+            >
                 <h2 className="cart-page__orderTitle">Datos del pedido</h2>
 
                 <div className="cart-page__orderForm">
@@ -1099,12 +1100,10 @@ export default function Cart() {
                 >
                   {submittingOrder ? "Enviando pedido..." : "Enviar pedido"}
                 </button>
-              </form>
-            ) : null}
+            </form>
           </>
         )}
       </div>
     </main>
   );
 }
-
