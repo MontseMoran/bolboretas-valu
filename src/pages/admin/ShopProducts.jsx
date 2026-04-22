@@ -12,6 +12,50 @@ function getDeleteProductErrorMessage(error) {
   return message || "No se pudo borrar el producto.";
 }
 
+async function getFunctionErrorMessage(error, fallbackMessage) {
+  const defaultMessage = fallbackMessage || "No se pudo completar la solicitud.";
+
+  if (!error) {
+    return defaultMessage;
+  }
+
+  const directMessage = String(error?.message || "").trim();
+
+  if (
+    directMessage &&
+    !directMessage.includes("Edge Function returned a non-2xx status code")
+  ) {
+    return directMessage;
+  }
+
+  const response = error?.context;
+
+  if (response && typeof response.clone === "function") {
+    try {
+      const payload = await response.clone().json();
+      const apiMessage = String(payload?.error || payload?.message || "").trim();
+
+      if (apiMessage) {
+        return apiMessage;
+      }
+    } catch {
+      // Ignore JSON parse failures and try plain text below.
+    }
+
+    try {
+      const text = String(await response.clone().text()).trim();
+
+      if (text) {
+        return text;
+      }
+    } catch {
+      // Ignore text parse failures.
+    }
+  }
+
+  return directMessage || defaultMessage;
+}
+
 export default function ShopProducts() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -229,10 +273,9 @@ export default function ShopProducts() {
     try {
       setPendingVisibilityId(id);
 
-      const { error } = await supabase
-        .from("shop_products")
-        .update({ is_active: nextIsActive })
-        .eq("id", id);
+      const { error } = await supabase.functions.invoke("toggle-product-visibility", {
+        body: { productId: id, nextIsActive },
+      });
 
       if (error) throw error;
 
@@ -241,7 +284,7 @@ export default function ShopProducts() {
       );
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      alert(await getFunctionErrorMessage(error, "No se pudo cambiar la visibilidad del producto."));
     } finally {
       setPendingVisibilityId("");
     }

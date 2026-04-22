@@ -280,7 +280,9 @@ productSubcategoryRows = productSubcategoryData || [];
             {activeSubcategory ? ` > ${activeSubcategory.name}` : ""}
           </p>
           <h1>{category.name}</h1>
-          <p className="category-page__subtitle">Explora por subcategoria</p>
+          {filterOptions.length > 0 ? (
+            <p className="category-page__subtitle">Explora por subcategoria</p>
+          ) : null}
         </header>
      
         {filterOptions.length > 0 ? (

@@ -288,9 +288,10 @@
 
 .shop__productFooter {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
   margin-top: auto;
   padding-top: 8px;
 }
@@ -300,17 +301,21 @@
   font-size: 1.12rem;
   font-weight: 600;
   white-space: nowrap;
+  margin-left: auto;
+  text-align: right;
 }
 
 .shop__productActions {
   margin: 0;
+  min-width: 0;
 }
 
 .shop__cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
+  width: 100%;
+  max-width: 150px;
   min-height: 36px;
   padding: 0 14px;
   border: 1px solid #2d2722;
@@ -472,6 +477,21 @@
   .shop__productText {
     font-size: 0.88rem;
     -webkit-line-clamp: 2;
+  }
+
+  .shop__productFooter {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .shop__productActions,
+  .shop__productPrice {
+    flex: 1 1 100%;
+  }
+
+  .shop__productPrice {
+    margin-left: 0;
+    text-align: left;
   }
 
   .shop__productImg {
